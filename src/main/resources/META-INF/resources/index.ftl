@@ -11,7 +11,6 @@
   <meta name="author" content="Canadian Astronomy Data Centre">
   <meta name="keywords"
         content="VOSpace, IVOA, CADC, Canadian Astronomy Data Centre">
-  <link rel="icon" href="../../favicon.ico">
 
   <title>User Storage</title>
 
@@ -52,7 +51,7 @@ directory for that user actually exists -->
 </#if>
 
 
-<#include "defaults/_top_nav.ftl">
+<#include "_top_nav.ftl">
 
 <div class="container-fluid">
 
