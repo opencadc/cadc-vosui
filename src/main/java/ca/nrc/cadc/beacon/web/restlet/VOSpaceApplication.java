@@ -78,6 +78,7 @@ import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.SystemConfiguration;
 import org.restlet.*;
 import org.restlet.data.Protocol;
+import org.restlet.data.Reference;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 import org.restlet.routing.TemplateRoute;
@@ -172,18 +173,24 @@ public class VOSpaceApplication extends Application
                       AccessControlServerResource.class);
 
         router.attach(contextPath + "groups",
-                GroupNameServerResource.class);
+                      GroupNameServerResource.class);
 
-        router.attach(contextPath + "page", PageServerResource.class);
+        router.attach(contextPath + "page",
+                      PageServerResource.class);
         final TemplateRoute pageRoute =
-                router.attach(contextPath + "page/{path}", PageServerResource.class);
+                router.attach(contextPath + "page/{path}",
+                              PageServerResource.class);
 
         // Allow for an empty path to be the root.
-        router.attach(contextPath + "list", MainPageServerResource.class);
-        router.attach(contextPath + "list/", MainPageServerResource.class);
+        router.attach(contextPath + "list",
+                      MainPageServerResource.class);
+        router.attach(contextPath + "list/",
+                      MainPageServerResource.class);
 
-        router.attach(contextPath + "batch-download", BatchDownloadServerResource.class);
-        router.attach(contextPath + "batch-download/", BatchDownloadServerResource.class);
+        router.attach(contextPath + "batch-download",
+                      BatchDownloadServerResource.class);
+        router.attach(contextPath + "batch-download/",
+                      BatchDownloadServerResource.class);
 
         final TemplateRoute bachUploadRoute =
                 router.attach(contextPath + "batch-upload/{path}",
@@ -191,17 +198,23 @@ public class VOSpaceApplication extends Application
 
         // Generic endpoint for files, folders, or links.
         final TemplateRoute itemRoute =
-                router.attach(contextPath + "item/{path}", StorageItemServerResource.class);
+                router.attach(contextPath + "item/{path}",
+                              StorageItemServerResource.class);
         final TemplateRoute folderRoute =
-                router.attach(contextPath + "folder/{path}", FolderItemServerResource.class);
+                router.attach(contextPath + "folder/{path}",
+                              FolderItemServerResource.class);
         final TemplateRoute fileRoute =
-                router.attach(contextPath + "file/{path}", FileItemServerResource.class);
+                router.attach(contextPath + "file/{path}",
+                              FileItemServerResource.class);
         final TemplateRoute linkRoute =
-                router.attach(contextPath + "link/{path}", LinkItemServerResource.class);
+                router.attach(contextPath + "link/{path}",
+                              LinkItemServerResource.class);
         final TemplateRoute listRoute =
-                router.attach(contextPath + "list/{path}", MainPageServerResource.class);
+                router.attach(contextPath + "list/{path}",
+                              MainPageServerResource.class);
         final TemplateRoute rawRoute =
-                router.attach(contextPath + "raw/{path}", MainPageServerResource.class);
+                router.attach(contextPath + "raw/{path}",
+                              MainPageServerResource.class);
 
         final Map<String, Variable> routeVariables = new HashMap<>();
         routeVariables.put("path", new Variable(Variable.TYPE_URI_PATH));
@@ -251,7 +264,8 @@ public class VOSpaceApplication extends Application
     public static void main(final String[] args) throws Exception
     {
         final Component component = new Component();
-        final Application application = new VOSpaceApplication(null)
+        final Application application = new VOSpaceApplication(
+                component.getContext().createChildContext())
         {
             /**
              * Creates a inbound root Restlet that will receive all incoming calls. In
@@ -269,23 +283,29 @@ public class VOSpaceApplication extends Application
                 final String[] staticDirs = {"js", "css", "scripts", "fonts",
                                              "themes"};
 
+                router.attachDefault(MainPageServerResource.class);
+
                 for (final String dir : staticDirs)
                 {
+                    final Reference dirReference =
+                            new Reference(URI.create(
+                                    "clap://class/META-INF/resources/" + dir));
                     router.attach(DEFAULT_CONTEXT_PATH + dir + "/",
-                                  new Directory(context,
-                                                "file://"
-                                                + System.getProperty("user.dir")
-                                                + "/src/main/webapp/" + dir));
+                                  new Directory(context, dirReference));
                 }
 
                 return router;
             }
         };
 
-        component.getServers().add(Protocol.HTTP, 8080);
-        component.getClients().add(Protocol.FILE);
+        final Server server = new Server(Protocol.HTTP, 8080, application);
 
-        component.getDefaultHost().attach(application);
+        component.getDefaultHost().attachDefault(application);
+
+        component.getServers().add(server);
+        component.getClients().add(Protocol.FILE);
+        component.getClients().add(Protocol.CLAP);
+
         component.start();
     }
 }

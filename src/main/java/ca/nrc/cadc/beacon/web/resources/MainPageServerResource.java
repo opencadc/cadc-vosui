@@ -72,11 +72,9 @@ import ca.nrc.cadc.beacon.StorageItemCSVWriter;
 import ca.nrc.cadc.beacon.StorageItemWriter;
 import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
 import ca.nrc.cadc.beacon.web.view.FolderItem;
-import ca.nrc.cadc.net.NetUtil;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
-import ca.nrc.cadc.vos.client.VOSpaceClient;
-import freemarker.cache.FileTemplateLoader;
+import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateModelException;
@@ -88,8 +86,6 @@ import org.restlet.resource.ResourceException;
 
 import javax.security.auth.Subject;
 import javax.servlet.ServletContext;
-import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
@@ -121,7 +117,8 @@ public class MainPageServerResource extends StorageItemServerResource
                 freemarkerConfiguration.setSharedVariable(
                         "contextPath", VOSpaceApplication.DEFAULT_CONTEXT_PATH);
                 freemarkerConfiguration.setTemplateLoader(
-                        new FileTemplateLoader(new File("src/main/webapp")));
+                        new ClassTemplateLoader(getClass().getClassLoader(),
+                                                "/META-INF/resources"));
             }
             else
             {
@@ -134,7 +131,7 @@ public class MainPageServerResource extends StorageItemServerResource
                         new WebappTemplateLoader(servletContext));
             }
         }
-        catch (IOException | TemplateModelException e)
+        catch (TemplateModelException e)
         {
             throw new ResourceException(e);
         }
