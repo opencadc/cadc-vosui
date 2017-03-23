@@ -19,7 +19,7 @@ dependencies {
 
 sourceCompatibility = '1.7'
 
-def docker_image_name = 'at88mph/storage'
+def docker_image_name = 'mach378.cadc.dao.nrc.ca:5000/storage:at88mph'
 
 war {
     archiveName 'storage.war'

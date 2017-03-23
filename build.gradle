@@ -45,4 +45,6 @@ run {
     {
         systemProperty 'SSO_SERVERS', System.getProperty("SSO_SERVERS")
     }
+
+    classpath += files('RsaSignaturePub.key')
 }

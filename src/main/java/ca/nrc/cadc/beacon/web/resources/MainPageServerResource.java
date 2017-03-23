@@ -116,7 +116,7 @@ public class MainPageServerResource extends StorageItemServerResource
             {
                 freemarkerConfiguration.setSharedVariable(
                         "contextPath", VOSpaceApplication.DEFAULT_CONTEXT_PATH);
-                freemarkerConfiguration.setTemplateLoader(
+                templateLoaders.add(
                         new ClassTemplateLoader(getClass().getClassLoader(),
                                                 "/META-INF/resources"));
             }
