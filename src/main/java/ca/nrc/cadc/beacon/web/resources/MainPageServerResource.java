@@ -74,8 +74,7 @@ import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
 import ca.nrc.cadc.beacon.web.view.FolderItem;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
-import freemarker.cache.ClassTemplateLoader;
-import freemarker.cache.WebappTemplateLoader;
+import freemarker.cache.*;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateModelException;
 import org.restlet.data.MediaType;
@@ -109,6 +108,7 @@ public class MainPageServerResource extends StorageItemServerResource
         freemarkerConfiguration.setLocalizedLookup(false);
 
         final ServletContext servletContext = getServletContext();
+        final List<TemplateLoader> templateLoaders = new ArrayList<>();
 
         try
         {
@@ -127,9 +127,12 @@ public class MainPageServerResource extends StorageItemServerResource
                 freemarkerConfiguration.setSharedVariable(
                         "contextPath",
                         servletPath + (servletPath.endsWith("/") ? "" : "/"));
-                freemarkerConfiguration.setTemplateLoader(
-                        new WebappTemplateLoader(servletContext));
+                templateLoaders.add(new WebappTemplateLoader(servletContext));
             }
+
+            freemarkerConfiguration.setTemplateLoader(
+                    new MultiTemplateLoader(templateLoaders.toArray(
+                            new TemplateLoader[templateLoaders.size()])));
         }
         catch (TemplateModelException e)
         {
@@ -224,6 +227,7 @@ public class MainPageServerResource extends StorageItemServerResource
 
         dataModel.put("initialRows", initialRows);
         dataModel.put("folder", folderItem);
+
         if (startNextPageURI != null)
         {
             dataModel.put("startURI", startNextPageURI.toString());
@@ -234,24 +238,25 @@ public class MainPageServerResource extends StorageItemServerResource
         String httpUsername = accessControlClient
                 .getCurrentHttpPrincipalUsername(s);
 
-        if (httpUsername != null) {
+        if (httpUsername != null)
+        {
             dataModel.put("username", httpUsername);
 
             try
             {
                 // Check to see if home directory exists
-                String userHomeDir = VOSPACE_NODE_URI_PREFIX + "/" + httpUsername;
-
-                getNode(new VOSURI(userHomeDir), VOS.Detail.min);
+                getNode(new VOSURI(VOSPACE_NODE_URI_PREFIX + "/"
+                                   + httpUsername), VOS.Detail.min);
                 dataModel.put("homeDir", httpUsername);
             }
-            catch(NodeNotFoundException nfe)
+            catch (NodeNotFoundException nfe)
             {
                 // homeDir does not need to be set
             }
         }
 
-        return new TemplateRepresentation("index.ftl", freemarkerConfiguration, dataModel,
+        return new TemplateRepresentation("index.ftl",
+                                          freemarkerConfiguration, dataModel,
                                           MediaType.TEXT_HTML);
     }
 }

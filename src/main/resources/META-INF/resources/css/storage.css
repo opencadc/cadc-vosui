@@ -262,7 +262,50 @@ div.jqimessage div.col-sm-4 a {
   float: right;
 }
 
+.spinnerSpan {
+    margin-left:20px;
+}
+
 section#main_section
 {
   height: 90%;
 }
+
+.collapsibleList li {
+  list-style-image:url('button.png');
+  cursor:auto;
+}
+
+li.collapsibleListOpen {
+  list-style-image:url('button-open.png');
+  cursor:pointer;
+}
+
+li.collapsibleListClosed {
+  list-style-image:url('button-closed.png');
+  cursor:pointer;
+}
+
+div.folderTree {
+  max-width: 500px;
+  max-height: 400px;
+  overflow: auto;
+  resize: both;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: white;
+}
+
+.folderTreeSelected {
+  background-color: #00a8c6;
+}
+
+.collapsibleListOpen ul {
+  background-color: white;
+}
+
+.folderName {
+    cursor:pointer;
+}
+
+

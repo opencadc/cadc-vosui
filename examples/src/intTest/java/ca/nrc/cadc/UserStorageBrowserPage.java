@@ -87,6 +87,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     private static final String ROOT_FOLDER_NAME = "ROOT";
 
     // Strings for matching against prompt messages and buttons
+    private static final String MOVE_CONFIRMATION_TEXT = "Are you sure you wish to move the selected items?";
     private static final String DELETE_CONFIRMATION_TEXT = "Are you sure you wish to delete the selected items?";
     private static final String SUCCESSFUL = "successful";
     private static final String SUBMITTED = "submitted";
@@ -97,6 +98,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     private static final String YES = "Yes";
     private static final String CLOSE = "Close";
     public static final String SAVE = "Save";
+    public static final String MOVE_TO = "Move to";
+    private static final String MOVE_OK = "Move";
     public static final String CANCEL = "Cancel";
     private static final By NAVBAR_ELEMENTS_BY =
             xpath("//*[@id=\"navbar-functions\"]/ul");
@@ -168,6 +171,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
     @FindBy(id = "download")
     private WebElement downloadButton;
+
+    @FindBy(id = "move")
+    private WebElement moveButton;
 
     @FindBy(id = "delete")
     private WebElement deleteButton;
@@ -262,6 +268,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     }
 
 
+
     protected int getNextAvailabileFolderRow(final int startRow)
             throws Exception
     {
@@ -346,6 +353,46 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         confirmJqiMsg("success");
         return new UserStorageBrowserPage(driver);
     }
+
+
+
+    public UserStorageBrowserPage selectFolderFromTree(String foldername) throws Exception
+    {
+
+        WebElement folderTree = find(xpath("//*[@id=\"folderTree\"]"));
+//        WebElement folderEl = folderTree.findElement(xpath("//*[@class='folderName' and contains(text(),'" + foldername + "')]"))
+//        folderTree.findElement(By.xpath("//*div[contains(@class,'folderName')]"));
+        // locate the folder with the name/path provided
+        WebElement folderEl = waitUntil(ExpectedConditions.elementToBeClickable(
+                xpath("//*[@class='folderName' and contains(text(),'" + foldername + "')]")));
+
+//        WebElement folderEl = find(By.xpath("//*div[contains(@class,\"folderName\") and contains(text()," + foldername + ")]"));
+        // click on it
+        click(folderEl);
+        // wait for the spinner icon to not exist in the prompt box anymore
+
+        return new UserStorageBrowserPage(driver);
+    }
+
+    public UserStorageBrowserPage startMove() throws Exception
+    {
+        if (!isDisabled(moveButton))
+        {
+            moveButton.click();
+        }
+
+        return new UserStorageBrowserPage(driver);
+    }
+
+
+    public UserStorageBrowserPage doMove() throws Exception
+    {
+        clickButton(MOVE_TO);
+        confirmJQIMessageText(MOVE_OK);
+        clickButton(OK);
+        return new UserStorageBrowserPage(driver);
+    }
+
 
     public UserStorageBrowserPage deleteFolder() throws Exception
     {
@@ -704,6 +751,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
                 newdropdownButton.isDisplayed() &&
                 moredetailsButton.isDisplayed();
 
+
         if (isLoggedIn())
         {
             baseTest = baseTest && homeDirButton.isDisplayed();
@@ -749,14 +797,14 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         // Behaviour is different if person is logged in or not
         if (isLoggedIn())
         {
-            if (!(isDisabled(deleteButton) && isDisabled(downloadButton)))
+            if (!(isDisabled(moveButton) && isDisabled(deleteButton) && isDisabled(downloadButton)))
             {
                 return true;
             }
         }
         else
         {   // There will need to be a check for publicly available for download or not?
-            if (isDisabled(deleteButton) && !isDisabled(downloadButton))
+            if (isDisabled(moveButton) && isDisabled(deleteButton) && !isDisabled(downloadButton))
             {
                 return true;
             }

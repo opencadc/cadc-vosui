@@ -71,19 +71,27 @@ package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.beacon.FileSizeRepresentation;
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
-import ca.nrc.cadc.reg.client.RegistryClient;
-import ca.nrc.cadc.vos.Node;
-import ca.nrc.cadc.vos.NodeProperty;
-import ca.nrc.cadc.vos.VOS;
+import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.vos.VOS.Detail;
+import ca.nrc.cadc.vos.client.ClientTransfer;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 
+import java.io.IOException;
+import java.net.URI;
+import java.security.*;
+import java.util.Set;
+
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.restlet.data.Status;
+import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
+import org.restlet.resource.Post;
 import org.restlet.resource.Put;
+
+import javax.security.auth.Subject;
 
 
 public class FolderItemServerResource extends StorageItemServerResource
@@ -106,41 +114,104 @@ public class FolderItemServerResource extends StorageItemServerResource
         createFolder();
         getResponse().setStatus(Status.SUCCESS_CREATED);
     }
-    
+
     @Get("json")
     public Representation retrieveQuota() throws Exception
     {
         final FileSizeRepresentation fileSizeRepresentation =
                 new FileSizeRepresentation();
-    	final Node node = getCurrentNode(Detail.properties);
-        final long folderSize = 
-        		getPropertyValue(node, VOS.PROPERTY_URI_CONTENTLENGTH);
-        final long quota = 
-        		getPropertyValue(node, VOS.PROPERTY_URI_QUOTA);
-        final String quotaString = new FileSizeRepresentation().getSizeHumanReadable(quota);
-        final String remainingSizeString = 
+        final Node node = getCurrentNode(Detail.properties);
+        final long folderSize =
+                getPropertyValue(node, VOS.PROPERTY_URI_CONTENTLENGTH);
+        final long quota =
+                getPropertyValue(node, VOS.PROPERTY_URI_QUOTA);
+        final String quotaString = new FileSizeRepresentation()
+                .getSizeHumanReadable(quota);
+        final String remainingSizeString =
                 fileSizeRepresentation.getSizeHumanReadable(
                         ((quota - folderSize) > 0) ? (quota - folderSize) : 0);
 
-        return  new JSONRepresentation()
-				{
-		            @Override
-		            public void write(final JSONWriter jsonWriter)
-		                    throws JSONException
-		            {
-		                jsonWriter.object()
-		                	.key("size").value(remainingSizeString)
-		                    .key("quota").value(quotaString)
-		                    .endObject();
-		            }	    	
-				};
+        return new JSONRepresentation()
+        {
+            @Override
+            public void write(final JSONWriter jsonWriter)
+                    throws JSONException
+            {
+                jsonWriter.object()
+                        .key("size").value(remainingSizeString)
+                        .key("quota").value(quotaString)
+                        .endObject();
+            }
+        };
     }
-    
-    private long getPropertyValue(final Node node, 
-    		final String propertyURI) throws Exception
+
+    private long getPropertyValue(final Node node,
+                                  final String propertyURI) throws Exception
     {
-    	final NodeProperty property = node.findProperty(propertyURI);
-    	return (property == null) ? 0L
+        final NodeProperty property = node.findProperty(propertyURI);
+        return (property == null) ? 0L
                                   : Long.parseLong(property.getPropertyValue());
+    }
+
+    @Post("json")
+    public void moveToFolder(final JsonRepresentation payload) throws Exception
+    {
+        final JSONObject jsonObject = payload.getJsonObject();
+
+        final ContainerNode currentNode = getCurrentNode(VOS.Detail.min);
+        final Set<String> keySet = jsonObject.keySet();
+
+        if (keySet.contains("srcNodes"))
+        {
+            final String srcNodeStr = (String) jsonObject.get("srcNodes");
+            final String[] srcNodes = srcNodeStr.split(",");
+
+            // iterate over each srcNode & call clientTransfer
+            for (final String srcNode : srcNodes)
+            {
+                final VOSURI srcURI = new VOSURI(
+                        URI.create(VOSPACE_NODE_URI_PREFIX + srcNode));
+                move(srcURI, currentNode.getUri());
+            }
+
+            getResponse().setStatus(Status.SUCCESS_OK);
+        }
+    }
+
+    Transfer getTransfer(VOSURI source, VOSURI destination)
+    {
+        return new Transfer(source.getURI(),
+                            destination.getURI(), false);
+    }
+
+    private ClientTransfer move(VOSURI source, VOSURI destination)
+            throws IOException, InterruptedException, AccessControlException
+    {
+        // According to ivoa.net VOSpace 2.1 spec, a move is handled using
+        // a transfer. keepBytes = false. destination URI is the Direction.
+        final Transfer transfer = getTransfer(source, destination);
+
+        try
+        {
+            return Subject.doAs(generateVOSpaceUser(),
+                                new PrivilegedExceptionAction<ClientTransfer>()
+                                {
+                                    @Override
+                                    public ClientTransfer run() throws Exception
+                                    {
+                                        final ClientTransfer clientTransfer =
+                                                voSpaceClient.createTransfer(
+                                                        transfer);
+                                        clientTransfer.setMonitor(false);
+                                        clientTransfer.runTransfer();
+
+                                        return clientTransfer;
+                                    }
+                                });
+        }
+        catch (PrivilegedActionException e)
+        {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

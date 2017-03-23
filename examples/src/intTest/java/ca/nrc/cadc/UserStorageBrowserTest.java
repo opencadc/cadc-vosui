@@ -89,6 +89,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         verifyTrue(userStoragePage.isLoggedIn());
         System.out.println("logged in");
 
+
         rowCount = userStoragePage.getTableRowCount();
 
         System.out.println("Rowcount: " + rowCount);
@@ -303,28 +304,53 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         verifyTrue(userStoragePage.isPermissionDataForRow(1, "cadcsw", readGroupName, false));
 
 
-        // Test Delete and clean up
-		// Delete folder just created
+        // Test Move folder
+        String moveTestFolder = "moveTest_toBeDeleted_" + generateAlphaNumeric(4);
+        userStoragePage = userStoragePage.createNewFolder(moveTestFolder);
 
-        userStoragePage.enterSearch(recursiveTestFolder);
+        userStoragePage.enterSearch(moveTestFolder);
         userStoragePage.clickCheckboxForRow(1);
-        userStoragePage = userStoragePage.deleteFolder();
+        // Kick off first ajax call to populate tree
+        userStoragePage = userStoragePage.startMove();
+
+        // Navigate through to the target node
+        userStoragePage = userStoragePage.selectFolderFromTree("CADCtest");
+        userStoragePage = userStoragePage.selectFolderFromTree(autoTestFolder);
+        userStoragePage = userStoragePage.selectFolderFromTree(workingDirectoryName);
+        userStoragePage = userStoragePage.selectFolderFromTree(tempTestFolder);
+        userStoragePage = userStoragePage.selectFolderFromTree(recursiveTestFolder);
+
+        userStoragePage = userStoragePage.doMove();
+
+        // verify folder was moved to expected location
+        userStoragePage = userStoragePage.clickFolder(recursiveTestFolder);
+        userStoragePage.enterSearch(moveTestFolder);
+        rowCount = userStoragePage.getTableRowCount();
+        verifyTrue(rowCount < 3);
+        verifyTrue(userStoragePage
+                           .verifyFolderName(rowCount - 1, moveTestFolder));
+
+        // Test Delete while cleaning up
+//        userStoragePage.enterSearch(recursiveTestFolder);
+//        userStoragePage.clickCheckboxForRow(1);
+//        userStoragePage = userStoragePage.deleteFolder();
+        userStoragePage = userStoragePage.navUpLevel();
         userStoragePage = userStoragePage.navUpLevel();
 
-        userStoragePage.enterSearch(tempTestFolder);
-        userStoragePage.clickCheckboxForRow(1);
-
-        userStoragePage = userStoragePage.deleteFolder();
-
-		// verify the folder is no longer there
-		userStoragePage.enterSearch(tempTestFolder);
-		verifyTrue(userStoragePage.isTableEmpty());
+//        userStoragePage.enterSearch(tempTestFolder);
+//        userStoragePage.clickCheckboxForRow(1);
+//
+//        userStoragePage = userStoragePage.deleteFolder();
 
 		// Nav up one level & delete working folder as well
 		userStoragePage = userStoragePage.navUpLevel();
 		userStoragePage.enterSearch(workingDirectoryName);
 		userStoragePage.clickCheckboxForRow(1);
         userStoragePage = userStoragePage.deleteFolder();
+
+        // verify the folder is no longer there
+        userStoragePage.enterSearch(tempTestFolder);
+        verifyTrue(userStoragePage.isTableEmpty());
 
 		// Scenario 5: logout
 		System.out.println("Test logout");

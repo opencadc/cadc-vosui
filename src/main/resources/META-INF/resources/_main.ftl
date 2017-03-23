@@ -50,6 +50,7 @@
                         <span class="glyphicon glyphicon-cloud-upload"></span>&nbsp;Upload File</a>
                       <form id="uploader" method="post" class="hidden">
                         <input id="currentpath" name="currentpath" type="hidden" value="${folder.path}"/>
+                        <input id="currentFolderName" name="currentFolderName" type="hidden" value="${folder.name}"/>
                       </form>
                     </li>
                     <li>
@@ -79,6 +80,10 @@
                   </form>
                 </li>
 <#if !isRoot>
+                <#-- Disabled by default -->
+                <li class="disabled multi-select-function-container-writable">
+                  <a disabled="disabled" class="disabled multi-select-function-writable" id="move" name="move" role="button" title="Move selected items">
+                    <span class="glyphicon glyphicon-move"></span>&nbsp;Move</a></li>
                 <#-- Disabled by default -->
                 <li class="disabled multi-select-function-container-writable">
                   <a disabled="disabled" class="disabled multi-select-function-writable" id="delete" name="delete" role="button" title="Delete selected items">

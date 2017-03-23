@@ -610,7 +610,7 @@ public class StorageItemServerResource extends SecureServerResource
         final JSONObject jsonObject = payload.getJsonObject();
 
         // limit=0, detail=min so should only get the current node
-        final ContainerNode currentNode = getCurrentNode(VOS.Detail.properties);
+        final Node currentNode = getCurrentNode(VOS.Detail.properties);
         final List<NodeProperty> nodeProperties = currentNode.getProperties();
         final Set<String> keySet = jsonObject.keySet();
 

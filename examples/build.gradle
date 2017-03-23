@@ -18,13 +18,11 @@ dependencies {
 }
 
 sourceCompatibility = '1.7'
-group = 'org.opencadc'
-version = '1008'
 
-def docker_image_name = 'opencadc/storage'
+def docker_image_name = 'at88mph/storage'
 
 war {
-    archiveName 'storage##' + project.version + '.war'
+    archiveName 'storage.war'
 }
 
 clean {
