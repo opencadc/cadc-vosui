@@ -328,8 +328,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         userStoragePage.enterSearch(moveTestFolder);
         rowCount = userStoragePage.getTableRowCount();
         verifyTrue(rowCount < 3);
-        verifyTrue(userStoragePage
-                           .verifyFolderName(rowCount - 1, moveTestFolder));
+        verifyTrue(userStoragePage.verifyFolderName(rowCount - 1, moveTestFolder));
 
 
         // Test Link folder (can't do link to file yet if no browser test for upload file...
