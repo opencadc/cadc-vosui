@@ -11,7 +11,6 @@
   <meta name="author" content="Canadian Astronomy Data Centre">
   <meta name="keywords"
         content="VOSpace, IVOA, CADC, Canadian Astronomy Data Centre">
-  <link rel="icon" href="../../favicon.ico">
 
   <title>User Storage</title>
 
@@ -52,7 +51,7 @@ directory for that user actually exists -->
 </#if>
 
 
-<#include "defaults/_top_nav.ftl">
+<#include "_top_nav.ftl">
 
 <div class="container-fluid">
 
@@ -82,7 +81,7 @@ directory for that user actually exists -->
 <script type="text/javascript"
         src="${contextPath}js/jquery-impromptu.min.js"></script>
 <script type="text/javascript" src="${contextPath}js/jquery-ui.min.js"></script>
-<script type="text/javascript" src="${contextPath}js/CollapsibleLists.src.js"></script>
+<script type="text/javascript" src="${contextPath}js/CollapsibleLists.compressed.js"></script>
 <script type="text/javascript" src="${contextPath}js/filemanager.js"></script>
 
 <!--
@@ -137,7 +136,7 @@ directory for that user actually exists -->
                                   fileManager(rows, $("#beacon"),
                                               "<#if startURI??>${startURI}</#if>",
                                               "${folder.path}", ${folder.writable?c},
-                                              100 , json, "${contextPath}");
+                                              100 , json, "${contextPath}", true);
                                 })
                           .fail(function (request, textStatus, errorThrown)
                                 {

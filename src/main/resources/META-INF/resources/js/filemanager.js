@@ -10,7 +10,8 @@
  */
 
 function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
-                     _canWriteFlag, _totalDataCount, lg, contextPath)
+                     _canWriteFlag, _totalDataCount, lg, contextPath,
+                     useDefaultLogin)
 {
 // function to retrieve GET params
   $.urlParam = function (name)
@@ -85,11 +86,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var lockedIcon =
     "<span class=\"glyphicon glyphicon-lock\"></span> <a href=\"" + contextPath
     + "unlock\" title=\"Unlock to modify.\">Unlock</a>";
-  var publicHTML = "<div class=\"input-group-addon\">\n"
-                   + "<input id=\"public_toggle\" type=\"checkbox\" checked=\"checked\" data-toggle=\"toggle\" data-size=\"small\" data-on=\"Public\" data-off=\"Group name\" />\n"
-                   + "</div>";
-  var publicLink =
-    "<a href=\"#\" class=\"public_link\" title=\"Change group read access.\">{1}</a>";
 
   // Used for controlling button bar function
   var multiSelectSelector = ".multi-select-function-container";
@@ -203,15 +199,17 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
               // if isWritable bit is true, provide edit icon
               if (full[13] === "true")
               {
-                // Add data references to icon so they can be used to populate the edit prompt
-                var editIcon = '<span class="glyphicon glyphicon-pencil"><a href="' + contextPath +
-                    'update" title="Edit permissions." ' +
-                    'readable="' + full[6] +
-                    '" path="' + full[9] +
-                    '" readGroup="' + full[5] +
-                    '" writeGroup="' + full[4] +
-                    '" itemName="' + data +
-                    '" ></a></span>';
+                // Add data references to icon so they can be used to populate
+                // the edit prompt
+                var editIcon = '<span class="glyphicon glyphicon-pencil"><a href="' +
+                               contextPath +
+                               'update" title="Edit permissions." ' +
+                               'readable="' + full[6] +
+                               '" path="' + full[9] +
+                               '" readGroup="' + full[5] +
+                               '" writeGroup="' + full[4] +
+                               '" itemName="' + data +
+                               '" ></a></span>';
                 itemNameDisplay += editIcon;
               }
 
@@ -254,7 +252,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           "searchable": false
         },
         {
-          "targets" : [6],
+          "targets": [6],
           "searchable": false,
           "render": function (data, type, full)
           {
@@ -271,21 +269,24 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     .attr("aria-valuenow", _totalDataCount + "")
     .attr("aria-valuemin", _totalDataCount + "")
     .attr("aria-valuemax", _totalDataCount + "");
-    // .text(lg.loading_data);
+  // .text(lg.loading_data);
 
 
-  var toggleButtonSet = function(_disabledFlag, selector, selectClass) {
+  var toggleButtonSet = function (_disabledFlag, selector, selectClass)
+  {
     var $selectorContainers = $(selector);
 
     // These elements will toggle regardless of permissions
     var $selectorFunctions =
-        $selectorContainers.find(selectClass);
+      $selectorContainers.find(selectClass);
 
-    if (_disabledFlag === true) {
+    if (_disabledFlag === true)
+    {
       $selectorContainers.addClass("disabled");
       $selectorFunctions.addClass("disabled");
     }
-    else {
+    else
+    {
       $selectorContainers.removeClass("disabled");
       $selectorFunctions.removeClass("disabled");
     }
@@ -314,7 +315,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   };
 
 
-  var isSelectionWritable = function(tableRows)
+  var isSelectionWritable = function (tableRows)
   {
     if (tableRows.count() > 0)
     {
@@ -349,10 +350,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
          });
 
   $dt.on("info.dt",
-      function ()
-      {
-        disableMultiFunctionButtons();
-      });
+         function ()
+         {
+           disableMultiFunctionButtons();
+         });
 
 
   $dt.on("deselect", function (event, dataTablesAPI, type)
@@ -549,16 +550,17 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 // Called on initial page load and on resize.
   var setDimensions = function ()
   {
-    var bheight = 53,
-      $uploader = $('#uploader');
+    var bheight = 53, $uploader = $('#uploader');
 
     if ($.urlParam('CKEditorCleanUpFuncNum'))
     {
       bheight += 60;
     }
 
-    var newH = $(window).height() - $uploader.height() -
-               $uploader.offset().top - bheight;
+    var newH = ($uploader && ($uploader.length > 0))
+      ? ($(window).height() - $uploader.height() - $uploader.offset().top -
+         bheight)
+      : ($(window).height() - bheight);
     $fileInfo.height(newH);
   };
 
@@ -592,45 +594,49 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     }
   };
 
-  var $loginForm = $("#loginForm");
-
-  var resetLoginFormErrors = function ()
+  if (useDefaultLogin === true)
   {
-    var $loginFailContainer =
-      $loginForm.find("#login_fail");
+    var $loginForm = $("#loginForm");
 
-    $loginForm.removeClass("has-error");
-    $loginFailContainer.text("");
-  };
+    var resetLoginFormErrors = function ()
+    {
+      var $loginFailContainer =
+        $loginForm.find("#login_fail");
 
-  $loginForm.find("input.form-control").off().change(function (e)
-                                                     {
-                                                       resetLoginFormErrors();
-                                                     });
+      $loginForm.removeClass("has-error");
+      $loginFailContainer.text("");
+    };
 
-  $loginForm.off().submit(function ()
-                          {
-                            var $thisForm = $(this);
-                            resetLoginFormErrors();
+    $loginForm.find("input.form-control").off().change(function ()
+                                                       {
+                                                         resetLoginFormErrors();
+                                                       });
 
-                            $.post({
-                                     url: contextPath + config.security.loginConnector,
-                                     data: $thisForm.serialize(),
-                                     statusCode: {
-                                       200: function ()
-                                       {
-                                         refreshPage();
-                                       },
-                                       401: function ()
-                                       {
-                                         $thisForm.find("#login_fail").text(lg.INVALID_CREDENTIALS);
-                                         $thisForm.addClass("has-error");
+    $loginForm.off().submit(function ()
+                            {
+                              var $thisForm = $(this);
+                              resetLoginFormErrors();
+
+                              $.post({
+                                       url: contextPath +
+                                            config.security.loginConnector,
+                                       data: $thisForm.serialize(),
+                                       statusCode: {
+                                         200: function ()
+                                         {
+                                           refreshPage();
+                                         },
+                                         401: function ()
+                                         {
+                                           $thisForm.find("#login_fail").text(lg.INVALID_CREDENTIALS);
+                                           $thisForm.addClass("has-error");
+                                         }
                                        }
-                                     }
-                                   });
+                                     });
 
-                            return false;
-                          });
+                              return false;
+                            });
+  }
 
   /**
    * Obtain the path of the current folder.
@@ -639,7 +645,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
    */
   var getCurrentPath = function ()
   {
-    return path = $('#currentpath').val();
+    return $('#currentpath').val() || '/';
   };
 
 
@@ -789,10 +795,12 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     {
       return false;
     }
+
     if (data['File Type'] == 'dir' && cap == 'download')
     {
       return config.security.allowFolderDownload == true;
     }
+
     if (typeof(data['Capabilities']) == "undefined")
     {
       return true;
@@ -1013,7 +1021,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                input: {
                  focus: "#link_name",
                  buttons: btns,
-                 html:  msg,
+                 html: msg,
                  submit: function (e, value, message, formVals)
                  {
                    if (value === true)
@@ -1052,40 +1060,40 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
              });
   };
 
-  var setSrcNodes = function()
+  var setSrcNodes = function ()
   {
     var selectedItems =
       $('tr.selected > td:nth-child(2) > span.glyphicon-pencil > a');
     var selectedPaths = [];
 
-    $(selectedItems).each(function(index, item)
-    {
-      selectedPaths.push($(item).attr('path'));
-    });
+    $(selectedItems).each(function (index, item)
+                          {
+                            selectedPaths.push($(item).attr('path'));
+                          });
 
     return (selectedPaths.length > 0) ? selectedPaths.join(",") : "";
   };
-  
+
   var setLinker = function ()
   {
     $('#new_vospace_link').off().click(function ()
-			               {
-						     linkItem();
-						   });
+                                       {
+                                         linkItem();
+                                       });
   };
-  
+
   var setMover = function ()
   {
     $('#move').off().click(function ()
-			               {
-        					 var srcNodeList = setSrcNodes();
-        					 if (srcNodeList.length > 0)
-        					 {
-						       moveItem(srcNodeList);
-        					 }
-						   });
+                           {
+                             var srcNodeList = setSrcNodes();
+                             if (srcNodeList.length > 0)
+                             {
+                               moveItem(srcNodeList);
+                             }
+                           });
   };
-  
+
 // Sets the folder status, upload, and new folder functions
 // to the path specified. Called on initial page load and
 // whenever a new directory is selected.
@@ -1115,7 +1123,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
                                      return false;
                                    });
-    
+
     $('#newfolder').off().click(function ()
                                 {
                                   var buttonAction = function (event, value,
@@ -1130,7 +1138,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                       {
                                         $.ajax(
                                           {
-                                            url: contextPath + config.options.folderConnector
+                                            url: contextPath +
+                                                 config.options.folderConnector
                                                  + getCurrentPath() + "/"
                                                  + encodeURIComponent(fname),
                                             method: "PUT",
@@ -1270,7 +1279,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
    Functions for Editing Folder Permissions
    ---------------------------------------------------------*/
   // Highlighting the input box if an invalid selection is entered
-  var togglePromptError = function(fieldId, msgFieldId, msg, setOn)
+  var togglePromptError = function (fieldId, msgFieldId, msg, setOn)
   {
     if (setOn === "on")
     {
@@ -1294,52 +1303,55 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   {
     autoCompleteList = autocompleteData;
     $("#readGroup").autocomplete(
-    {
-      appendTo: '#readGroupDiv',
-      source: function(request, response)
       {
-        // Reduce results to 10 for display
-        var results = $.ui.autocomplete.filter(autocompleteData, request.term);
-        response(results.slice(0, 10));
-      },
-      minLength: 2
-    });
+        appendTo: '#readGroupDiv',
+        source: function (request, response)
+        {
+          // Reduce results to 10 for display
+          var results = $.ui.autocomplete.filter(autocompleteData, request.term);
+          response(results.slice(0, 10));
+        },
+        minLength: 2
+      });
 
     $("#readGroup").keyup(function ()
-    {
-      togglePromptError("#readGroupDiv", "#readGroupLabel",lg.READ_GROUP, "off");
-    });
+                          {
+                            togglePromptError("#readGroupDiv", "#readGroupLabel", lg.READ_GROUP, "off");
+                          });
 
     $("#writeGroup").autocomplete(
-    {
-      appendTo: '#writeGroupDiv',
-      source: function(request, response)
       {
-        // Reduce results to 10 for display
-        var results = $.ui.autocomplete.filter(autocompleteData, request.term);
-        response(results.slice(0, 10));
-      },
-      minLength: 2
-    });
+        appendTo: '#writeGroupDiv',
+        source: function (request, response)
+        {
+          // Reduce results to 10 for display
+          var results = $.ui.autocomplete.filter(autocompleteData, request.term);
+          response(results.slice(0, 10));
+        },
+        minLength: 2
+      });
 
     $("#writeGroup").keyup(function ()
-    {
-      togglePromptError("#writeGroupDiv", "#writeGroupLabel",lg.WRITE_GROUP, "off");
-    });
+                           {
+                             togglePromptError("#writeGroupDiv", "#writeGroupLabel", lg.WRITE_GROUP, "off");
+                           });
 
   };
 
 
-  var isPermissionChanged = function(formValues) {
+  var isPermissionChanged = function (formValues)
+  {
     // Values to check against are in the currently edited icon
     var clickedEditIcon = $('.editing')[0];
     var isChanged = false;
 
-    if (formValues["writeGroup"] !== clickedEditIcon.getAttribute("writeGroup")) {
+    if (formValues["writeGroup"] !== clickedEditIcon.getAttribute("writeGroup"))
+    {
       return true;
     }
 
-    if (formValues["readGroup"] !== clickedEditIcon.getAttribute("readGroup")) {
+    if (formValues["readGroup"] !== clickedEditIcon.getAttribute("readGroup"))
+    {
       return true;
     }
 
@@ -1348,8 +1360,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       return true;
     }
 
-    if ((clickedEditIcon.getAttribute("readable") === "true" && formValues["publicPermission"] === "on") ||
-    (clickedEditIcon.getAttribute("readable") === "false") && (typeof(formValues["publicPermission"]) === "undefined"))
+    if ((clickedEditIcon.getAttribute("readable") === "true" &&
+         formValues["publicPermission"] === "on") ||
+        (clickedEditIcon.getAttribute("readable") === "false") &&
+        (typeof(formValues["publicPermission"]) === "undefined"))
     {
       return false;
     }
@@ -1385,13 +1399,15 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
         if ((typeof(formVals["readGroup"]) === "undefined") ||
             (formVals["readGroup"] === "") ||
-            ($.inArray(formVals["readGroup"], autoCompleteList) >= 0)) {
+            ($.inArray(formVals["readGroup"], autoCompleteList) >= 0))
+        {
           readGroupValid = true;
         }
 
         if ((typeof(formVals["writeGroup"]) === "undefined") ||
             (formVals["writeGroup"] === "") ||
-            ($.inArray(formVals["writeGroup"], autoCompleteList) >= 0)) {
+            ($.inArray(formVals["writeGroup"], autoCompleteList) >= 0))
+        {
           writeGroupValid = true;
         }
 
@@ -1409,43 +1425,48 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
           var dataStr = JSON.stringify(formVals);
           $.ajax(
-              {
-                url: url,
-                method: "POST",
-                contentType: "application/json",
-                data: dataStr,
-                statusCode: {
-                  202: function ()
-                    {
-                      $.prompt(lg.permissions_recursive_submitted,
-                      {
-                        submit: refreshPage
-                      });
-                    },
-                  204: function ()
-                  {
-                      $.prompt(lg.permissions_modified,
-                      {
-                        submit: refreshPage
-                      });
-                  },
-                  400: function () {
-                    $.prompt(lg.NOT_ALLOWED_SYSTEM);
-                  },
-                  401: function () {
-                    $.prompt(lg.NOT_ALLOWED_SYSTEM);
-                  },
-                  403: function () {
-                    $.prompt(lg.NOT_ALLOWED_SYSTEM);
-                  },
-                  409: function () {
-                    $.prompt(lg.NOT_ALLOWED_SYSTEM.replace(/%s/g, fname));
-                  },
-                  500: function () {
-                    $.prompt(lg.server_error);
-                  }
+            {
+              url: url,
+              method: "POST",
+              contentType: "application/json",
+              data: dataStr,
+              statusCode: {
+                202: function ()
+                {
+                  $.prompt(lg.permissions_recursive_submitted,
+                           {
+                             submit: refreshPage
+                           });
+                },
+                204: function ()
+                {
+                  $.prompt(lg.permissions_modified,
+                           {
+                             submit: refreshPage
+                           });
+                },
+                400: function ()
+                {
+                  $.prompt(lg.NOT_ALLOWED_SYSTEM);
+                },
+                401: function ()
+                {
+                  $.prompt(lg.NOT_ALLOWED_SYSTEM);
+                },
+                403: function ()
+                {
+                  $.prompt(lg.NOT_ALLOWED_SYSTEM);
+                },
+                409: function ()
+                {
+                  $.prompt(lg.NOT_ALLOWED_SYSTEM.replace(/%s/g, fname));
+                },
+                500: function ()
+                {
+                  $.prompt(lg.server_error);
                 }
-              });
+              }
+            });
 
         }
         else
@@ -1491,83 +1512,92 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
   $(document).on('click', '.glyphicon-pencil', function (event)
   {
-      // Pull attributes from edit icon
-      var iconAnchor = $(event.currentTarget).find("a")[0];
+    // Pull attributes from edit icon
+    var iconAnchor = $(event.currentTarget).find("a")[0];
 
-      // Flag this icon as the currently active one
-      // will be referenced for seeing if form values have changed
-      iconAnchor.setAttribute("class","editing");
+    // Flag this icon as the currently active one
+    // will be referenced for seeing if form values have changed
+    iconAnchor.setAttribute("class", "editing");
 
-      var checkboxState = "";
-      var readGroupBoxDisabled = "false";
-      if (iconAnchor.getAttribute("readable") === "true")
-      {
-        checkboxState = "checked";
-      }
+    var checkboxState = "";
+    var readGroupBoxDisabled = "false";
+    if (iconAnchor.getAttribute("readable") === "true")
+    {
+      checkboxState = "checked";
+    }
 
-      var msg =
+    var msg =
       '<div class="form-group fm-prompt">' +
-        '<label for="publicPermission" class="control-label col-sm-4">' + lg.public_question + '</label>' +
-        '<div class="col-sm-7">' +
-          '<input style="margin: 9px 0 0;" class="action-hook" type="checkbox" id="publicPermission" name="publicPermission" ' + checkboxState + '>' +
-        '</div>' +
+      '<label for="publicPermission" class="control-label col-sm-4">' +
+      lg.public_question + '</label>' +
+      '<div class="col-sm-7">' +
+      '<input style="margin: 9px 0 0;" class="action-hook" type="checkbox" id="publicPermission" name="publicPermission" ' +
+      checkboxState + '>' +
+      '</div>' +
       '</div>' +
       '<div class="form-group ui-front fm-prompt" id="readGroupDiv"> ' +
-        '<label for="readGroup" id="readGroupLabel" class="control-label col-sm-4">' + lg.READ_GROUP + '</label>' +
-        '<div id="readGroupInputDiv" class="col-sm-7"> ' +
-          '<input type="text" class="form-control  ui-autocomplete-input action-hook" id="readGroup" name="readGroup" placeholder="' + lg.group_name_program_id + '">' +
-        '</div>' +
+      '<label for="readGroup" id="readGroupLabel" class="control-label col-sm-4">' +
+      lg.READ_GROUP + '</label>' +
+      '<div id="readGroupInputDiv" class="col-sm-7"> ' +
+      '<input type="text" class="form-control  ui-autocomplete-input action-hook" id="readGroup" name="readGroup" placeholder="' +
+      lg.group_name_program_id + '">' +
+      '</div>' +
       '</div>' +
       '<div class="form-group ui-front fm-prompt" id="writeGroupDiv">' +
-        '<label for="writeGroup" id="writeGroupLabel" class="control-label col-sm-4">' + lg.WRITE_GROUP + '</label>' +
-        '<div class="col-sm-7">' +
-          '<input type="text" class="form-control action-hook" id="writeGroup" name="writeGroup" placeholder="' + lg.group_name_program_id + '">' +
-        '</div>' +
+      '<label for="writeGroup" id="writeGroupLabel" class="control-label col-sm-4">' +
+      lg.WRITE_GROUP + '</label>' +
+      '<div class="col-sm-7">' +
+      '<input type="text" class="form-control action-hook" id="writeGroup" name="writeGroup" placeholder="' +
+      lg.group_name_program_id + '">' +
+      '</div>' +
       '</div>' +
       '<div class="form-group fm-prompt">' +
-        '<label for="recursive" class="control-label col-sm-4"">' + lg.recursive + '</label>' +
-        '<div class="col-sm-7">' +
-          '<input style="margin: 9px 0 0;" class="action-hook" type="checkbox" id="recursive" name="recursive">' +
-        '</div>' +
+      '<label for="recursive" class="control-label col-sm-4"">' + lg.recursive +
+      '</label>' +
+      '<div class="col-sm-7">' +
+      '<input style="margin: 9px 0 0;" class="action-hook" type="checkbox" id="recursive" name="recursive">' +
+      '</div>' +
       '</div>' +
       '<div class="form-group fm-prompt">' +
-        '<div class="col-sm-4" >' +
-        '</div>' +
-        '<div class="col-sm-7 prompt-link">' +
-          '<a href="http://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
-          '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' + iconAnchor.getAttribute("path") + '">' +
-        '</div>' +
+      '<div class="col-sm-4" >' +
+      '</div>' +
+      '<div class="col-sm-7 prompt-link">' +
+      '<a href="http://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
+      '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' +
+      iconAnchor.getAttribute("path") + '">' +
+      '</div>' +
       '</div>';
 
 
-      var btns = [];
-      btns.push
-      ({
-        "name": "b1",
-        "title": lg.save,
-        "value": true,
-        "classes": "btn btn-primary listener-hook"
-      });
-      btns.push
-      ({
-        "name": "b2",
-        "title": lg.cancel,
-        "value": false,
-        "classes": "btn btn-default"
-      });
+    var btns = [];
+    btns.push
+    ({
+       "name": "b1",
+       "title": lg.save,
+       "value": true,
+       "classes": "btn btn-primary listener-hook"
+     });
+    btns.push
+    ({
+       "name": "b2",
+       "title": lg.cancel,
+       "value": false,
+       "classes": "btn btn-default"
+     });
 
-      // 'classes' entry below is to enable bootstrap to
-      // handle styling, including form-horizontal
+    // 'classes' entry below is to enable bootstrap to
+    // handle styling, including form-horizontal
 
     var states = {
       state0: {
-        title: '<h3 class="prompt-h3">' + iconAnchor.getAttribute("itemName") + '</h3>',
+        title: '<h3 class="prompt-h3">' + iconAnchor.getAttribute("itemName") +
+               '</h3>',
         html: msg,
         buttons: btns,
         submit: handleEditPermissions
       }
     };
-    $.prompt( states, {
+    $.prompt(states, {
       classes: {
         form: 'form-horizontal',
         box: '',
@@ -1580,19 +1610,22 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         button: 'btn',
         defaultButton: 'btn-primary'
       },
-      loaded: function (event) {
+      loaded: function (event)
+      {
         // Get the group names list for populating the dropdown first
         $.ajax(
+          {
+            type: 'GET',
+            url: contextPath + "groups",
+            success: function (returnValue)
             {
-              type: 'GET',
-              url: contextPath + "groups",
-              success: function (returnValue) {
-                handleLoadAutocomplete(returnValue);
-              },
-              error: function (errorValue) {
-                $.prompt(lg.ERROR_GROUPNAMES);
-              }
+              handleLoadAutocomplete(returnValue);
+            },
+            error: function (errorValue)
+            {
+              $.prompt(lg.ERROR_GROUPNAMES);
             }
+          }
         );
 
         // Set initial form state
@@ -1897,7 +1930,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                             {
                               $.prompt("<p>" + lg.file_too_big +
                                        "</p><p>" + lg.file_size_limit +
-                                        config.upload.fileSizeLimit + " " +
+                                       config.upload.fileSizeLimit + " " +
                                        lg.mb + ".</p>");
                               $('#upload').removeAttr('disabled').find("span").removeClass('loading').text(lg.upload);
                               return false;
@@ -1951,112 +1984,115 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
   function ItemLayer()
   {
-	ItemLayer.makeNode = function()
-	{
+    ItemLayer.makeNode = function ()
+    {
       return {name: null, path: null, uri: null, child: null};
-	};
-	
-	this.head = new Array();
-	
-	this.addNode = function(name, path, uri)
-	{
+    };
+
+    this.head = new Array();
+
+    this.addNode = function (name, path, uri)
+    {
       var node = ItemLayer.makeNode();
       node.name = name;
       node.path = path;
       node.uri = uri;
       this.head.push(node);
-	}
-	
-	this.findNodeOnCurrentLayer = function(name)
-	{
-      for (var i=0; i<this.head.length; i++)
+    }
+
+    this.findNodeOnCurrentLayer = function (name)
+    {
+      for (var i = 0; i < this.head.length; i++)
       {
         if (this.head[i].name == name)
         {
-          return this.head[i];	
+          return this.head[i];
         }
       }
-      
+
       return null;
-	}
-	
-	this.findNode = function(fullName)
-	{
+    }
+
+    this.findNode = function (fullName)
+    {
       var node = null;
       var tempName = '/';
-      
+
       if (stringUtil.hasText(fullName))
       {
-    	var name = fullName.split('/')[1];
-    	node = this.findNodeOnCurrentLayer(name);
-    	tempName = tempName + name;
-    	if (fullName.length > tempName.length)
-    	{
+        var name = fullName.split('/')[1];
+        node = this.findNodeOnCurrentLayer(name);
+        tempName = tempName + name;
+        if (fullName.length > tempName.length)
+        {
           node = node.child.findNode(fullName.substr(tempName.length));
-    	}
+        }
       }
-      
-      return node;    
-	}
-	
-	this.toHTML = function()
-	{
+
+      return node;
+    }
+
+    this.toHTML = function ()
+    {
       var returnHTML = '';
-      
+
       $.each(this.head, function (index, node)
-                        {
-    	                  if (node.child == null)
-    	                  {
-    	                	  returnHTML = returnHTML
-                              + '<li><div class="layerItemName" fullName="' + node.path + '" uri="' + node.uri + '">' + node.name
-                              + '</div><ul></ul></li>';
-    	                  }
-    	                  else
-    	                  {
-    	                	returnHTML = returnHTML
-                            + '<li><div class="layerItemName" fullName="' + node.path +  '" uri="' + node.uri +'">' + node.name
-                            + '</div>';
-    	                    returnHTML = returnHTML + '<ul>' + node.child.toHTML() + '</ul>';
-    	                    returnHTML = returnHTML + '</li>';    	                  
-    	                  }
-                        });
-      
+      {
+        if (node.child == null)
+        {
+          returnHTML = returnHTML
+                       + '<li><div class="layerItemName" fullName="' +
+                       node.path + '" uri="' + node.uri + '">' + node.name
+                       + '</div><ul></ul></li>';
+        }
+        else
+        {
+          returnHTML = returnHTML
+                       + '<li><div class="layerItemName" fullName="' +
+                       node.path + '" uri="' + node.uri + '">' + node.name
+                       + '</div>';
+          returnHTML = returnHTML + '<ul>' + node.child.toHTML() + '</ul>';
+          returnHTML = returnHTML + '</li>';
+        }
+      });
+
       return returnHTML;
-	}
+    }
   }
-  
-  function ItemTree() 
+
+  function ItemTree()
   {
-	this.root = null;
-	
-	this.findNode = function(name)
-	{
+    this.root = null;
+
+    this.findNode = function (name)
+    {
       return this.root == null ? null : this.root.findNode(name);
-	}
-	
-	this.addLayer = function(name, layer) 
-	{
+    }
+
+    this.addLayer = function (name, layer)
+    {
       // name of root node is an empty string
       if (this.root == null || (!stringUtil.hasText(name)))
       {
-    	this.root = layer;
+        this.root = layer;
       }
       else
       {
         this.findNode(name).child = layer;
       }
-	}
-	
-	this.toHTML = function()
-	{
-      return returnHTML = '<ul class="collapsibleList">' + this.root.toHTML() + '</ul>';
-	}
+    }
+
+    this.toHTML = function ()
+    {
+      return returnHTML =
+        '<ul class="collapsibleList">' + this.root.toHTML() + '</ul>';
+    }
   }
 
   // When we get a page of cvs data from the database containing 
   // both files and folders, apply this filter to filter out all
   // files.
-  var filterOutFiles = function(itemLayer, rowData)
+  var filterOutFiles = function (itemLayer, rowData)
   {
     if (rowData[8].includes('glyphicon-folder'))
     {
@@ -2064,7 +2100,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     }
   }
 
-  var filterOutNothing = function(itemLayer, rowData)
+  var filterOutNothing = function (itemLayer, rowData)
   {
     itemLayer.addNode(rowData[1], rowData[9], rowData[10]);
   }
@@ -2073,17 +2109,17 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 // Called by clicking the "VOSpace Link" menu item.
   var linkItem = function ()
   {
-    var params = 
-    {
-      bCancelName     : "bCancelLinkto",
-      bCancelTitle    : lg.cancel,
-      bOpName         : "bLinkto",
-      bOpTitle        : lg.link,
-      filter          : filterOutNothing,
-      opSuccess       : lg.successful_linked,
-      promptMsg       : lg.please_select_link,
-      submitFunction  : doLink
-    };
+    var params =
+      {
+        bCancelName: "bCancelLinkto",
+        bCancelTitle: lg.cancel,
+        bOpName: "bLinkto",
+        bOpTitle: lg.link,
+        filter: filterOutNothing,
+        opSuccess: lg.successful_linked,
+        promptMsg: lg.please_select_link,
+        submitFunction: doLink
+      };
 
     processItem(params, "")
   }; // end linkItem
@@ -2092,18 +2128,18 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 // Called by clicking the "Move" button.
   var moveItem = function (srcNodeList)
   {
-    var params = 
-    {
-      bCancelName      : "bCancelMoveto",
-      bCancelTitle     : lg.cancel,
-      bOpName          : "bMoveto",
-      bOpTitle         : lg.move,
-      filter           : filterOutFiles,
-      opSuccess        : lg.successful_moved,
-      promptMsg        : lg.please_select_folder,
-      submitFunction   : doMove,
+    var params =
+      {
+        bCancelName: "bCancelMoveto",
+        bCancelTitle: lg.cancel,
+        bOpName: "bMoveto",
+        bOpTitle: lg.move,
+        filter: filterOutFiles,
+        opSuccess: lg.successful_moved,
+        promptMsg: lg.please_select_folder,
+        submitFunction: doMove,
 
-    };
+      };
 
     processItem(params, srcNodeList)
   }; // end moveItem
@@ -2112,7 +2148,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   // Submit function for move usage of collapsible list prompt
   var doMove = function (event, value, msg, formVals)
   {
-    if (value == true) {
+    if (value == true)
+    {
 
       // Target destination for the operation
       var itemPath = formVals['destNode'];
@@ -2121,77 +2158,84 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
       var dataStr = JSON.stringify(formVals);
       $.ajax(
-          {
-            url: url,
-            method: "POST",
-            contentType: "application/json",
-            data: dataStr,
-            statusCode: {
-              204: function () {
-                $.prompt(lg.successful_moved,
-                    {
-                      submit: refreshPage
-                    });
-              },
-              401: function () {
-                $.prompt(lg.NOT_ALLOWED_SYSTEM);
-              },
-              403: function () {
-                $.prompt(lg.authorization_required);
-              },
-              409: function () {
-                $.prompt(lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode']));
-              },
-              500: function ()
-              {
-                $.prompt(lg.ERROR_SERVER);
-              }
+        {
+          url: url,
+          method: "POST",
+          contentType: "application/json",
+          data: dataStr,
+          statusCode: {
+            204: function ()
+            {
+              $.prompt(lg.successful_moved,
+                       {
+                         submit: refreshPage
+                       });
+            },
+            401: function ()
+            {
+              $.prompt(lg.NOT_ALLOWED_SYSTEM);
+            },
+            403: function ()
+            {
+              $.prompt(lg.authorization_required);
+            },
+            409: function ()
+            {
+              $.prompt(lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode']));
+            },
+            500: function ()
+            {
+              $.prompt(lg.ERROR_SERVER);
             }
-          });
-
+          }
+        });
     } //end if value == true
   }; // end doMove
-
 
   // Submit function for link use of collapsible list prompt
   var doLink = function (event, value, msg, formVals)
   {
-    if (value == true) 
+    if (value == true)
     {
       // for link
-      var url = contextPath + config.options.linkConnector + $('#currentpath').val() + "/" + formVals['itemName'];
+      var url = contextPath + config.options.linkConnector +
+                $('#currentpath').val() + "/" + formVals['itemName'];
 
       formVals['link_url'] = formVals['selectedNodeURI'];
 
       var dataStr = JSON.stringify(formVals);
       $.ajax(
-          {
-            url: url,
-            method: "PUT",
-            contentType: "application/json",
-            data: dataStr,
-            statusCode: {
-              201: function () {
-                $.prompt(lg.successful_linked,
-                    {
-                      submit: refreshPage
-                    });
-              },
-              401: function () {
-                $.prompt(lg.NOT_ALLOWED_SYSTEM);
-              },
-              403: function () {
-                $.prompt(lg.authorization_required);
-              },
-              409: function () {
-                $.prompt(lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals['itemName']));
-              },
-              500: function ()
-              {
-                $.prompt(lg.ERROR_SERVER);
-              }
+        {
+          url: url,
+          method: "PUT",
+          contentType: "application/json",
+          data: dataStr,
+          statusCode: {
+            201: function ()
+            {
+              $.prompt(lg.successful_linked,
+                       {
+                         submit: refreshPage
+                       });
+            },
+            401: function ()
+            {
+              $.prompt(lg.NOT_ALLOWED_SYSTEM);
+            },
+            403: function ()
+            {
+              $.prompt(lg.authorization_required);
+            },
+            409: function ()
+            {
+              $.prompt(lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals['itemName']));
+            },
+            500: function ()
+            {
+              $.prompt(lg.ERROR_SERVER);
             }
-          });
+          }
+        });
     } //end if value == true
   }; // end doLink
 
@@ -2209,37 +2253,46 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     itemRequest.pageSize = defaultPageSize;
     var spinningWheel = $.parseHTML('<span id="itemsLoading" class="glyphicon glyphicon-refresh fast-right-spinner"></span>');
 
-    $(document).on('.layerItemName').click(function(event)
-    {
-      var target = $(event)[0].target;
-      var nameWithPath = $(target).attr('fullName');
-      var node = itemTree.findNode(nameWithPath);
-      // Clear all highlights
-      $(".layerItemName.bg-success").removeClass("bg-success");
+    $(document).on('.layerItemName').click(function (event)
+                                           {
+                                             var target = $(event)[0].target;
+                                             var nameWithPath = $(target).attr('fullName');
+                                             var node = itemTree.findNode(nameWithPath);
+                                             // Clear all highlights
+                                             $(".layerItemName.bg-success").removeClass("bg-success");
 
-      $(target).addClass("bg-success");
+                                             $(target).addClass("bg-success");
 
-      if (node != null && target.parentNode.className != 'collapsibleListClosed')
-      {
-        if (node.child == null)
-        {
-          // we have no sub-folders for this node, get them
-          fullName = nameWithPath;
-          pageUrl = contextPath + config.options.pageConnector + node.path;
-          itemRequest.startURI = null;
-          buildItemLayer(itemRequest, updateItemTree);
-        }
+                                             if (node != null &&
+                                                 target.parentNode.className !=
+                                                 'collapsibleListClosed')
+                                             {
+                                               if (node.child == null)
+                                               {
+                                                 // we have no sub-folders for
+                                                 // this node, get them
+                                                 fullName = nameWithPath;
+                                                 pageUrl = contextPath +
+                                                           config.options.pageConnector +
+                                                           node.path;
+                                                 itemRequest.startURI = null;
+                                                 buildItemLayer(itemRequest, updateItemTree);
+                                               }
 
-        // display path should be the current item, not entire path
-        $('#destNodeDisplay').val(" " + node.name);
+                                               // display path should be the
+                                               // current item, not entire path
+                                               $('#destNodeDisplay').val(" " +
+                                                                         node.name);
 
-        // entire path (or should this be URI?) is passed in to back end
-        $('#destNode').val(node.path);
-        $('#selectedNodeURI').val(node.uri);
-        $('#itemName').val(node.name);
-        $(".listener-hook").removeClass("disabled");
-      }
-    });
+                                               // entire path (or should this
+                                               // be URI?) is passed in to back
+                                               // end
+                                               $('#destNode').val(node.path);
+                                               $('#selectedNodeURI').val(node.uri);
+                                               $('#itemName').val(node.name);
+                                               $(".listener-hook").removeClass("disabled");
+                                             }
+                                           });
 
     var getPageOfItems = function (_pageRequest, _callback)
     {
@@ -2252,7 +2305,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
               url: pageUrl,
               dataType: "text",
               data: _pageRequest
-             })
+            })
         .done(function (csvData)
               {
                 _callback(csvData);
@@ -2267,22 +2320,24 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       if ($('.collapsibleList').length)
       {
         // we already have the collapsible list, add to it
-    	var layerNodes = $.parseHTML(itemLayer.toHTML());
-    	var selectedNode = $('ul.collapsibleList').find('div[fullName="' + fullName + '"]').closest('li');
-    	var containerNode = selectedNode.find('ul');
+        var layerNodes = $.parseHTML(itemLayer.toHTML());
+        var selectedNode = $('ul.collapsibleList').find('div[fullName="' +
+                                                        fullName +
+                                                        '"]').closest('li');
+        var containerNode = selectedNode.find('ul');
 
-    	if (layerNodes == null )
-    	{
-    	  // leaf node, indicate it in the collapsible list
-    	  containerNode.remove();
-    	  containerNode = selectedNode;
-    	  containerNode[0].classList.remove('collapsibleListOpen');
-    	}
-    	else
-    	{
-    	  // non-leaf node, insert as a list of sub-nodes
+        if (layerNodes == null)
+        {
+          // leaf node, indicate it in the collapsible list
+          containerNode.remove();
+          containerNode = selectedNode;
+          containerNode[0].classList.remove('collapsibleListOpen');
+        }
+        else
+        {
+          // non-leaf node, insert as a list of sub-nodes
           containerNode.append(layerNodes);
-    	}
+        }
 
         CollapsibleLists.applyTo(containerNode[0], false);
       }
@@ -2297,8 +2352,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       if ($('#itemsLoading').length)
       {
         $('#itemsLoading').remove();
-	  }
-	};
+      }
+    };
 
     // callback to update the cached item tree
     var updateItemTree = function (cvsData)
@@ -2308,31 +2363,31 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
       if (dl > 0)
       {
-    	var startURI = '';
-    	for (var di=0; di<dl; di++)
-    	{
+        var startURI = '';
+        for (var di = 0; di < dl; di++)
+        {
           var rowData = data[di];
           // apply filter
           params['filter'](itemLayer, rowData);
           startURI = rowData[10];
-    	}
+        }
 
-    	itemRequest.startURI = startURI;
-    	if (dl == itemRequest.pageSize)
-    	{
-    	  // current page is full, get the next page
-    	  getPageOfItems(itemRequest, updateItemTree);
-    	}
+        itemRequest.startURI = startURI;
+        if (dl == itemRequest.pageSize)
+        {
+          // current page is full, get the next page
+          getPageOfItems(itemRequest, updateItemTree);
+        }
         else
         {
           // last page is a partial page
-      	  updateComplete();
+          updateComplete();
         }
       }
       else
       {
         // last page is empty
-    	updateComplete();
+        updateComplete();
       }
     };
 
@@ -2343,61 +2398,63 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     };
 
 
-
     // name of root node is an empty string
     buildItemLayer(itemRequest, updateItemTree);
 
-    var msg = '<div class="mMoveto">' + params['promptMsg'] + '<span class="spinnerSpan"></span></div> ' +
-      '<div id="itemTree" class="itemTree col-sm-12"></div>' +
-      '<div class="form-group ui-front" id="destNodeDiv">' +
-        '<label for="destNodeDisplay" id=destNodeDisplayLabel" class="control-label col-sm-3">' + lg.destination + '</label>' +
-        '<div class="col-sm-9">' +
-          '<input type="text" disabled="disabled" class="form-control" id="destNodeDisplay" name="destNodeDisplay" placeholder="' + lg.select + " " + lg.destination_folder + '">' +
-        '</div>' +
-      '</div>' +
-      '<input type="text" class="hidden" name="destNode" id="destNode">' +
-      '<input type="text" class="hidden" name="selectedNodeURI" id="selectedNodeURI">' +
-      '<input type="text" class="hidden" name="itemName" id="itemName">' +
-      '<input type="text" class="hidden" name="srcNodes" id="srcNodes" value="' + srcNodeList + '">';
+    var msg = '<div class="mMoveto">' + params['promptMsg'] +
+              '<span class="spinnerSpan"></span></div> ' +
+              '<div id="itemTree" class="itemTree col-sm-12"></div>' +
+              '<div class="form-group ui-front" id="destNodeDiv">' +
+              '<label for="destNodeDisplay" id=destNodeDisplayLabel" class="control-label col-sm-3">' +
+              lg.destination + '</label>' +
+              '<div class="col-sm-9">' +
+              '<input type="text" disabled="disabled" class="form-control" id="destNodeDisplay" name="destNodeDisplay" placeholder="' +
+              lg.select + " " + lg.destination_folder + '">' +
+              '</div>' +
+              '</div>' +
+              '<input type="text" class="hidden" name="destNode" id="destNode">' +
+              '<input type="text" class="hidden" name="selectedNodeURI" id="selectedNodeURI">' +
+              '<input type="text" class="hidden" name="itemName" id="itemName">' +
+              '<input type="text" class="hidden" name="srcNodes" id="srcNodes" value="' +
+              srcNodeList + '">';
 
     var btns = [];
     btns.push
     ({
-      "name": params['bOpName'],
-      "title": params['bOpTitle'],
-      "value": true,
-      "classes": "btn btn-primary listener-hook"
-    });
+       "name": params['bOpName'],
+       "title": params['bOpTitle'],
+       "value": true,
+       "classes": "btn btn-primary listener-hook"
+     });
     btns.push
     ({
-      "name": params['bCancelName'],
-      "title": params['bCancelTitle'],
-      "value": false,
-      "classes": "btn btn-default"
-    });
+       "name": params['bCancelName'],
+       "title": params['bCancelTitle'],
+       "value": false,
+       "classes": "btn btn-default"
+     });
 
     $.prompt(msg, {
-        classes:
-        {
-          form: 'form-horizontal',
-          box: '',
-          fade: '',
-          prompt: '',
-          close: '',
-          title: 'lead',
-          message: '',
-          buttons: '',
-          button: 'btn',
-          defaultButton: 'btn-primary'
-        },
-        loaded: function ()
-        {
-          $('.spinnerSpan').append(spinningWheel);
-          $(".listener-hook").addClass("disabled");
-        },             
-        submit: params['submitFunction'],
-        buttons: btns
-      });
+      classes: {
+        form: 'form-horizontal',
+        box: '',
+        fade: '',
+        prompt: '',
+        close: '',
+        title: 'lead',
+        message: '',
+        buttons: '',
+        button: 'btn',
+        defaultButton: 'btn-primary'
+      },
+      loaded: function ()
+      {
+        $('.spinnerSpan').append(spinningWheel);
+        $(".listener-hook").addClass("disabled");
+      },
+      submit: params['submitFunction'],
+      buttons: btns
+    });
   }; // end processItem
 
   $(document).on("click", "#delete",
@@ -3111,7 +3168,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     // Update location for status, upload, & new folder functions.
     setUploader(path);
   };
-  
+
   /*---------------------------------------------------------
    Initialization
    ---------------------------------------------------------*/
@@ -3137,7 +3194,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                                                                             config.version +
                                                                                             ']');
       $('div.version').html(config.version);
-      url1: contextPath + config.options.folderConnector + '/' + getCurrentPath().split('/')[1];
 
       // Loading theme
       loadCSS(contextPath + 'themes/' + config.options.theme +
@@ -3151,23 +3207,25 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                  $('head').append(data);
                }
              });
-      
+
       // Loading quota and folder size for root folder, e.g. /CADCTest
-      if (stringUtil.hasText(getCurrentPath()))
+      var currPath = getCurrentPath();
+      if (stringUtil.hasText(currPath))
       {
-	      $.ajax({
-	          method: 'GET',
-	          url: contextPath + config.options.folderConnector + '/' + getCurrentPath().split('/')[1] ,
-	          dataType: 'json',
-	          async: false,
-	          success: function (data)
-	          {
-                  var htmlString = stringUtil.format(
-                		  '<strong >{1}</strong> remaining of <strong>{2}</strong> <span class="request-more-link">(<a href="mailto:support@canfar.net">Request more</a>)</span>',
-                		  [data.size, data.quota]);
-	        	  $('div.quota').html(htmlString);
-	          }
-	          });
+        $.ajax({
+                 method: 'GET',
+                 url: contextPath + config.options.folderConnector + '/' +
+                      currPath.split('/')[1],
+                 dataType: 'json',
+                 async: false,
+                 success: function (data)
+                 {
+                   var htmlString = stringUtil.format(
+                     '<strong >{1}</strong> remaining of <strong>{2}</strong> <span class="request-more-link">(<a href="mailto:support@canfar.net">Request more</a>)</span>',
+                     [data.size, data.quota]);
+                   $('div.quota').html(htmlString);
+                 }
+               });
       }
 
       // loading zeroClipboard
@@ -3180,8 +3238,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         loadCSS(contextPath + 'scripts/CodeMirror/theme/' + config.edit.theme +
                 '.css');
         loadJS(contextPath + 'scripts/CodeMirror/lib/codemirror.js');
-        loadJS(contextPath + 'scripts/CodeMirror/addon/selection/active-line.js');
-        loadCSS(contextPath + 'scripts/CodeMirror/addon/display/fullscreen.css');
+        loadJS(contextPath +
+               'scripts/CodeMirror/addon/selection/active-line.js');
+        loadCSS(contextPath +
+                'scripts/CodeMirror/addon/display/fullscreen.css');
         loadJS(contextPath + 'scripts/CodeMirror/addon/display/fullscreen.js');
         loadJS(contextPath + 'scripts/CodeMirror/dynamic-mode.js');
       }
@@ -3313,8 +3373,9 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
         $('#upload').off().click(function ()
                                  {
-                                   // Create prompt window: path is a hidden element in a form
-                                   // embedded in the New menu dropdown.
+                                   // Create prompt window: path is a hidden
+                                   // element in a form embedded in the New
+                                   // menu dropdown.
                                    var msg = '<div id="dropzone-container"><h2>' +
                                              lg.current_folder +
                                              $('#currentFolderName').val() +
@@ -3344,7 +3405,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
                                    $("div#multiple-uploads").dropzone({
                                                                         paramName: "upload",
-                                                                        url: contextPath + config.options.fileConnector +
+                                                                        url: contextPath +
+                                                                             config.options.fileConnector +
                                                                              path,
                                                                         method: 'put',
                                                                         maxFilesize: config.upload.fileSizeLimit,  // 10GB max.
@@ -3576,8 +3638,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       // to prevent bug
       if (config.customScrollbar.enabled)
       {
-        loadCSS(contextPath + 'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css');
-        loadJS(contextPath + 'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js');
+        loadCSS(contextPath +
+                'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css');
+        loadJS(contextPath +
+               'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js');
 
         var csTheme = config.customScrollbar.theme != undefined ?
                       config.customScrollbar.theme : 'inset-2-dark';
@@ -3644,5 +3708,4 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                    setDimensions();
                  });
 
-};
-
+}
