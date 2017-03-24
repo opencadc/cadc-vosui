@@ -56,7 +56,7 @@
     "help_move": "The use of '../' is forbidden. You can access root folder by using '/'.",
     "items": " αντικείμενα",
     "kb": "kb",
-    "link": "Συνδέω με ...",
+    "link": "Σύνδεσμος",
     "list_view": " Αλλαγή σε προβολή λίστας.", 
     "loading_data": " Μεταφορά δεδομένων...", 
     "mb": "mb", 

@@ -56,7 +56,7 @@
     "help_move": "Użycie '../' jest zabronione. Aby dostać się do folderu roota, użyj '/'.", 
     "items": "pozycji", 
     "kb": "kb", 
-    "link": "Łączyć z ...", 
+    "link": "Połączyć", 
     "list_view": "Widok listy.", 
     "loading_data": "Przesyłanie danych ...", 
     "mb": "mb", 

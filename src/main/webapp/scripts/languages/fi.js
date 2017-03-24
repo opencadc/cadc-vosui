@@ -56,7 +56,7 @@
     "help_move": "The use of '../' is forbidden. You can access root folder by using '/'.", 
     "items": "items", 
     "kb": "kt", 
-    "link": "Linkki ...", 
+    "link": "Linkki", 
     "list_view": "Vaihda listanäkymään.", 
     "loading_data": "Transferring data ...", 
     "mb": "Mt", 

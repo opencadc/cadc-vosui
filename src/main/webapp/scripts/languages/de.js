@@ -56,7 +56,7 @@
     "help_move": "Die Verwendung von '../' ist nicht erlaubt. Sie können das Root-Verzeichnis mit '/' erreichen.", 
     "items": "Elemente", 
     "kb": "kB", 
-    "link": "Link zu ...", 
+    "link": "Verknüpfung", 
     "list_view": "Schaltet zur Listenansicht um.", 
     "loading_data": "Übertrage Daten...", 
     "mb": "MB", 

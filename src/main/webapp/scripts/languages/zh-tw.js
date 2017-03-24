@@ -56,7 +56,7 @@
     "help_move": "The use of '../' is forbidden. You can access root folder by using '/'.", 
     "items": "items", 
     "kb": "kb", 
-    "link": "鏈接到 ...", 
+    "link": "鏈接", 
     "list_view": "切換清單檢視。", 
     "loading_data": "傳送檔案...", 
     "mb": "mb", 
