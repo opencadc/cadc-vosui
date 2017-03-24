@@ -72,19 +72,15 @@ import ca.nrc.cadc.beacon.StorageItemCSVWriter;
 import ca.nrc.cadc.beacon.StorageItemWriter;
 import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
 import ca.nrc.cadc.beacon.web.view.FolderItem;
+import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
-import freemarker.cache.*;
-import freemarker.template.Configuration;
-import freemarker.template.TemplateModelException;
 import org.restlet.data.MediaType;
 import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ResourceException;
 
 import javax.security.auth.Subject;
-import javax.servlet.ServletContext;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
@@ -92,54 +88,6 @@ import java.util.*;
 
 public class MainPageServerResource extends StorageItemServerResource
 {
-    private final Configuration freemarkerConfiguration =
-            new Configuration(Configuration.VERSION_2_3_25);
-
-
-    /**
-     * Set-up method that can be overridden in order to initialize the state of
-     * the resource. By default it does nothing.
-     */
-    @Override
-    protected void doInit() throws ResourceException
-    {
-        super.doInit();
-
-        freemarkerConfiguration.setLocalizedLookup(false);
-
-        final ServletContext servletContext = getServletContext();
-        final List<TemplateLoader> templateLoaders = new ArrayList<>();
-
-        try
-        {
-            if (servletContext == null)
-            {
-                freemarkerConfiguration.setSharedVariable(
-                        "contextPath", VOSpaceApplication.DEFAULT_CONTEXT_PATH);
-                templateLoaders.add(
-                        new ClassTemplateLoader(getClass().getClassLoader(),
-                                                "/META-INF/resources"));
-            }
-            else
-            {
-                final String servletPath = servletContext.getContextPath();
-
-                freemarkerConfiguration.setSharedVariable(
-                        "contextPath",
-                        servletPath + (servletPath.endsWith("/") ? "" : "/"));
-                templateLoaders.add(new WebappTemplateLoader(servletContext));
-            }
-
-            freemarkerConfiguration.setTemplateLoader(
-                    new MultiTemplateLoader(templateLoaders.toArray(
-                            new TemplateLoader[templateLoaders.size()])));
-        }
-        catch (TemplateModelException e)
-        {
-            throw new ResourceException(e);
-        }
-    }
-
     @Get
     public Representation represent() throws Exception
     {
@@ -222,7 +170,7 @@ public class MainPageServerResource extends StorageItemServerResource
     {
         final Map<String, Object> dataModel = new HashMap<>();
         final AccessControlClient accessControlClient =
-                (AccessControlClient) getContext().getAttributes().get(
+                getContextAttribute(
                         VOSpaceApplication.ACCESS_CONTROL_CLIENT_KEY);
 
         dataModel.put("initialRows", initialRows);
@@ -254,6 +202,9 @@ public class MainPageServerResource extends StorageItemServerResource
                 // homeDir does not need to be set
             }
         }
+
+        final FreeMarkerConfiguration freemarkerConfiguration =
+                getContextAttribute(VOSpaceApplication.FREEMARKER_CONFIG_KEY);
 
         return new TemplateRepresentation("index.ftl",
                                           freemarkerConfiguration, dataModel,

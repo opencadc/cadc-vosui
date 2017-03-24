@@ -72,6 +72,7 @@ import ca.nrc.cadc.ac.client.GMSClient;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
 
 import ca.nrc.cadc.beacon.web.resources.*;
+import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 import org.apache.commons.configuration2.Configuration;
@@ -101,6 +102,8 @@ public class VOSpaceApplication extends Application
             "org.opencadc.ac.client";
     public static final String VOSPACE_SERVICE_ID_KEY =
             "org.opencadc.vospace.service_id";
+    public static final String FREEMARKER_CONFIG_KEY =
+            "org.opencadc.vospace.freemarker-config";
 
     public static final String SERVLET_CONTEXT_ATTRIBUTE_KEY =
             "org.restlet.ext.servlet.ServletContext";
@@ -159,10 +162,10 @@ public class VOSpaceApplication extends Application
                                     URI.create(configuration.getString(
                                             VOSPACE_SERVICE_ID_KEY,
                                             DEFAULT_SERVICE_ID)));
+        context.getAttributes().put(FREEMARKER_CONFIG_KEY,
+                                    createFreemarkerConfig());
 
-        final ServletContext servletContext =
-                (ServletContext) context.getAttributes().get(
-                        SERVLET_CONTEXT_ATTRIBUTE_KEY);
+        final ServletContext servletContext = getServletContext();
 
         final String contextPath = (servletContext == null)
                                    ? DEFAULT_CONTEXT_PATH : "/";
@@ -258,6 +261,25 @@ public class VOSpaceApplication extends Application
                 configuration.getString(
                         VOSpaceApplication.GMS_SERVICE_PROPERTY_KEY,
                         VOSpaceApplication.DEFAULT_GMS_SERVICE_ID)));
+    }
+
+    public ServletContext getServletContext()
+    {
+        return (ServletContext) getContext().getAttributes().get(
+                VOSpaceApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
+    }
+
+    /**
+     * Override this to set a custom FreeMarkerConfiguration.
+     * @return          FreeMarkerConfiguration instance.
+     */
+    public FreeMarkerConfiguration createFreemarkerConfig()
+    {
+        final FreeMarkerConfiguration freeMarkerConfiguration =
+                new FreeMarkerConfiguration();
+        freeMarkerConfiguration.addDefault(getServletContext());
+
+        return freeMarkerConfiguration;
     }
 
 
