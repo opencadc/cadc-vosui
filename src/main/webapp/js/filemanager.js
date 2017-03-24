@@ -1069,6 +1069,18 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     return pathListStr;
   }
   
+  var setLinker = function ()
+  {
+    $('#new_vospace_link').off().click(function ()
+			               {
+        					 var srcNodeList = setSrcNodes();
+        					 if (srcNodeList.length > 0)
+        					 {
+						       linkItem(srcNodeList);
+        					 }
+						   });
+  };
+  
   var setMover = function ()
   {
     $('#move').off().click(function ()
@@ -1944,9 +1956,9 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     $('#fileR').click();
   };
 
-  function FolderLayer()
+  function ItemLayer()
   {
-	FolderLayer.makeNode = function()
+	ItemLayer.makeNode = function()
 	{
       return {name: null, path: null, uri: null, child: null};
 	};
@@ -1955,7 +1967,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 	
 	this.addNode = function(name, path, uri)
 	{
-      var node = FolderLayer.makeNode();
+      var node = ItemLayer.makeNode();
       node.name = name;
       node.path = path;
       node.uri = uri;
@@ -2002,11 +2014,11 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                         {
     	                  if (node.child == null)
     	                  {
-    	                	  returnHTML = returnHTML + '<li><div class="folderName" fullName="' + node.path + '">' + node.name + '</div><ul></ul></li>';
+    	                	  returnHTML = returnHTML + '<li><div class="layerItemName" fullName="' + node.path + '">' + node.name + '</div><ul></ul></li>';
     	                  }
     	                  else
     	                  {
-    	                	returnHTML = returnHTML + '<li><div class="folderName" fullName="' + node.path + '">' + node.name + '</div>';
+    	                	returnHTML = returnHTML + '<li><div class="layerItemName" fullName="' + node.path + '">' + node.name + '</div>';
     	                    returnHTML = returnHTML + '<ul>' + node.child.toHTML() + '</ul>';
     	                    returnHTML = returnHTML + '</li>';    	                  
     	                  }
@@ -2016,7 +2028,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 	}
   }
   
-  function FolderTree() 
+  function ItemTree() 
   {
 	this.root = null;
 	
@@ -2044,26 +2056,77 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 	}
   }
 
+  // When we get a page of cvs data from the database containing 
+  // both files and folders, apply this filter to filter out all
+  // files.
+  var filterOutFiles = function(itemLayer, rowData)
+  {
+    if (rowData[8].includes('glyphicon-folder'))
+    {
+      itemLayer.addNode(rowData[1], rowData[9], rowData[10]);
+    }
+  }
+
+  var filterOutNothing = function(itemLayer, rowData)
+  {
+  }
+
+// Link the current item to specified dir and returns the new name.
+// Called by clicking the "VOSpace Link" menu item.
+  var linkItem = function (srcNodeList)
+  {
+    var params = 
+    {
+      bCancelName  : "bCancelLinkto",
+      bCancelTitle : lg.cancel,
+      bOpName      : "bLinkto",
+      bOpTitle     : lg.link,
+      filter       : filterOutNothing,
+      opSuccess    : lg.successful_linked,
+      promptMsg    : lg.please_select_link
+    };
+
+    processItem(params, srcNodeList)
+  }; // end linkItem
+
 // Move the current item to specified dir and returns the new name.
 // Called by clicking the "Move" button.
   var moveItem = function (srcNodeList)
   {
+    var params = 
+    {
+      bCancelName  : "bCancelMoveto",
+      bCancelTitle : lg.cancel,
+      bOpName      : "bMoveto",
+      bOpTitle     : lg.move,
+      filter       : filterOutFiles,
+      opSuccess    : lg.successful_moved,
+      promptMsg    : lg.please_select_folder
+    };
+
+    processItem(params, srcNodeList)
+  }; // end moveItem
+
+// Link or move the current item to specified dir and returns the new name.
+// Called by clicking the "VOSpace Link" menu item or the "Move" button.
+  var processItem = function (params, srcNodeList)
+  {
     var srcNodes = '';
     var fullName = '';
-    var folderTree = new FolderTree();
-    var folderLayer;
+    var itemTree = new ItemTree();
+    var itemLayer;
     var pageUrl = contextPath + config.options.pageConnector;
-    var folderRequest = {};
-    folderRequest.pageSize = defaultPageSize;
-    var spinningWheel = $.parseHTML('<span id="moveLoading" class="glyphicon glyphicon-refresh fast-right-spinner"></span>');
+    var itemRequest = {};
+    itemRequest.pageSize = defaultPageSize;
+    var spinningWheel = $.parseHTML('<span id="itemsLoading" class="glyphicon glyphicon-refresh fast-right-spinner"></span>');
 
-    $(document).on('.folderName').click(function(event)
+    $(document).on('.layerItemName').click(function(event)
     {
             var target = $(event)[0].target;
             var nameWithPath = $(target).attr('fullName');
-            var node = folderTree.findNode(nameWithPath);
+            var node = itemTree.findNode(nameWithPath);
             // Clear all highlights
-            $(".folderName.bg-success").removeClass("bg-success");
+            $(".layerItemName.bg-success").removeClass("bg-success");
 
             $(target).addClass("bg-success");
 
@@ -2074,11 +2137,11 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                 // we have no sub-folders for this node, get them
                 fullName = nameWithPath;
                 pageUrl = contextPath + config.options.pageConnector + node.path;
-                folderRequest.startURI = null;
-                buildFolderLayer(folderRequest, updateFolderTree);
+                itemRequest.startURI = null;
+                buildItemLayer(itemRequest, updateItemTree);
               }
 
-              // display path should be the current folder, not entire path
+              // display path should be the current item, not entire path
               $('#destNodeDisplay').val(" " + node.name);
 
               // entire path (or should this be URI?) is passed in to back end
@@ -2087,18 +2150,18 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             }
     });
 
-    var getPageOfFolders = function (_pageRequest, _callback)
+    var getPageOfItems = function (_pageRequest, _callback)
     {
-      if (!$('#moveLoading').length)
+      if (!$('#itemsLoading').length)
       {
         $('.spinnerSpan').append(spinningWheel);
       }
 
       $.get({
-                url: pageUrl,
-                dataType: "text",
-                data: _pageRequest
-              })
+              url: pageUrl,
+              dataType: "text",
+              data: _pageRequest
+             })
         .done(function (csvData)
               {
                 _callback(csvData);
@@ -2107,13 +2170,13 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     var updateComplete = function ()
     {
-      // add the new layer to the tree and draw the folder tree
-      folderTree.addLayer(fullName, folderLayer);
+      // add the new layer to the tree and draw the item tree
+      itemTree.addLayer(fullName, itemLayer);
 
       if ($('.collapsibleList').length)
       {
         // we already have the collapsible list, add to it
-    	var layerNodes = $.parseHTML(folderLayer.toHTML());
+    	var layerNodes = $.parseHTML(itemLayer.toHTML());
     	var selectedNode = $('ul.collapsibleList').find('div[fullName="' + fullName + '"]').closest('li');
     	var containerNode = selectedNode.find('ul');
 
@@ -2127,29 +2190,27 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     	else
     	{
     	  // non-leaf node, insert as a list of sub-nodes
-        containerNode.append(layerNodes);
+          containerNode.append(layerNodes);
     	}
 
         CollapsibleLists.applyTo(containerNode[0], false);
       }
       else
       {
-        // initial load, no collapsible list, draw the vospace root folder layer
-        var node = $.parseHTML(folderTree.toHTML())[0];
+        // initial load, no collapsible list, draw the vospace root item layer
+        var node = $.parseHTML(itemTree.toHTML())[0];
         CollapsibleLists.applyTo(node, false);
-        $('.folderTree').append(node);
+        $('.itemTree').append(node);
       }
 
-
-      if ($('#moveLoading').length)
+      if ($('#itemsLoading').length)
       {
-        $('#moveLoading').remove();
-	    }
+        $('#itemsLoading').remove();
+	  }
+	};
 
-	  };
-
-    // callback to update the cached folder tree
-    var updateFolderTree = function (cvsData)
+    // callback to update the cached item tree
+    var updateItemTree = function (cvsData)
     {
       var data = $.csv.toArrays(cvsData);
       var dl = data.length;
@@ -2160,20 +2221,16 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     	for (var di=0; di<dl; di++)
     	{
           var rowData = data[di];
-        // this needs to be applied as a normal filter
-          if (rowData[8].includes('glyphicon-folder'))
-    	  {
-        	folderLayer.addNode(rowData[1], rowData[9], rowData[10]);
-    	  }
-
+          // apply filter
+          params['filter'](itemLayer, rowData);
           startURI = rowData[10];
     	}
 
-    	folderRequest.startURI = startURI;
-    	if (dl == folderRequest.pageSize)
+    	itemRequest.startURI = startURI;
+    	if (dl == itemRequest.pageSize)
     	{
     	  // current page is full, get the next page
-    	  getPageOfFolders(folderRequest, updateFolderTree);
+    	  getPageOfItems(itemRequest, updateItemTree);
     	}
         else
         {
@@ -2186,19 +2243,19 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         // last page is empty
     	updateComplete();
       }
-	  };
-
-    var buildFolderLayer = function (_folderRequest, _callback)
-    {
-      folderLayer = new FolderLayer();
-        getPageOfFolders(_folderRequest, _callback);
     };
 
-    var doMove = function (event, value, msg, formVals)
+    var buildItemLayer = function (_itemRequest, _callback)
+    {
+      itemLayer = new ItemLayer();
+      getPageOfItems(_itemRequest, _callback);
+    };
+
+    var doOperation = function (event, value, msg, formVals)
     {
       if (value == true) {
 
-        // Target folder for move
+        // Target destination for the operation
         var itemPath = formVals['destNode'];
 
         var url = contextPath + config.options.folderConnector + itemPath;
@@ -2212,7 +2269,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
               data: dataStr,
               statusCode: {
                 204: function () {
-                  $.prompt(lg.successful_moved,
+                  $.prompt(params['opSuccess'],
                       {
                         submit: refreshPage
                       });
@@ -2234,14 +2291,13 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             });
 
       } //end if value == true
-
     };
 
     // name of root node is an empty string
-    buildFolderLayer(folderRequest, updateFolderTree);
+    buildItemLayer(itemRequest, updateItemTree);
 
-    var msg = '<div class="mMoveto">' + lg.please_select_folder + '<span class="spinnerSpan"></span></div> ' +
-      '<div id="folderTree" class="folderTree col-sm-12"></div>' +
+    var msg = '<div class="mMoveto">' + params['promptMsg'] + '<span class="spinnerSpan"></span></div> ' +
+      '<div id="itemTree" class="itemTree col-sm-12"></div>' +
       '<div class="form-group ui-front" id="destNodeDiv">' +
         '<label for="destNodeDisplay" id=destNodeDisplayLabel" class="control-label col-sm-3">' + lg.destination + '</label>' +
         '<div class="col-sm-9">' +
@@ -2254,15 +2310,15 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     var btns = [];
     btns.push
     ({
-      "name": "bMoveto",
-      "title": lg.move,
+      "name": params['bOpName'],
+      "title": params['bOpTitle'],
       "value": true,
       "classes": "btn btn-primary listener-hook"
     });
     btns.push
     ({
-      "name": "bCancelMoveto",
-      "title": lg.cancel,
+      "name": params['bCancelName'],
+      "title": params['bCancelTitle'],
       "value": false,
       "classes": "btn btn-default"
     });
@@ -2286,10 +2342,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           $('.spinnerSpan').append(spinningWheel);
           $(".listener-hook").addClass("disabled");
         },             
-        submit: doMove,
+        submit: doOperation,
         buttons: btns
       });
-  }; // end moveItem
+  }; // end processItem
 
   $(document).on("click", "#delete",
                  function ()
@@ -3515,6 +3571,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       $(window).resize(setDimensions);
 
       setMover();
+      setLinker();
       getDetailView(fileRoot + expandedFolder);
     });
 
