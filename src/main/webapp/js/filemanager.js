@@ -2007,11 +2007,15 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                         {
     	                  if (node.child == null)
     	                  {
-    	                	  returnHTML = returnHTML + '<li><div class="layerItemName" fullName="' + node.path + '">' + node.name + '</div><ul></ul></li>';
+    	                	  returnHTML = returnHTML
+                              + '<li><div class="layerItemName" fullName="' + node.path + '" uri="' + node.uri + '">' + node.name
+                              + '</div><ul></ul></li>';
     	                  }
     	                  else
     	                  {
-    	                	returnHTML = returnHTML + '<li><div class="layerItemName" fullName="' + node.path + '">' + node.name + '</div>';
+    	                	returnHTML = returnHTML
+                            + '<li><div class="layerItemName" fullName="' + node.path +  '" uri="' + node.uri +'">' + node.name
+                            + '</div>';
     	                    returnHTML = returnHTML + '<ul>' + node.child.toHTML() + '</ul>';
     	                    returnHTML = returnHTML + '</li>';    	                  
     	                  }
@@ -2062,6 +2066,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
   var filterOutNothing = function(itemLayer, rowData)
   {
+    itemLayer.addNode(rowData[1], rowData[9], rowData[10]);
   }
 
 // Link the current item to specified dir and returns the new name.
@@ -2076,7 +2081,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       bOpTitle     : lg.link,
       filter       : filterOutNothing,
       opSuccess    : lg.successful_linked,
-      promptMsg    : lg.please_select_link
+      promptMsg    : lg.please_select_link,
+      submitFunction  : doLink
     };
 
     processItem(params, "")
@@ -2094,11 +2100,104 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       bOpTitle     : lg.move,
       filter       : filterOutFiles,
       opSuccess    : lg.successful_moved,
-      promptMsg    : lg.please_select_folder
+      promptMsg    : lg.please_select_folder,
+      submitFunction   : doMove,
+
     };
 
     processItem(params, srcNodeList)
   }; // end moveItem
+
+
+
+  // eventually would become doMove
+  var doMove = function (event, value, msg, formVals)
+  {
+    if (value == true) {
+
+      // Target destination for the operation
+      var itemPath = formVals['destNode'];
+
+      var url = contextPath + config.options.folderConnector + itemPath;
+
+      var dataStr = JSON.stringify(formVals);
+      $.ajax(
+          {
+            url: url,
+            method: "POST",
+            contentType: "application/json",
+            data: dataStr,
+            statusCode: {
+              204: function () {
+                // $.prompt(params['opSuccess'],
+                $.prompt(lg.successful_moved,
+                    {
+                      submit: refreshPage
+                    });
+              },
+              401: function () {
+                $.prompt(lg.NOT_ALLOWED_SYSTEM);
+              },
+              403: function () {
+                $.prompt(lg.authorization_required);
+              },
+              409: function () {
+                $.prompt(lg.DIRECTORY_ALREADY_EXISTS.replace(/%s/g, fname)); // TODO: change this
+              },
+              500: function ()
+              {
+                $.prompt(lg.ERROR_SERVER);
+              }
+            }
+          });
+
+    } //end if value == true
+  };
+
+
+
+  // eventually would become doMove
+  var doLink = function (event, value, msg, formVals)
+  {
+    if (value == true) {
+
+      // for link
+      var url = contextPath + config.options.linkConnector + $('#currentpath').val();
+      formVals['link_url'] = config.vos_prefix + $('#currentpath').val() + "/" + formVals['itemName'];
+
+      var dataStr = JSON.stringify(formVals);
+      $.ajax(
+          {
+            url: url,
+            method: "PUT",
+            contentType: "application/json",
+            data: dataStr,
+            statusCode: {
+              204: function () {
+                $.prompt(lg.successful_moved,
+                    {
+                      submit: refreshPage
+                    });
+              },
+              401: function () {
+                $.prompt(lg.NOT_ALLOWED_SYSTEM);
+              },
+              403: function () {
+                $.prompt(lg.authorization_required);
+              },
+              409: function () {
+                $.prompt(lg.DIRECTORY_ALREADY_EXISTS.replace(/%s/g, fname)); // TODO: change this
+              },
+              500: function ()
+              {
+                $.prompt(lg.ERROR_SERVER);
+              }
+            }
+          });
+
+    } //end if value == true
+  };
+
 
 // Link or move the current item to specified dir and returns the new name.
 // Called by clicking the "VOSpace Link" menu item or the "Move" button.
@@ -2139,6 +2238,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
               // entire path (or should this be URI?) is passed in to back end
               $('#destNode').val(node.path);
+              $('#itemName').val(node.name);
               $(".listener-hook").removeClass("disabled");
             }
     });
@@ -2244,47 +2344,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       getPageOfItems(_itemRequest, _callback);
     };
 
-    var doOperation = function (event, value, msg, formVals)
-    {
-      if (value == true) {
 
-        // Target destination for the operation
-        var itemPath = formVals['destNode'];
-
-        var url = contextPath + config.options.folderConnector + itemPath;
-
-        var dataStr = JSON.stringify(formVals);
-        $.ajax(
-            {
-              url: url,
-              method: "POST",
-              contentType: "application/json",
-              data: dataStr,
-              statusCode: {
-                204: function () {
-                  $.prompt(params['opSuccess'],
-                      {
-                        submit: refreshPage
-                      });
-                },
-                401: function () {
-                  $.prompt(lg.NOT_ALLOWED_SYSTEM);
-                },
-                403: function () {
-                  $.prompt(lg.authorization_required);
-                },
-                409: function () {
-                  $.prompt(lg.DIRECTORY_ALREADY_EXISTS.replace(/%s/g, fname)); // TODO: change this
-                },
-                500: function ()
-                {
-                  $.prompt(lg.ERROR_SERVER);
-                }
-              }
-            });
-
-      } //end if value == true
-    };
 
     // name of root node is an empty string
     buildItemLayer(itemRequest, updateItemTree);
@@ -2298,6 +2358,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         '</div>' +
       '</div>' +
       '<input type="text" class="hidden" name="destNode" id="destNode">' +
+      '<input type="text" class="hidden" name="itemName" id="itemName">' +
       '<input type="text" class="hidden" name="srcNodes" id="srcNodes" value="' + srcNodeList + '">';
 
     var btns = [];
@@ -2335,7 +2396,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           $('.spinnerSpan').append(spinningWheel);
           $(".listener-hook").addClass("disabled");
         },             
-        submit: doOperation,
+        submit: params['submitFunction'],
         buttons: btns
       });
   }; // end processItem
