@@ -73,15 +73,12 @@ import ca.nrc.cadc.beacon.FileSizeRepresentation;
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.vos.VOS.Detail;
-import ca.nrc.cadc.vos.client.ClientRecursiveSetNode;
 import ca.nrc.cadc.vos.client.ClientTransfer;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 
 import java.io.IOException;
 import java.net.URI;
 import java.security.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -117,81 +114,76 @@ public class FolderItemServerResource extends StorageItemServerResource
         createFolder();
         getResponse().setStatus(Status.SUCCESS_CREATED);
     }
-    
+
     @Get("json")
     public Representation retrieveQuota() throws Exception
     {
         final FileSizeRepresentation fileSizeRepresentation =
                 new FileSizeRepresentation();
-    	final Node node = getCurrentNode(Detail.properties);
-        final long folderSize = 
-        		getPropertyValue(node, VOS.PROPERTY_URI_CONTENTLENGTH);
-        final long quota = 
-        		getPropertyValue(node, VOS.PROPERTY_URI_QUOTA);
-        final String quotaString = new FileSizeRepresentation().getSizeHumanReadable(quota);
-        final String remainingSizeString = 
+        final Node node = getCurrentNode(Detail.properties);
+        final long folderSize =
+                getPropertyValue(node, VOS.PROPERTY_URI_CONTENTLENGTH);
+        final long quota =
+                getPropertyValue(node, VOS.PROPERTY_URI_QUOTA);
+        final String quotaString = new FileSizeRepresentation()
+                .getSizeHumanReadable(quota);
+        final String remainingSizeString =
                 fileSizeRepresentation.getSizeHumanReadable(
                         ((quota - folderSize) > 0) ? (quota - folderSize) : 0);
 
-        return  new JSONRepresentation()
-				{
-		            @Override
-		            public void write(final JSONWriter jsonWriter)
-		                    throws JSONException
-		            {
-		                jsonWriter.object()
-		                	.key("size").value(remainingSizeString)
-		                    .key("quota").value(quotaString)
-		                    .endObject();
-		            }	    	
-				};
+        return new JSONRepresentation()
+        {
+            @Override
+            public void write(final JSONWriter jsonWriter)
+                    throws JSONException
+            {
+                jsonWriter.object()
+                        .key("size").value(remainingSizeString)
+                        .key("quota").value(quotaString)
+                        .endObject();
+            }
+        };
     }
-    
-    private long getPropertyValue(final Node node, 
-    		final String propertyURI) throws Exception
+
+    private long getPropertyValue(final Node node,
+                                  final String propertyURI) throws Exception
     {
-    	final NodeProperty property = node.findProperty(propertyURI);
-    	return (property == null) ? 0L
+        final NodeProperty property = node.findProperty(propertyURI);
+        return (property == null) ? 0L
                                   : Long.parseLong(property.getPropertyValue());
     }
-    
+
     @Post("json")
-    public void moveToFolder(final JsonRepresentation payload) throws Exception {
+    public void moveToFolder(final JsonRepresentation payload) throws Exception
+    {
         final JSONObject jsonObject = payload.getJsonObject();
 
         final ContainerNode currentNode = getCurrentNode(VOS.Detail.min);
         final Set<String> keySet = jsonObject.keySet();
 
-        if (keySet.contains("srcNodes")) {
-
+        if (keySet.contains("srcNodes"))
+        {
             final String srcNodeStr = (String) jsonObject.get("srcNodes");
-            String[] srcNodes = srcNodeStr.split(",");
+            final String[] srcNodes = srcNodeStr.split(",");
 
-            try {
-                // iterate over each srcNode & call clientTransfer
-                for (int idx = 0; idx < srcNodes.length; idx++) {
-                    VOSURI srcURI = new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + srcNodes[idx]));
-                    for (String srcNode : srcNodes) {
-
-                        move(srcURI, currentNode.getUri());
-
-                    }
-                }
-                getResponse().setStatus(Status.SUCCESS_OK);
-            }
-            catch (AccessControlException ace)
+            // iterate over each srcNode & call clientTransfer
+            for (final String srcNode : srcNodes)
             {
-                getResponse().setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+                final VOSURI srcURI = new VOSURI(
+                        URI.create(VOSPACE_NODE_URI_PREFIX + srcNode));
+                move(srcURI, currentNode.getUri());
             }
 
+            getResponse().setStatus(Status.SUCCESS_OK);
         }
     }
 
     Transfer getTransfer(VOSURI source, VOSURI destination)
     {
         return new Transfer(source.getURI(),
-                destination.getURI(), false);
+                            destination.getURI(), false);
     }
+
     private ClientTransfer move(VOSURI source, VOSURI destination)
             throws IOException, InterruptedException, AccessControlException
     {
@@ -201,26 +193,25 @@ public class FolderItemServerResource extends StorageItemServerResource
 
         try
         {
-            return Subject.doAs(generateVOSpaceUser(), new PrivilegedExceptionAction<ClientTransfer>()
-            {
-                @Override
-                public ClientTransfer run() throws Exception
-                {
-                    final ClientTransfer clientTransfer =  voSpaceClient.createTransfer(transfer);
-                    clientTransfer.setMonitor(false);
-                    clientTransfer.runTransfer();
-                    return clientTransfer;
-                }
-            });
+            return Subject.doAs(generateVOSpaceUser(),
+                                new PrivilegedExceptionAction<ClientTransfer>()
+                                {
+                                    @Override
+                                    public ClientTransfer run() throws Exception
+                                    {
+                                        final ClientTransfer clientTransfer =
+                                                voSpaceClient.createTransfer(
+                                                        transfer);
+                                        clientTransfer.setMonitor(false);
+                                        clientTransfer.runTransfer();
+
+                                        return clientTransfer;
+                                    }
+                                });
         }
         catch (PrivilegedActionException e)
         {
             throw new RuntimeException(e.getMessage());
         }
     }
-
 }
-
-
-
-

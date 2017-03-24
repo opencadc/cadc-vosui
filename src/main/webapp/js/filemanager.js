@@ -1054,20 +1054,17 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
   var setSrcNodes = function()
   {
-    var selectedItems = $('tr.selected > td:nth-child(2) > span.glyphicon-pencil > a');
-    var selectedPaths = new Array();
-    var pathListStr = "";
+    var selectedItems =
+      $('tr.selected > td:nth-child(2) > span.glyphicon-pencil > a');
+    var selectedPaths = [];
+
     $(selectedItems).each(function(index, item)
     {
       selectedPaths.push($(item).attr('path'));
     });
 
-    if (selectedPaths.length > 0) {
-      pathListStr = selectedPaths.join(",");
-    }
-
-    return pathListStr;
-  }
+    return (selectedPaths.length > 0) ? selectedPaths.join(",") : "";
+  };
   
   var setLinker = function ()
   {

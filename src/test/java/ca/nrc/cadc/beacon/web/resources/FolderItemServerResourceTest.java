@@ -76,13 +76,11 @@ import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.vos.client.ClientTransfer;
 import org.easymock.IAnswer;
 import org.json.JSONObject;
-import org.restlet.Context;
 import org.restlet.Response;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.net.URL;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +94,7 @@ import javax.servlet.ServletContext;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 
@@ -174,41 +173,47 @@ public class FolderItemServerResourceTest
 
         verify(mockVOSpaceClient, mockResponse, mockServletContext);
     }
-    
+
     @Test
     public void retrieveNormalQuota() throws Exception
     {
-    	long folderSize = 123456789L;
-    	long quota = 9876543210L;
-    	String expectedRemainingSize = new FileSizeRepresentation().getSizeHumanReadable(quota - folderSize);
-        NodeProperty prop = new NodeProperty(VOS.PROPERTY_URI_CONTENTLENGTH, Long.toString(folderSize));
+        long folderSize = 123456789L;
+        long quota = 9876543210L;
+        String expectedRemainingSize = new FileSizeRepresentation()
+                .getSizeHumanReadable(quota - folderSize);
+        NodeProperty prop = new NodeProperty(VOS.PROPERTY_URI_CONTENTLENGTH, Long
+                .toString(folderSize));
         this.retrieveQuota(quota, expectedRemainingSize, prop);
     }
-    
+
     @Test
     public void retrieveNotEnoughQuota() throws Exception
     {
-    	long folderSize = 9876543210L;
-    	long quota = 123456789L;
-    	String expectedRemainingSize = new FileSizeRepresentation().getSizeHumanReadable(0);
-        NodeProperty prop = new NodeProperty(VOS.PROPERTY_URI_CONTENTLENGTH, Long.toString(folderSize));
+        long folderSize = 9876543210L;
+        long quota = 123456789L;
+        String expectedRemainingSize = new FileSizeRepresentation()
+                .getSizeHumanReadable(0);
+        NodeProperty prop = new NodeProperty(VOS.PROPERTY_URI_CONTENTLENGTH, Long
+                .toString(folderSize));
         this.retrieveQuota(quota, expectedRemainingSize, prop);
     }
-    
+
     private void retrieveQuota(long quota, final String expectedRemainingSize,
                                final NodeProperty folderSizeNodeProp)
             throws Exception
     {
-    	String expectedQuota = new FileSizeRepresentation().getSizeHumanReadable(quota);
-    	
+        String expectedQuota = new FileSizeRepresentation()
+                .getSizeHumanReadable(quota);
+
         final VOSURI folderURI = new VOSURI(URI.create(
                 StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
                 + "/my/node"));
         List<NodeProperty> properties = new ArrayList<>();
         properties.add(folderSizeNodeProp);
-        NodeProperty prop = new NodeProperty(VOS.PROPERTY_URI_QUOTA, Long.toString(quota));
+        NodeProperty prop = new NodeProperty(VOS.PROPERTY_URI_QUOTA, Long
+                .toString(quota));
         properties.add(prop);
-        
+
         final ContainerNode containerNode = new ContainerNode(folderURI, properties);
 
         expect(mockServletContext.getContextPath()).andReturn("/teststorage")
@@ -242,7 +247,7 @@ public class FolderItemServerResourceTest
             }
 
             @SuppressWarnings("unchecked")
-			@Override
+            @Override
             <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail)
                     throws NodeNotFoundException
             {
@@ -252,14 +257,14 @@ public class FolderItemServerResourceTest
 
         Representation jsonRep = testSubject.retrieveQuota();
         StringWriter swriter = new StringWriter();
-        jsonRep.write(swriter);  
+        jsonRep.write(swriter);
         String[] kvps = swriter.getBuffer().toString().split(",");
         assertTrue("Should only contain two properties", kvps.length == 2);
         for (String kvp : kvps)
         {
-        	String[] kv = kvp.split(":");
-        	String key = extract(kv[0]);
-        	String value = extract(kv[1]);
+            String[] kv = kvp.split(":");
+            String key = extract(kv[0]);
+            String value = extract(kv[1]);
             switch (key)
             {
                 case "size":
@@ -273,31 +278,27 @@ public class FolderItemServerResourceTest
                     break;
             }
         }
-        	
+
     }
-    
+
     private String extract(final String text)
     {
-    	int beginIndex = text.indexOf('"');
-    	int endIndex = text.lastIndexOf('"');
-    	return text.substring(beginIndex + 1, endIndex);
+        int beginIndex = text.indexOf('"');
+        int endIndex = text.lastIndexOf('"');
+        return text.substring(beginIndex + 1, endIndex);
     }
 
 
     @Test
     public void moveItemsToFolder() throws Exception
     {
-        String srcNodeName = "/my/source_node";
-        String destNodeName = "/my/dest_node";
-        final VOSURI source = new VOSURI(URI.create(
-                StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
-                        + srcNodeName));
+        final String srcNodeName = "/my/source_node";
+        final String destNodeName = "/my/dest_node";
 
         final VOSURI destination = new VOSURI(URI.create(
                 StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
-                        + destNodeName));
+                + destNodeName));
 
-        List<NodeProperty> properties = new ArrayList<>();
         final ContainerNode mockDestinationNode = createMock(ContainerNode.class);
 
         expect(mockDestinationNode.getUri()).andReturn(destination)
@@ -317,7 +318,8 @@ public class FolderItemServerResourceTest
         expectLastCall().andAnswer(new IAnswer<Void>()
         {
             @Override
-            public Void answer() throws Throwable {
+            public Void answer() throws Throwable
+            {
                 return null;
             }
         });
@@ -326,7 +328,8 @@ public class FolderItemServerResourceTest
         expectLastCall().andAnswer(new IAnswer<Void>()
         {
             @Override
-            public Void answer() throws Throwable {
+            public Void answer() throws Throwable
+            {
                 return null;
             }
         });
@@ -380,10 +383,12 @@ public class FolderItemServerResourceTest
                 return destination;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
-            <T extends Node> T getNode(VOSURI folderURI, VOS.Detail detail) throws NodeNotFoundException
+            <T extends Node> T getNode(VOSURI folderURI, VOS.Detail detail)
+                    throws NodeNotFoundException
             {
-                return (T)mockDestinationNode;
+                return (T) mockDestinationNode;
             }
 
             @Override
@@ -395,14 +400,14 @@ public class FolderItemServerResourceTest
 
 
         final JSONObject sourceJSON = new JSONObject("{\"destNode\":\"" + destNodeName + "\","
-                + "\"srcNodes\":\"" + srcNodeName + "\"}");
+                                                     + "\"srcNodes\":\"" + srcNodeName + "\"}");
 
         final JsonRepresentation payload = new JsonRepresentation(sourceJSON);
 
         testSubject.moveToFolder(payload);
 
         verify(mockVOSpaceClient, mockResponse, mockServletContext,
-                mockClientTransfer, mockDestinationNode);
+               mockClientTransfer, mockDestinationNode, mockTransfer);
 
     }
 }
