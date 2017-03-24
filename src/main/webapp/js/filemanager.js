@@ -1070,11 +1070,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   {
     $('#new_vospace_link').off().click(function ()
 			               {
-        					 var srcNodeList = setSrcNodes();
-        					 if (srcNodeList.length > 0)
-        					 {
-						       linkItem(srcNodeList);
-        					 }
+						     linkItem();
 						   });
   };
   
@@ -2070,7 +2066,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
 // Link the current item to specified dir and returns the new name.
 // Called by clicking the "VOSpace Link" menu item.
-  var linkItem = function (srcNodeList)
+  var linkItem = function ()
   {
     var params = 
     {
@@ -2083,7 +2079,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       promptMsg    : lg.please_select_link
     };
 
-    processItem(params, srcNodeList)
+    processItem(params, "")
   }; // end linkItem
 
 // Move the current item to specified dir and returns the new name.
