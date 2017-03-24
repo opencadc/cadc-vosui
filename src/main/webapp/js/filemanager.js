@@ -1013,7 +1013,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                input: {
                  focus: "#link_name",
                  buttons: btns,
-                 html:  f,
+                 html:  msg,
                  submit: function (e, value, message, formVals)
                  {
                    if (value === true)
@@ -2162,8 +2162,9 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     if (value == true) {
 
       // for link
-      var url = contextPath + config.options.linkConnector + $('#currentpath').val();
-      formVals['link_url'] = config.vos_prefix + $('#currentpath').val() + "/" + formVals['itemName'];
+      var url = contextPath + config.options.linkConnector + $('#currentpath').val() + "/" + formVals['itemName'];
+
+      formVals['link_url'] = formVals['selectedNodeURI'];
 
       var dataStr = JSON.stringify(formVals);
       $.ajax(
@@ -2173,8 +2174,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             contentType: "application/json",
             data: dataStr,
             statusCode: {
-              204: function () {
-                $.prompt(lg.successful_moved,
+              201: function () {
+                $.prompt(lg.successful_linked,
                     {
                       submit: refreshPage
                     });
@@ -2238,6 +2239,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
               // entire path (or should this be URI?) is passed in to back end
               $('#destNode').val(node.path);
+              $('#selectedNodeURI').val(node.uri);
               $('#itemName').val(node.name);
               $(".listener-hook").removeClass("disabled");
             }
@@ -2358,6 +2360,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         '</div>' +
       '</div>' +
       '<input type="text" class="hidden" name="destNode" id="destNode">' +
+      '<input type="text" class="hidden" name="selectedNodeURI" id="selectedNodeURI">' +
       '<input type="text" class="hidden" name="itemName" id="itemName">' +
       '<input type="text" class="hidden" name="srcNodes" id="srcNodes" value="' + srcNodeList + '">';
 
