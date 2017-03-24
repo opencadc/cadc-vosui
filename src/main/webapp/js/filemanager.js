@@ -2211,34 +2211,34 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     $(document).on('.layerItemName').click(function(event)
     {
-            var target = $(event)[0].target;
-            var nameWithPath = $(target).attr('fullName');
-            var node = itemTree.findNode(nameWithPath);
-            // Clear all highlights
-            $(".layerItemName.bg-success").removeClass("bg-success");
+      var target = $(event)[0].target;
+      var nameWithPath = $(target).attr('fullName');
+      var node = itemTree.findNode(nameWithPath);
+      // Clear all highlights
+      $(".layerItemName.bg-success").removeClass("bg-success");
 
-            $(target).addClass("bg-success");
+      $(target).addClass("bg-success");
 
-            if (node != null && target.parentNode.className != 'collapsibleListClosed')
-            {
-              if (node.child == null)
-              {
-                // we have no sub-folders for this node, get them
-                fullName = nameWithPath;
-                pageUrl = contextPath + config.options.pageConnector + node.path;
-                itemRequest.startURI = null;
-                buildItemLayer(itemRequest, updateItemTree);
-              }
+      if (node != null && target.parentNode.className != 'collapsibleListClosed')
+      {
+        if (node.child == null)
+        {
+          // we have no sub-folders for this node, get them
+          fullName = nameWithPath;
+          pageUrl = contextPath + config.options.pageConnector + node.path;
+          itemRequest.startURI = null;
+          buildItemLayer(itemRequest, updateItemTree);
+        }
 
-              // display path should be the current item, not entire path
-              $('#destNodeDisplay').val(" " + node.name);
+        // display path should be the current item, not entire path
+        $('#destNodeDisplay').val(" " + node.name);
 
-              // entire path (or should this be URI?) is passed in to back end
-              $('#destNode').val(node.path);
-              $('#selectedNodeURI').val(node.uri);
-              $('#itemName').val(node.name);
-              $(".listener-hook").removeClass("disabled");
-            }
+        // entire path (or should this be URI?) is passed in to back end
+        $('#destNode').val(node.path);
+        $('#selectedNodeURI').val(node.uri);
+        $('#itemName').val(node.name);
+        $(".listener-hook").removeClass("disabled");
+      }
     });
 
     var getPageOfItems = function (_pageRequest, _callback)
