@@ -136,7 +136,7 @@ directory for that user actually exists -->
                                   fileManager(rows, $("#beacon"),
                                               "<#if startURI??>${startURI}</#if>",
                                               "${folder.path}", ${folder.writable?c},
-                                              100 , json, "${contextPath}");
+                                              100 , json, "${contextPath}", true);
                                 })
                           .fail(function (request, textStatus, errorThrown)
                                 {

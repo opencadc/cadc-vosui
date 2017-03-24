@@ -10,6 +10,11 @@ repositories {
     maven {
         url = 'http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/m2repo'
     }
+
+    // Only here until cadc-vosui is in jcenter.
+    maven {
+        url  "http://dl.bintray.com/opencadc/software"
+    }
 }
 
 dependencies {

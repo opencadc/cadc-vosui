@@ -163,6 +163,11 @@ public class MainPageServerResource extends StorageItemServerResource
         return representFolderItem(folderItem, initialRows, startNextPageURI);
     }
 
+    FreeMarkerConfiguration getFreeMarkerConfiguration()
+    {
+        return getContextAttribute(VOSpaceApplication.FREEMARKER_CONFIG_KEY);
+    }
+
     Representation representFolderItem(final FolderItem folderItem,
                                        final Iterator<String> initialRows,
                                        final VOSURI startNextPageURI)
@@ -203,11 +208,8 @@ public class MainPageServerResource extends StorageItemServerResource
             }
         }
 
-        final FreeMarkerConfiguration freemarkerConfiguration =
-                getContextAttribute(VOSpaceApplication.FREEMARKER_CONFIG_KEY);
-
         return new TemplateRepresentation("index.ftl",
-                                          freemarkerConfiguration, dataModel,
-                                          MediaType.TEXT_HTML);
+                                          getFreeMarkerConfiguration(),
+                                          dataModel, MediaType.TEXT_HTML);
     }
 }

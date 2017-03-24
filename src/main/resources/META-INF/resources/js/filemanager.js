@@ -10,7 +10,8 @@
  */
 
 function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
-                     _canWriteFlag, _totalDataCount, lg, contextPath)
+                     _canWriteFlag, _totalDataCount, lg, contextPath,
+                     useDefaultLogin)
 {
 // function to retrieve GET params
   $.urlParam = function (name)
@@ -592,45 +593,49 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     }
   };
 
-  var $loginForm = $("#loginForm");
-
-  var resetLoginFormErrors = function ()
+  if (useDefaultLogin === true)
   {
-    var $loginFailContainer =
-      $loginForm.find("#login_fail");
+    var $loginForm = $("#loginForm");
 
-    $loginForm.removeClass("has-error");
-    $loginFailContainer.text("");
-  };
+    var resetLoginFormErrors = function ()
+    {
+      var $loginFailContainer =
+        $loginForm.find("#login_fail");
 
-  $loginForm.find("input.form-control").off().change(function ()
-                                                     {
-                                                       resetLoginFormErrors();
-                                                     });
-  //
-  // $loginForm.off().submit(function ()
-  //                         {
-  //                           var $thisForm = $(this);
-  //                           resetLoginFormErrors();
-  //
-  //                           $.post({
-  //                                    url: contextPath + config.security.loginConnector,
-  //                                    data: $thisForm.serialize(),
-  //                                    statusCode: {
-  //                                      200: function ()
-  //                                      {
-  //                                        refreshPage();
-  //                                      },
-  //                                      401: function ()
-  //                                      {
-  //                                        $thisForm.find("#login_fail").text(lg.INVALID_CREDENTIALS);
-  //                                        $thisForm.addClass("has-error");
-  //                                      }
-  //                                    }
-  //                                  });
-  //
-  //                           return false;
-  //                         });
+      $loginForm.removeClass("has-error");
+      $loginFailContainer.text("");
+    };
+
+    $loginForm.find("input.form-control").off().change(function ()
+                                                       {
+                                                         resetLoginFormErrors();
+                                                       });
+
+    $loginForm.off().submit(function ()
+                            {
+                              var $thisForm = $(this);
+                              resetLoginFormErrors();
+
+                              $.post({
+                                       url: contextPath +
+                                            config.security.loginConnector,
+                                       data: $thisForm.serialize(),
+                                       statusCode: {
+                                         200: function ()
+                                         {
+                                           refreshPage();
+                                         },
+                                         401: function ()
+                                         {
+                                           $thisForm.find("#login_fail").text(lg.INVALID_CREDENTIALS);
+                                           $thisForm.addClass("has-error");
+                                         }
+                                       }
+                                     });
+
+                              return false;
+                            });
+  }
 
   /**
    * Obtain the path of the current folder.
@@ -1013,7 +1018,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                input: {
                  focus: "#link_name",
                  buttons: btns,
-                 html:  f,
+                 html:  msg,
                  submit: function (e, value, message, formVals)
                  {
                    if (value === true)
@@ -1065,7 +1070,15 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     return (selectedPaths.length > 0) ? selectedPaths.join(",") : "";
   };
-
+  
+  var setLinker = function ()
+  {
+    $('#new_vospace_link').off().click(function ()
+			               {
+						     linkItem();
+						   });
+  };
+  
   var setMover = function ()
   {
     $('#move').off().click(function ()
@@ -1077,7 +1090,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         					 }
 						   });
   };
-
+  
 // Sets the folder status, upload, and new folder functions
 // to the path specified. Called on initial page load and
 // whenever a new directory is selected.
@@ -1107,7 +1120,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
                                      return false;
                                    });
-
+    
     $('#newfolder').off().click(function ()
                                 {
                                   var buttonAction = function (event, value,
@@ -1941,42 +1954,42 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     $('#fileR').click();
   };
 
-  function FolderLayer()
+  function ItemLayer()
   {
-	FolderLayer.makeNode = function()
+	ItemLayer.makeNode = function()
 	{
       return {name: null, path: null, uri: null, child: null};
 	};
-
+	
 	this.head = new Array();
-
+	
 	this.addNode = function(name, path, uri)
 	{
-      var node = FolderLayer.makeNode();
+      var node = ItemLayer.makeNode();
       node.name = name;
       node.path = path;
       node.uri = uri;
       this.head.push(node);
 	}
-
+	
 	this.findNodeOnCurrentLayer = function(name)
 	{
       for (var i=0; i<this.head.length; i++)
       {
         if (this.head[i].name == name)
         {
-          return this.head[i];
+          return this.head[i];	
         }
       }
-
+      
       return null;
 	}
-
+	
 	this.findNode = function(fullName)
 	{
       var node = null;
       var tempName = '/';
-
+      
       if (stringUtil.hasText(fullName))
       {
     	var name = fullName.split('/')[1];
@@ -1987,42 +2000,46 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           node = node.child.findNode(fullName.substr(tempName.length));
     	}
       }
-
-      return node;
+      
+      return node;    
 	}
-
+	
 	this.toHTML = function()
 	{
       var returnHTML = '';
-
+      
       $.each(this.head, function (index, node)
                         {
     	                  if (node.child == null)
     	                  {
-    	                	  returnHTML = returnHTML + '<li><div class="folderName" fullName="' + node.path + '">' + node.name + '</div><ul></ul></li>';
+    	                	  returnHTML = returnHTML
+                              + '<li><div class="layerItemName" fullName="' + node.path + '" uri="' + node.uri + '">' + node.name
+                              + '</div><ul></ul></li>';
     	                  }
     	                  else
     	                  {
-    	                	returnHTML = returnHTML + '<li><div class="folderName" fullName="' + node.path + '">' + node.name + '</div>';
+    	                	returnHTML = returnHTML
+                            + '<li><div class="layerItemName" fullName="' + node.path +  '" uri="' + node.uri +'">' + node.name
+                            + '</div>';
     	                    returnHTML = returnHTML + '<ul>' + node.child.toHTML() + '</ul>';
-    	                    returnHTML = returnHTML + '</li>';
+    	                    returnHTML = returnHTML + '</li>';    	                  
     	                  }
                         });
-
+      
       return returnHTML;
 	}
   }
-
-  function FolderTree()
+  
+  function ItemTree() 
   {
 	this.root = null;
-
+	
 	this.findNode = function(name)
 	{
       return this.root == null ? null : this.root.findNode(name);
 	}
-
-	this.addLayer = function(name, layer)
+	
+	this.addLayer = function(name, layer) 
 	{
       // name of root node is an empty string
       if (this.root == null || (!stringUtil.hasText(name)))
@@ -2034,68 +2051,213 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         this.findNode(name).child = layer;
       }
 	}
-
+	
 	this.toHTML = function()
 	{
       return returnHTML = '<ul class="collapsibleList">' + this.root.toHTML() + '</ul>';
 	}
   }
 
+  // When we get a page of cvs data from the database containing 
+  // both files and folders, apply this filter to filter out all
+  // files.
+  var filterOutFiles = function(itemLayer, rowData)
+  {
+    if (rowData[8].includes('glyphicon-folder'))
+    {
+      itemLayer.addNode(rowData[1], rowData[9], rowData[10]);
+    }
+  }
+
+  var filterOutNothing = function(itemLayer, rowData)
+  {
+    itemLayer.addNode(rowData[1], rowData[9], rowData[10]);
+  }
+
+// Link the current item to specified dir and returns the new name.
+// Called by clicking the "VOSpace Link" menu item.
+  var linkItem = function ()
+  {
+    var params = 
+    {
+      bCancelName     : "bCancelLinkto",
+      bCancelTitle    : lg.cancel,
+      bOpName         : "bLinkto",
+      bOpTitle        : lg.link,
+      filter          : filterOutNothing,
+      opSuccess       : lg.successful_linked,
+      promptMsg       : lg.please_select_link,
+      submitFunction  : doLink
+    };
+
+    processItem(params, "")
+  }; // end linkItem
+
 // Move the current item to specified dir and returns the new name.
 // Called by clicking the "Move" button.
   var moveItem = function (srcNodeList)
   {
+    var params = 
+    {
+      bCancelName      : "bCancelMoveto",
+      bCancelTitle     : lg.cancel,
+      bOpName          : "bMoveto",
+      bOpTitle         : lg.move,
+      filter           : filterOutFiles,
+      opSuccess        : lg.successful_moved,
+      promptMsg        : lg.please_select_folder,
+      submitFunction   : doMove,
+
+    };
+
+    processItem(params, srcNodeList)
+  }; // end moveItem
+
+
+  // Submit function for move usage of collapsible list prompt
+  var doMove = function (event, value, msg, formVals)
+  {
+    if (value == true) {
+
+      // Target destination for the operation
+      var itemPath = formVals['destNode'];
+
+      var url = contextPath + config.options.folderConnector + itemPath;
+
+      var dataStr = JSON.stringify(formVals);
+      $.ajax(
+          {
+            url: url,
+            method: "POST",
+            contentType: "application/json",
+            data: dataStr,
+            statusCode: {
+              204: function () {
+                $.prompt(lg.successful_moved,
+                    {
+                      submit: refreshPage
+                    });
+              },
+              401: function () {
+                $.prompt(lg.NOT_ALLOWED_SYSTEM);
+              },
+              403: function () {
+                $.prompt(lg.authorization_required);
+              },
+              409: function () {
+                $.prompt(lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode']));
+              },
+              500: function ()
+              {
+                $.prompt(lg.ERROR_SERVER);
+              }
+            }
+          });
+
+    } //end if value == true
+  }; // end doMove
+
+
+  // Submit function for link use of collapsible list prompt
+  var doLink = function (event, value, msg, formVals)
+  {
+    if (value == true) 
+    {
+      // for link
+      var url = contextPath + config.options.linkConnector + $('#currentpath').val() + "/" + formVals['itemName'];
+
+      formVals['link_url'] = formVals['selectedNodeURI'];
+
+      var dataStr = JSON.stringify(formVals);
+      $.ajax(
+          {
+            url: url,
+            method: "PUT",
+            contentType: "application/json",
+            data: dataStr,
+            statusCode: {
+              201: function () {
+                $.prompt(lg.successful_linked,
+                    {
+                      submit: refreshPage
+                    });
+              },
+              401: function () {
+                $.prompt(lg.NOT_ALLOWED_SYSTEM);
+              },
+              403: function () {
+                $.prompt(lg.authorization_required);
+              },
+              409: function () {
+                $.prompt(lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals['itemName']));
+              },
+              500: function ()
+              {
+                $.prompt(lg.ERROR_SERVER);
+              }
+            }
+          });
+    } //end if value == true
+  }; // end doLink
+
+
+// Link or move the current item to specified dir and returns the new name.
+// Called by clicking the "VOSpace Link" menu item or the "Move" button.
+  var processItem = function (params, srcNodeList)
+  {
     var srcNodes = '';
     var fullName = '';
-    var folderTree = new FolderTree();
-    var folderLayer;
+    var itemTree = new ItemTree();
+    var itemLayer;
     var pageUrl = contextPath + config.options.pageConnector;
-    var folderRequest = {};
-    folderRequest.pageSize = defaultPageSize;
-    var spinningWheel = $.parseHTML('<span id="moveLoading" class="glyphicon glyphicon-refresh fast-right-spinner"></span>');
+    var itemRequest = {};
+    itemRequest.pageSize = defaultPageSize;
+    var spinningWheel = $.parseHTML('<span id="itemsLoading" class="glyphicon glyphicon-refresh fast-right-spinner"></span>');
 
-    $(document).on('.folderName').click(function(event)
+    $(document).on('.layerItemName').click(function(event)
     {
-            var target = $(event)[0].target;
-            var nameWithPath = $(target).attr('fullName');
-            var node = folderTree.findNode(nameWithPath);
-            // Clear all highlights
-            $(".folderName.bg-success").removeClass("bg-success");
+      var target = $(event)[0].target;
+      var nameWithPath = $(target).attr('fullName');
+      var node = itemTree.findNode(nameWithPath);
+      // Clear all highlights
+      $(".layerItemName.bg-success").removeClass("bg-success");
 
-            $(target).addClass("bg-success");
+      $(target).addClass("bg-success");
 
-            if (node != null && target.parentNode.className != 'collapsibleListClosed')
-            {
-              if (node.child == null)
-              {
-                // we have no sub-folders for this node, get them
-                fullName = nameWithPath;
-                pageUrl = contextPath + config.options.pageConnector + node.path;
-                folderRequest.startURI = null;
-                buildFolderLayer(folderRequest, updateFolderTree);
-              }
+      if (node != null && target.parentNode.className != 'collapsibleListClosed')
+      {
+        if (node.child == null)
+        {
+          // we have no sub-folders for this node, get them
+          fullName = nameWithPath;
+          pageUrl = contextPath + config.options.pageConnector + node.path;
+          itemRequest.startURI = null;
+          buildItemLayer(itemRequest, updateItemTree);
+        }
 
-              // display path should be the current folder, not entire path
-              $('#destNodeDisplay').val(" " + node.name);
+        // display path should be the current item, not entire path
+        $('#destNodeDisplay').val(" " + node.name);
 
-              // entire path (or should this be URI?) is passed in to back end
-              $('#destNode').val(node.path);
-              $(".listener-hook").removeClass("disabled");
-            }
+        // entire path (or should this be URI?) is passed in to back end
+        $('#destNode').val(node.path);
+        $('#selectedNodeURI').val(node.uri);
+        $('#itemName').val(node.name);
+        $(".listener-hook").removeClass("disabled");
+      }
     });
 
-    var getPageOfFolders = function (_pageRequest, _callback)
+    var getPageOfItems = function (_pageRequest, _callback)
     {
-      if (!$('#moveLoading').length)
+      if (!$('#itemsLoading').length)
       {
         $('.spinnerSpan').append(spinningWheel);
       }
 
       $.get({
-                url: pageUrl,
-                dataType: "text",
-                data: _pageRequest
-              })
+              url: pageUrl,
+              dataType: "text",
+              data: _pageRequest
+             })
         .done(function (csvData)
               {
                 _callback(csvData);
@@ -2104,13 +2266,13 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     var updateComplete = function ()
     {
-      // add the new layer to the tree and draw the folder tree
-      folderTree.addLayer(fullName, folderLayer);
+      // add the new layer to the tree and draw the item tree
+      itemTree.addLayer(fullName, itemLayer);
 
       if ($('.collapsibleList').length)
       {
         // we already have the collapsible list, add to it
-    	var layerNodes = $.parseHTML(folderLayer.toHTML());
+    	var layerNodes = $.parseHTML(itemLayer.toHTML());
     	var selectedNode = $('ul.collapsibleList').find('div[fullName="' + fullName + '"]').closest('li');
     	var containerNode = selectedNode.find('ul');
 
@@ -2124,29 +2286,27 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     	else
     	{
     	  // non-leaf node, insert as a list of sub-nodes
-        containerNode.append(layerNodes);
+          containerNode.append(layerNodes);
     	}
 
         CollapsibleLists.applyTo(containerNode[0], false);
       }
       else
       {
-        // initial load, no collapsible list, draw the vospace root folder layer
-        var node = $.parseHTML(folderTree.toHTML())[0];
+        // initial load, no collapsible list, draw the vospace root item layer
+        var node = $.parseHTML(itemTree.toHTML())[0];
         CollapsibleLists.applyTo(node, false);
-        $('.folderTree').append(node);
+        $('.itemTree').append(node);
       }
 
-
-      if ($('#moveLoading').length)
+      if ($('#itemsLoading').length)
       {
-        $('#moveLoading').remove();
-	    }
+        $('#itemsLoading').remove();
+	  }
+	};
 
-	  };
-
-    // callback to update the cached folder tree
-    var updateFolderTree = function (cvsData)
+    // callback to update the cached item tree
+    var updateItemTree = function (cvsData)
     {
       var data = $.csv.toArrays(cvsData);
       var dl = data.length;
@@ -2157,20 +2317,16 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     	for (var di=0; di<dl; di++)
     	{
           var rowData = data[di];
-        // this needs to be applied as a normal filter
-          if (rowData[8].includes('glyphicon-folder'))
-    	  {
-        	folderLayer.addNode(rowData[1], rowData[9], rowData[10]);
-    	  }
-
+          // apply filter
+          params['filter'](itemLayer, rowData);
           startURI = rowData[10];
     	}
 
-    	folderRequest.startURI = startURI;
-    	if (dl == folderRequest.pageSize)
+    	itemRequest.startURI = startURI;
+    	if (dl == itemRequest.pageSize)
     	{
     	  // current page is full, get the next page
-    	  getPageOfFolders(folderRequest, updateFolderTree);
+    	  getPageOfItems(itemRequest, updateItemTree);
     	}
         else
         {
@@ -2183,62 +2339,21 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         // last page is empty
     	updateComplete();
       }
-	  };
-
-    var buildFolderLayer = function (_folderRequest, _callback)
-    {
-      folderLayer = new FolderLayer();
-        getPageOfFolders(_folderRequest, _callback);
     };
 
-    var doMove = function (event, value, msg, formVals)
+    var buildItemLayer = function (_itemRequest, _callback)
     {
-      if (value == true) {
-
-        // Target folder for move
-        var itemPath = formVals['destNode'];
-
-        var url = contextPath + config.options.folderConnector + itemPath;
-
-        var dataStr = JSON.stringify(formVals);
-        $.ajax(
-            {
-              url: url,
-              method: "POST",
-              contentType: "application/json",
-              data: dataStr,
-              statusCode: {
-                204: function () {
-                  $.prompt(lg.successful_moved,
-                      {
-                        submit: refreshPage
-                      });
-                },
-                401: function () {
-                  $.prompt(lg.NOT_ALLOWED_SYSTEM);
-                },
-                403: function () {
-                  $.prompt(lg.authorization_required);
-                },
-                409: function () {
-                  $.prompt(lg.DIRECTORY_ALREADY_EXISTS.replace(/%s/g, fname)); // TODO: change this
-                },
-                500: function ()
-                {
-                  $.prompt(lg.ERROR_SERVER);
-                }
-              }
-            });
-
-      } //end if value == true
-
+      itemLayer = new ItemLayer();
+      getPageOfItems(_itemRequest, _callback);
     };
+
+
 
     // name of root node is an empty string
-    buildFolderLayer(folderRequest, updateFolderTree);
+    buildItemLayer(itemRequest, updateItemTree);
 
-    var msg = '<div class="mMoveto">' + lg.please_select_folder + '<span class="spinnerSpan"></span></div> ' +
-      '<div id="folderTree" class="folderTree col-sm-12"></div>' +
+    var msg = '<div class="mMoveto">' + params['promptMsg'] + '<span class="spinnerSpan"></span></div> ' +
+      '<div id="itemTree" class="itemTree col-sm-12"></div>' +
       '<div class="form-group ui-front" id="destNodeDiv">' +
         '<label for="destNodeDisplay" id=destNodeDisplayLabel" class="control-label col-sm-3">' + lg.destination + '</label>' +
         '<div class="col-sm-9">' +
@@ -2246,20 +2361,22 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         '</div>' +
       '</div>' +
       '<input type="text" class="hidden" name="destNode" id="destNode">' +
+      '<input type="text" class="hidden" name="selectedNodeURI" id="selectedNodeURI">' +
+      '<input type="text" class="hidden" name="itemName" id="itemName">' +
       '<input type="text" class="hidden" name="srcNodes" id="srcNodes" value="' + srcNodeList + '">';
 
     var btns = [];
     btns.push
     ({
-      "name": "bMoveto",
-      "title": lg.move,
+      "name": params['bOpName'],
+      "title": params['bOpTitle'],
       "value": true,
       "classes": "btn btn-primary listener-hook"
     });
     btns.push
     ({
-      "name": "bCancelMoveto",
-      "title": lg.cancel,
+      "name": params['bCancelName'],
+      "title": params['bCancelTitle'],
       "value": false,
       "classes": "btn btn-default"
     });
@@ -2282,11 +2399,11 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         {
           $('.spinnerSpan').append(spinningWheel);
           $(".listener-hook").addClass("disabled");
-        },
-        submit: doMove,
+        },             
+        submit: params['submitFunction'],
         buttons: btns
       });
-  }; // end moveItem
+  }; // end processItem
 
   $(document).on("click", "#delete",
                  function ()
@@ -2999,7 +3116,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     // Update location for status, upload, & new folder functions.
     setUploader(path);
   };
-
+  
   /*---------------------------------------------------------
    Initialization
    ---------------------------------------------------------*/
@@ -3018,8 +3135,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         }
       }
 
-      $('#link-to-project').attr('href', config.url).attr('target', '_blank')
-        .attr('title', lg.support_fm +
+      $('#link-to-project').attr('href', config.url).attr('target', '_blank').attr('title', lg.support_fm +
                                                                                             ' [' +
                                                                                             lg.version +
                                                                                             ' : ' +
@@ -3030,7 +3146,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       // Loading theme
       loadCSS(contextPath + 'themes/' + config.options.theme +
               '/styles/filemanager.css');
-
       $.ajax({
                url: contextPath + 'themes/' + config.options.theme +
                     '/styles/ie.css',
@@ -3040,14 +3155,14 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                  $('head').append(data);
                }
              });
-
+      
       // Loading quota and folder size for root folder, e.g. /CADCTest
       var currPath = getCurrentPath();
       if (stringUtil.hasText(currPath))
       {
 	      $.ajax({
 	          method: 'GET',
-	          url: contextPath + config.options.folderConnector + '/' + currPath.split('/')[1] ,
+	          url: contextPath + config.options.folderConnector + '/' + currPath.split('/')[1],
 	          dataType: 'json',
 	          async: false,
 	          success: function (data)
@@ -3514,6 +3629,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       $(window).resize(setDimensions);
 
       setMover();
+      setLinker();
       getDetailView(fileRoot + expandedFolder);
     });
 

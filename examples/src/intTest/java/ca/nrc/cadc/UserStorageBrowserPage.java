@@ -84,26 +84,28 @@ import static org.openqa.selenium.By.xpath;
 
 public class UserStorageBrowserPage extends AbstractTestWebPage
 {
-    private static final String ROOT_FOLDER_NAME = "ROOT";
-
     // Strings for matching against prompt messages and buttons
-    private static final String MOVE_CONFIRMATION_TEXT = "Are you sure you wish to move the selected items?";
-    private static final String DELETE_CONFIRMATION_TEXT = "Are you sure you wish to delete the selected items?";
-    private static final String SUCCESSFUL = "successful";
-    private static final String SUBMITTED = "submitted";
-    public static final String MODIFIED = "modified";
-    public static final String NOT_MODIFIED = "not modified";
-    private static final String CONFIRMATION_MSG = "New folder added successfully";
-    private static final String OK = "Ok";
-    private static final String YES = "Yes";
+    public static final String  CANCEL = "Cancel";
     private static final String CLOSE = "Close";
-    public static final String SAVE = "Save";
-    public static final String MOVE_TO = "Move to";
+    private static final String DELETE_CONFIRMATION_TEXT = "Are you sure you wish to delete the selected items?";
+    public static final String  LINK = "Link";
+    public static final String  LINK_OK = "Link successful";
+    public static final String  MODIFIED = "modified";
+    public static final String  MOVE_TO = "Move to";
     private static final String MOVE_OK = "Move";
-    public static final String CANCEL = "Cancel";
+    public static final String  NOT_MODIFIED = "not modified";
+    private static final String OK = "Ok";
+    private static final String ROOT_FOLDER_NAME = "ROOT";
+    public static final String  SAVE = "Save";
+    private static final String SUBMITTED = "submitted";
+    private static final String SUCCESSFUL = "successful";
+    private static final String YES = "Yes";
+
+    // Web Element locators
     private static final By NAVBAR_ELEMENTS_BY =
             xpath("//*[@id=\"navbar-functions\"]/ul");
     private static final By NEW_FOLDER_BY = By.id("newfolder");
+    private static final By NEW_VOSPACE_LINK_BY = By.id("new_vospace_link");
     private static final By ACCESS_ACTIONS_DROPDOWN_BY =
             By.cssSelector("a.access-actions");
     private static final By LOGIN_DROPDOWN_BY =
@@ -117,7 +119,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     private static final By FOLDER_NAME_HEADER_BY =
             By.xpath("//h2[@property='name']");
 
-    // Define in here what elements are mode indicators
 
     public static final String READ_GROUP_DIV = "readGroupDiv";
     public static final String WRITE_GROUP_DIV = "writeGroupDiv";
@@ -150,7 +151,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
     // Elements present once user has navigated away from ROOT folder
     // Toobar buttons
-
     @FindBy(id = "homeDir")
     private WebElement homeDirButton;
 
@@ -167,7 +167,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     // element of the list under newdropdown
     @FindBy(id = "newfolder")
     private WebElement newFolder;
-
 
     @FindBy(id = "download")
     private WebElement downloadButton;
@@ -268,7 +267,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     }
 
 
-
     protected int getNextAvailabileFolderRow(final int startRow)
             throws Exception
     {
@@ -355,24 +353,52 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     }
 
 
+    protected void openNewMenu() throws Exception {
+        final WebElement newdropdownButton = find(By.id("newdropdown"));
+        click(newdropdownButton);
+
+        if (newdropdownButton.getAttribute("class").contains("disabled"))
+        {
+            try
+            {
+                final WebElement logout = find(By.id("logout"));
+                if (logout == null)
+                {
+                    throw new RuntimeException("You are not logged in.");
+                }
+                else
+                {
+                    throw new RuntimeException("You are logged in, but " +
+                            "something else is keeping this functionality disabled.");
+                }
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException("Can't create new items.  That " +
+                        "functionality is disabled.  Did you remember to login?");
+            }
+        }
+        else
+        {
+            System.out.println("Everything is kosher > "
+                    + newdropdownButton.getAttribute("class"));
+        }
+
+    }
 
     public UserStorageBrowserPage selectFolderFromTree(String foldername) throws Exception
     {
-
-        WebElement folderTree = find(xpath("//*[@id=\"folderTree\"]"));
-//        WebElement folderEl = folderTree.findElement(xpath("//*[@class='folderName' and contains(text(),'" + foldername + "')]"))
-//        folderTree.findElement(By.xpath("//*div[contains(@class,'folderName')]"));
+        WebElement folderTree = find(xpath("//*[@id=\"itemTree\"]"));
         // locate the folder with the name/path provided
         WebElement folderEl = waitUntil(ExpectedConditions.elementToBeClickable(
-                xpath("//*[@class='folderName' and contains(text(),'" + foldername + "')]")));
+                xpath("//*[@class='layerItemName' and contains(text(),'" + foldername + "')]")));
 
-//        WebElement folderEl = find(By.xpath("//*div[contains(@class,\"folderName\") and contains(text()," + foldername + ")]"));
         // click on it
         click(folderEl);
-        // wait for the spinner icon to not exist in the prompt box anymore
 
         return new UserStorageBrowserPage(driver);
     }
+
 
     public UserStorageBrowserPage startMove() throws Exception
     {
@@ -380,10 +406,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         {
             moveButton.click();
         }
-
         return new UserStorageBrowserPage(driver);
     }
-
 
     public UserStorageBrowserPage doMove() throws Exception
     {
@@ -392,6 +416,26 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         clickButton(OK);
         return new UserStorageBrowserPage(driver);
     }
+
+
+    public UserStorageBrowserPage startVOSpaceLink()
+            throws Exception
+    {
+        openNewMenu();
+        waitForElementVisible(NEW_VOSPACE_LINK_BY);
+        click(NEW_VOSPACE_LINK_BY);
+        return new UserStorageBrowserPage(driver);
+    }
+
+    public UserStorageBrowserPage doVOSpaceLink() throws Exception
+    {
+        clickButton(LINK);
+        confirmJQIMessageText(LINK_OK);
+        clickButton(OK);
+        return new UserStorageBrowserPage(driver);
+    }
+
+
 
 
     public UserStorageBrowserPage deleteFolder() throws Exception

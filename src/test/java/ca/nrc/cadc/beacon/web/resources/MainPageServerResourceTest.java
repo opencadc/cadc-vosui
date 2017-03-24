@@ -72,6 +72,7 @@ package ca.nrc.cadc.beacon.web.resources;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
 import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
 import ca.nrc.cadc.beacon.web.view.FolderItem;
+import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.vos.*;
 import org.restlet.Context;
 import org.restlet.ext.freemarker.TemplateRepresentation;
@@ -128,17 +129,30 @@ public class MainPageServerResourceTest
         final ConcurrentMap<String, Object> mockContextAttributes =
                 new ConcurrentHashMap<>();
 
+        final FreeMarkerConfiguration mockFreeMarkerConfiguration =
+                createMock(FreeMarkerConfiguration.class);
+
         mockContextAttributes
                 .put(VOSpaceApplication.ACCESS_CONTROL_CLIENT_KEY,
                      mockAccessControlClient);
 
         expect(mockContext.getAttributes()).andReturn(mockContextAttributes).anyTimes();
 
-        replay(mockServletContext, mockRegistryClient, mockContext);
+        expect(mockFreeMarkerConfiguration.getTemplate("index.ftl"))
+                .andReturn(null).once();
+
+        replay(mockServletContext, mockRegistryClient, mockContext,
+               mockFreeMarkerConfiguration);
 
 
         testSubject = new MainPageServerResource()
         {
+            @Override
+            FreeMarkerConfiguration getFreeMarkerConfiguration()
+            {
+                return mockFreeMarkerConfiguration;
+            }
+
             @Override
             Subject getCurrentUser()
             {
@@ -160,7 +174,8 @@ public class MainPageServerResourceTest
 
             @SuppressWarnings("unchecked")
             @Override
-            <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail)
+            <T extends Node> T getNode(final VOSURI folderURI,
+                                       final VOS.Detail detail)
                     throws NodeNotFoundException
             {
                 return (T) containerNode;
@@ -187,6 +202,7 @@ public class MainPageServerResourceTest
         assertTrue("Should contain initialRows",
                    dataModel.containsKey("initialRows"));
 
-        verify(mockFolderItem, mockServletContext);
+        verify(mockFolderItem, mockServletContext, mockContext,
+               mockFreeMarkerConfiguration);
     }
 }

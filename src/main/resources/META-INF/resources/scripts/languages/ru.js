@@ -56,6 +56,7 @@
     "help_move": "Использование '../' запрещенно. Получить доступ к корневой директории вы можете получить используя адресс '/'.", 
     "items": "items", 
     "kb": "Кб", 
+    "link": "Ссылка", 
     "list_view": "Переключиться в режим списка", 
     "loading_data": "Загрузка...", 
     "mb": "Мб", 
@@ -81,6 +82,7 @@
     "successful_added_folder": "Новая папка добавлена успешно.", 
     "successful_delete": "Удаление прошло успешно.", 
     "successful_edit": "Content update successful.", 
+    "successful_linked": "Переместить успешно." 
     "successful_moved": "Успешно перенесенно.", 
     "successful_rename": "Успешно переименованно.", 
     "successful_replace": "Файл успешно заменен.", 

@@ -286,7 +286,7 @@ li.collapsibleListClosed {
   cursor:pointer;
 }
 
-div.folderTree {
+div.itemTree {
   max-width: 500px;
   max-height: 400px;
   overflow: auto;
@@ -296,7 +296,7 @@ div.folderTree {
   background-color: white;
 }
 
-.folderTreeSelected {
+.itemTreeSelected {
   background-color: #00a8c6;
 }
 
@@ -304,8 +304,7 @@ div.folderTree {
   background-color: white;
 }
 
-.folderName {
+.layerItemName {
     cursor:pointer;
 }
-
 
