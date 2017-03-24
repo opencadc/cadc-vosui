@@ -2075,13 +2075,13 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   {
     var params = 
     {
-      bCancelName  : "bCancelLinkto",
-      bCancelTitle : lg.cancel,
-      bOpName      : "bLinkto",
-      bOpTitle     : lg.link,
-      filter       : filterOutNothing,
-      opSuccess    : lg.successful_linked,
-      promptMsg    : lg.please_select_link,
+      bCancelName     : "bCancelLinkto",
+      bCancelTitle    : lg.cancel,
+      bOpName         : "bLinkto",
+      bOpTitle        : lg.link,
+      filter          : filterOutNothing,
+      opSuccess       : lg.successful_linked,
+      promptMsg       : lg.please_select_link,
       submitFunction  : doLink
     };
 
@@ -2094,13 +2094,13 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   {
     var params = 
     {
-      bCancelName  : "bCancelMoveto",
-      bCancelTitle : lg.cancel,
-      bOpName      : "bMoveto",
-      bOpTitle     : lg.move,
-      filter       : filterOutFiles,
-      opSuccess    : lg.successful_moved,
-      promptMsg    : lg.please_select_folder,
+      bCancelName      : "bCancelMoveto",
+      bCancelTitle     : lg.cancel,
+      bOpName          : "bMoveto",
+      bOpTitle         : lg.move,
+      filter           : filterOutFiles,
+      opSuccess        : lg.successful_moved,
+      promptMsg        : lg.please_select_folder,
       submitFunction   : doMove,
 
     };
@@ -2156,8 +2156,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   // Submit function for link use of collapsible list prompt
   var doLink = function (event, value, msg, formVals)
   {
-    if (value == true) {
-
+    if (value == true) 
+    {
       // for link
       var url = contextPath + config.options.linkConnector + $('#currentpath').val() + "/" + formVals['itemName'];
 
@@ -2192,7 +2192,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
               }
             }
           });
-
     } //end if value == true
   }; // end doLink
 
