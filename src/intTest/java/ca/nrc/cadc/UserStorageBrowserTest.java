@@ -310,6 +310,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         userStoragePage.enterSearch(moveTestFolder);
         userStoragePage.clickCheckboxForRow(1);
+
         // Kick off first ajax call to populate tree
         userStoragePage = userStoragePage.startMove();
 
@@ -327,20 +328,37 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         userStoragePage.enterSearch(moveTestFolder);
         rowCount = userStoragePage.getTableRowCount();
         verifyTrue(rowCount < 3);
+        verifyTrue(userStoragePage.verifyFolderName(rowCount - 1, moveTestFolder));
+
+
+        // Test Link folder (can't do link to file yet if no browser test for upload file...
+        String linkTestFolder = "linkTest_toBeDeleted_" + generateAlphaNumeric(4);
+        userStoragePage = userStoragePage.createNewFolder(linkTestFolder);
+        userStoragePage = userStoragePage.navUpLevel();
+
+      //  Kick off first ajax call to populate tree
+        userStoragePage = userStoragePage.startVOSpaceLink();
+
+        // Navigate through to the target node
+        userStoragePage = userStoragePage.selectFolderFromTree("CADCtest");
+        userStoragePage = userStoragePage.selectFolderFromTree(autoTestFolder);
+        userStoragePage = userStoragePage.selectFolderFromTree(workingDirectoryName);
+        userStoragePage = userStoragePage.selectFolderFromTree(tempTestFolder);
+        userStoragePage = userStoragePage.selectFolderFromTree(recursiveTestFolder);
+        userStoragePage = userStoragePage.selectFolderFromTree(linkTestFolder);
+
+        userStoragePage = userStoragePage.doVOSpaceLink();
+
+        // Verify item exists on page
+        userStoragePage.enterSearch(linkTestFolder);
+        rowCount = userStoragePage.getTableRowCount();
+        verifyTrue(rowCount < 3);
         verifyTrue(userStoragePage
-                           .verifyFolderName(rowCount - 1, moveTestFolder));
+                .verifyFolderName(rowCount - 1, linkTestFolder));
 
         // Test Delete while cleaning up
-//        userStoragePage.enterSearch(recursiveTestFolder);
-//        userStoragePage.clickCheckboxForRow(1);
-//        userStoragePage = userStoragePage.deleteFolder();
         userStoragePage = userStoragePage.navUpLevel();
-        userStoragePage = userStoragePage.navUpLevel();
-
-//        userStoragePage.enterSearch(tempTestFolder);
-//        userStoragePage.clickCheckboxForRow(1);
-//
-//        userStoragePage = userStoragePage.deleteFolder();
+//        userStoragePage = userStoragePage.navUpLevel();
 
 		// Nav up one level & delete working folder as well
 		userStoragePage = userStoragePage.navUpLevel();
