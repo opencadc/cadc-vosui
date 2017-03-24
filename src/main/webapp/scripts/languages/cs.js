@@ -56,7 +56,7 @@
     "help_move": "Použít '../' není dovoleno. Do kořenové složky můžete vsoupit pomocí '/'.", 
     "items": "položek", 
     "kb": " kB", 
-    "link": "Odkaz na ...", 
+    "link": "Odkaz", 
     "list_view": "Zobrazit jako seznam.", 
     "loading_data": "Přenos dat...", 
     "mb": " MB", 

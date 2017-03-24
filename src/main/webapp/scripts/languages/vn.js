@@ -56,7 +56,7 @@
     "help_move": "The use of '../' is forbidden. You can access root folder by using '/'.", 
     "items": "items", 
     "kb": "kb", 
-    "link": "Liên kết tới ...", 
+    "link": "Liên kết", 
     "list_view": "Chuyển sang chế độ liệt kê.", 
     "loading_data": "Transferring data ...", 
     "mb": "mb", 

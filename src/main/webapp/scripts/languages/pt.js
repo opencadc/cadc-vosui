@@ -60,7 +60,7 @@
     "loading_data": "Transferindo dados ...", 
     "mb": "mb", 
     "modified": "Modificado", 
-    "link": "Link para ...", 
+    "link": "Ligação", 
     "move": "Mover para ...", 
     "name": "Nome", 
     "new_filename": "Entre com o nome para o novo arquivo", 

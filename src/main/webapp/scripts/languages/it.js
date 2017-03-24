@@ -56,7 +56,7 @@
     "help_move": "L'uso di '../' è proibito. Non puoi accedere alla cartella principale usando '/'.",
     "items": "oggetti",
     "kb": "kb", 
-    "link": "Collegamento a ...",
+    "link": "collegamento",
     "list_view": "Visualizzazione lista", 
     "loading_data": "Trasferimento dati ...", 
     "mb": "mb", 
