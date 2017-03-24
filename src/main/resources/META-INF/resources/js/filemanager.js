@@ -549,16 +549,16 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 // Called on initial page load and on resize.
   var setDimensions = function ()
   {
-    var bheight = 53,
-      $uploader = $('#uploader');
+    var bheight = 53, $uploader = $('#uploader');
 
     if ($.urlParam('CKEditorCleanUpFuncNum'))
     {
       bheight += 60;
     }
 
-    var newH = $(window).height() - $uploader.height() -
-               $uploader.offset().top - bheight;
+    var newH = ($uploader && ($uploader.length > 0))
+      ? ($(window).height() - $uploader.height() - $uploader.offset().top - bheight)
+      : ($(window).height() - bheight);
     $fileInfo.height(newH);
   };
 
@@ -603,34 +603,34 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     $loginFailContainer.text("");
   };
 
-  $loginForm.find("input.form-control").off().change(function (e)
+  $loginForm.find("input.form-control").off().change(function ()
                                                      {
                                                        resetLoginFormErrors();
                                                      });
-
-  $loginForm.off().submit(function ()
-                          {
-                            var $thisForm = $(this);
-                            resetLoginFormErrors();
-
-                            $.post({
-                                     url: contextPath + config.security.loginConnector,
-                                     data: $thisForm.serialize(),
-                                     statusCode: {
-                                       200: function ()
-                                       {
-                                         refreshPage();
-                                       },
-                                       401: function ()
-                                       {
-                                         $thisForm.find("#login_fail").text(lg.INVALID_CREDENTIALS);
-                                         $thisForm.addClass("has-error");
-                                       }
-                                     }
-                                   });
-
-                            return false;
-                          });
+  //
+  // $loginForm.off().submit(function ()
+  //                         {
+  //                           var $thisForm = $(this);
+  //                           resetLoginFormErrors();
+  //
+  //                           $.post({
+  //                                    url: contextPath + config.security.loginConnector,
+  //                                    data: $thisForm.serialize(),
+  //                                    statusCode: {
+  //                                      200: function ()
+  //                                      {
+  //                                        refreshPage();
+  //                                      },
+  //                                      401: function ()
+  //                                      {
+  //                                        $thisForm.find("#login_fail").text(lg.INVALID_CREDENTIALS);
+  //                                        $thisForm.addClass("has-error");
+  //                                      }
+  //                                    }
+  //                                  });
+  //
+  //                           return false;
+  //                         });
 
   /**
    * Obtain the path of the current folder.
@@ -639,7 +639,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
    */
   var getCurrentPath = function ()
   {
-    return path = $('#currentpath').val();
+    return $('#currentpath').val() || '/';
   };
 
 
@@ -1065,7 +1065,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     return (selectedPaths.length > 0) ? selectedPaths.join(",") : "";
   };
-  
+
   var setMover = function ()
   {
     $('#move').off().click(function ()
@@ -1077,7 +1077,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         					 }
 						   });
   };
-  
+
 // Sets the folder status, upload, and new folder functions
 // to the path specified. Called on initial page load and
 // whenever a new directory is selected.
@@ -1107,7 +1107,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
                                      return false;
                                    });
-    
+
     $('#newfolder').off().click(function ()
                                 {
                                   var buttonAction = function (event, value,
@@ -1947,9 +1947,9 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 	{
       return {name: null, path: null, uri: null, child: null};
 	};
-	
+
 	this.head = new Array();
-	
+
 	this.addNode = function(name, path, uri)
 	{
       var node = FolderLayer.makeNode();
@@ -1958,25 +1958,25 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       node.uri = uri;
       this.head.push(node);
 	}
-	
+
 	this.findNodeOnCurrentLayer = function(name)
 	{
       for (var i=0; i<this.head.length; i++)
       {
         if (this.head[i].name == name)
         {
-          return this.head[i];	
+          return this.head[i];
         }
       }
-      
+
       return null;
 	}
-	
+
 	this.findNode = function(fullName)
 	{
       var node = null;
       var tempName = '/';
-      
+
       if (stringUtil.hasText(fullName))
       {
     	var name = fullName.split('/')[1];
@@ -1987,14 +1987,14 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           node = node.child.findNode(fullName.substr(tempName.length));
     	}
       }
-      
-      return node;    
+
+      return node;
 	}
-	
+
 	this.toHTML = function()
 	{
       var returnHTML = '';
-      
+
       $.each(this.head, function (index, node)
                         {
     	                  if (node.child == null)
@@ -2005,24 +2005,24 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     	                  {
     	                	returnHTML = returnHTML + '<li><div class="folderName" fullName="' + node.path + '">' + node.name + '</div>';
     	                    returnHTML = returnHTML + '<ul>' + node.child.toHTML() + '</ul>';
-    	                    returnHTML = returnHTML + '</li>';    	                  
+    	                    returnHTML = returnHTML + '</li>';
     	                  }
                         });
-      
+
       return returnHTML;
 	}
   }
-  
-  function FolderTree() 
+
+  function FolderTree()
   {
 	this.root = null;
-	
+
 	this.findNode = function(name)
 	{
       return this.root == null ? null : this.root.findNode(name);
 	}
-	
-	this.addLayer = function(name, layer) 
+
+	this.addLayer = function(name, layer)
 	{
       // name of root node is an empty string
       if (this.root == null || (!stringUtil.hasText(name)))
@@ -2034,7 +2034,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         this.findNode(name).child = layer;
       }
 	}
-	
+
 	this.toHTML = function()
 	{
       return returnHTML = '<ul class="collapsibleList">' + this.root.toHTML() + '</ul>';
@@ -2282,7 +2282,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         {
           $('.spinnerSpan').append(spinningWheel);
           $(".listener-hook").addClass("disabled");
-        },             
+        },
         submit: doMove,
         buttons: btns
       });
@@ -2999,7 +2999,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     // Update location for status, upload, & new folder functions.
     setUploader(path);
   };
-  
+
   /*---------------------------------------------------------
    Initialization
    ---------------------------------------------------------*/
@@ -3018,18 +3018,19 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         }
       }
 
-      $('#link-to-project').attr('href', config.url).attr('target', '_blank').attr('title', lg.support_fm +
+      $('#link-to-project').attr('href', config.url).attr('target', '_blank')
+        .attr('title', lg.support_fm +
                                                                                             ' [' +
                                                                                             lg.version +
                                                                                             ' : ' +
                                                                                             config.version +
                                                                                             ']');
       $('div.version').html(config.version);
-      url1: contextPath + config.options.folderConnector + '/' + getCurrentPath().split('/')[1];
 
       // Loading theme
       loadCSS(contextPath + 'themes/' + config.options.theme +
               '/styles/filemanager.css');
+
       $.ajax({
                url: contextPath + 'themes/' + config.options.theme +
                     '/styles/ie.css',
@@ -3039,13 +3040,14 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                  $('head').append(data);
                }
              });
-      
+
       // Loading quota and folder size for root folder, e.g. /CADCTest
-      if (stringUtil.hasText(getCurrentPath()))
+      var currPath = getCurrentPath();
+      if (stringUtil.hasText(currPath))
       {
 	      $.ajax({
 	          method: 'GET',
-	          url: contextPath + config.options.folderConnector + '/' + getCurrentPath().split('/')[1] ,
+	          url: contextPath + config.options.folderConnector + '/' + currPath.split('/')[1] ,
 	          dataType: 'json',
 	          async: false,
 	          success: function (data)
