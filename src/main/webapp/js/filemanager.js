@@ -2109,8 +2109,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   }; // end moveItem
 
 
-
-  // eventually would become doMove
+  // Submit function for move usage of collapsible list prompt
   var doMove = function (event, value, msg, formVals)
   {
     if (value == true) {
@@ -2129,7 +2128,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             data: dataStr,
             statusCode: {
               204: function () {
-                // $.prompt(params['opSuccess'],
                 $.prompt(lg.successful_moved,
                     {
                       submit: refreshPage
@@ -2142,7 +2140,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                 $.prompt(lg.authorization_required);
               },
               409: function () {
-                $.prompt(lg.DIRECTORY_ALREADY_EXISTS.replace(/%s/g, fname)); // TODO: change this
+                $.prompt(lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode']));
               },
               500: function ()
               {
@@ -2152,11 +2150,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           });
 
     } //end if value == true
-  };
+  }; // end doMove
 
 
-
-  // eventually would become doMove
+  // Submit function for link use of collapsible list prompt
   var doLink = function (event, value, msg, formVals)
   {
     if (value == true) {
@@ -2187,7 +2184,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                 $.prompt(lg.authorization_required);
               },
               409: function () {
-                $.prompt(lg.DIRECTORY_ALREADY_EXISTS.replace(/%s/g, fname)); // TODO: change this
+                $.prompt(lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals['itemName']));
               },
               500: function ()
               {
@@ -2197,7 +2194,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           });
 
     } //end if value == true
-  };
+  }; // end doLink
 
 
 // Link or move the current item to specified dir and returns the new name.
