@@ -1,5 +1,5 @@
 env:
-  DOCKER_COMPOSE_VERSION: 1.11.1
+  DOCKER_COMPOSE_VERSION: 1.11.2
 language: java
 jdk:
 - oraclejdk8
@@ -13,6 +13,7 @@ before_install:
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
 script:
+- cd examples
 - gradle clean dockerize
 - docker-compose up -d
 - docker ps -a
