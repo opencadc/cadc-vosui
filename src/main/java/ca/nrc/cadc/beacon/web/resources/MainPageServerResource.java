@@ -72,24 +72,15 @@ import ca.nrc.cadc.beacon.StorageItemCSVWriter;
 import ca.nrc.cadc.beacon.StorageItemWriter;
 import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
 import ca.nrc.cadc.beacon.web.view.FolderItem;
-import ca.nrc.cadc.net.NetUtil;
+import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
-import ca.nrc.cadc.vos.client.VOSpaceClient;
-import freemarker.cache.FileTemplateLoader;
-import freemarker.cache.WebappTemplateLoader;
-import freemarker.template.Configuration;
-import freemarker.template.TemplateModelException;
 import org.restlet.data.MediaType;
 import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ResourceException;
 
 import javax.security.auth.Subject;
-import javax.servlet.ServletContext;
-import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
@@ -97,49 +88,6 @@ import java.util.*;
 
 public class MainPageServerResource extends StorageItemServerResource
 {
-    private final Configuration freemarkerConfiguration =
-            new Configuration(Configuration.VERSION_2_3_25);
-
-
-    /**
-     * Set-up method that can be overridden in order to initialize the state of
-     * the resource. By default it does nothing.
-     */
-    @Override
-    protected void doInit() throws ResourceException
-    {
-        super.doInit();
-
-        freemarkerConfiguration.setLocalizedLookup(false);
-
-        final ServletContext servletContext = getServletContext();
-
-        try
-        {
-            if (servletContext == null)
-            {
-                freemarkerConfiguration.setSharedVariable(
-                        "contextPath", VOSpaceApplication.DEFAULT_CONTEXT_PATH);
-                freemarkerConfiguration.setTemplateLoader(
-                        new FileTemplateLoader(new File("src/main/webapp")));
-            }
-            else
-            {
-                final String servletPath = servletContext.getContextPath();
-
-                freemarkerConfiguration.setSharedVariable(
-                        "contextPath",
-                        servletPath + (servletPath.endsWith("/") ? "" : "/"));
-                freemarkerConfiguration.setTemplateLoader(
-                        new WebappTemplateLoader(servletContext));
-            }
-        }
-        catch (IOException | TemplateModelException e)
-        {
-            throw new ResourceException(e);
-        }
-    }
-
     @Get
     public Representation represent() throws Exception
     {
@@ -215,6 +163,11 @@ public class MainPageServerResource extends StorageItemServerResource
         return representFolderItem(folderItem, initialRows, startNextPageURI);
     }
 
+    FreeMarkerConfiguration getFreeMarkerConfiguration()
+    {
+        return getContextAttribute(VOSpaceApplication.FREEMARKER_CONFIG_KEY);
+    }
+
     Representation representFolderItem(final FolderItem folderItem,
                                        final Iterator<String> initialRows,
                                        final VOSURI startNextPageURI)
@@ -222,11 +175,12 @@ public class MainPageServerResource extends StorageItemServerResource
     {
         final Map<String, Object> dataModel = new HashMap<>();
         final AccessControlClient accessControlClient =
-                (AccessControlClient) getContext().getAttributes().get(
+                getContextAttribute(
                         VOSpaceApplication.ACCESS_CONTROL_CLIENT_KEY);
 
         dataModel.put("initialRows", initialRows);
         dataModel.put("folder", folderItem);
+
         if (startNextPageURI != null)
         {
             dataModel.put("startURI", startNextPageURI.toString());
@@ -237,24 +191,25 @@ public class MainPageServerResource extends StorageItemServerResource
         String httpUsername = accessControlClient
                 .getCurrentHttpPrincipalUsername(s);
 
-        if (httpUsername != null) {
+        if (httpUsername != null)
+        {
             dataModel.put("username", httpUsername);
 
             try
             {
                 // Check to see if home directory exists
-                String userHomeDir = VOSPACE_NODE_URI_PREFIX + "/" + httpUsername;
-
-                getNode(new VOSURI(userHomeDir), VOS.Detail.min);
+                getNode(new VOSURI(VOSPACE_NODE_URI_PREFIX + "/"
+                                   + httpUsername), VOS.Detail.min);
                 dataModel.put("homeDir", httpUsername);
             }
-            catch(NodeNotFoundException nfe)
+            catch (NodeNotFoundException nfe)
             {
                 // homeDir does not need to be set
             }
         }
 
-        return new TemplateRepresentation("index.ftl", freemarkerConfiguration, dataModel,
-                                          MediaType.TEXT_HTML);
+        return new TemplateRepresentation("index.ftl",
+                                          getFreeMarkerConfiguration(),
+                                          dataModel, MediaType.TEXT_HTML);
     }
 }

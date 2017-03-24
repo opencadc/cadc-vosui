@@ -6,3 +6,6 @@ ENV JAVA_OPTS "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=555
 
 COPY LocalAuthority.properties /root/config/
 COPY *.war webapps/
+
+EXPOSE 5555
+
