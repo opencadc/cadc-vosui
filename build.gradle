@@ -40,10 +40,6 @@ group = 'org.opencadc'
 version = '1.1.2'
 mainClassName = "ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication"
 
-jar {
-    baseName 'cadc-vosui'
-}
-
 run {
     if ((System.getProperty("SSO_SERVERS") != null)
             && (System.getProperty("SSO_SERVERS") != ""))
