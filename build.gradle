@@ -2,6 +2,7 @@ plugins {
     id 'maven'
     id 'java'
     id 'application'
+    id 'maven-publish'
     id 'com.jfrog.bintray' version '1.7.3'
 }
 
