@@ -198,33 +198,40 @@ public abstract class StorageItem
 
     public String getOwnerCN()
     {
-        X500Name xName = new X500Name(owner);
-
-        RDN[] cnList = xName.getRDNs(BCStyle.CN);
-        if (cnList.length > 0)
+        if (owner == null)
         {
-            // Parse out any part of the cn that is before a '_'
-            String[] cnStringParts = IETFUtils.valueToString(cnList[0].getFirst().getValue()).split("_");
-            return cnStringParts[0];
+            return "";
         }
         else
         {
-            return owner;
-        }
+            final X500Name xName = new X500Name(owner);
 
+            RDN[] cnList = xName.getRDNs(BCStyle.CN);
+            if (cnList.length > 0)
+            {
+                // Parse out any part of the cn that is before a '_'
+                String[] cnStringParts = IETFUtils
+                        .valueToString(cnList[0].getFirst().getValue())
+                        .split("_");
+                return cnStringParts[0];
+            }
+            else
+            {
+                return owner;
+            }
+        }
     }
 
     private String getURINames(final URI[] uris)
     {
-        final String[] names = new String[uris.length];
-        final int urisLength = uris.length;
+        final StringBuilder uriNames = new StringBuilder();
 
-        for (int i = 0; i < urisLength; i++)
+        for (final URI uri : uris)
         {
-            names[i] = uris[i].getFragment();
+            uriNames.append(uri.getFragment()).append(" ");
         }
 
-        return String.join(" ", names);
+        return uriNames.toString().trim();
     }
 
     public abstract String getItemIconCSS();
