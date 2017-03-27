@@ -25,6 +25,12 @@
           <div class="container-fluid">
             <div class="collapse navbar-collapse" id="navbar-functions">
               <ul class="nav navbar-nav">
+                  <li class="dataTables_filter">
+                      <form class="navbar-form navbar-left" role="search">
+                          <input id="beacon_filter" class="form-control dataTables_filter"
+                                 aria-controls="beacon" placeholder="Search Name..." type="search" />
+                      </form>
+                  </li>
 <#if homeDir??>
                   <li>
                       <a id="homeDir" name="homeDir" type="button" title="Navigate to home directory." href="${homeURL}">
@@ -38,9 +44,9 @@
                   <a id="root" name="root" type="button" title="Navigate to main root." href="${contextPath}list/">
                     <span class="glyphicon glyphicon-folder-close"></span>&nbsp;Root</a></li>
 
-                <li class="dropdown divider-vertical <#if !folder.writable>disabled</#if>">
-                  <a title="New" class="dropdown-toggle <#if !folder.writable>disabled</#if>" role="button" id="newdropdown" name="newdropdown" aria-expanded="false" data-toggle="dropdown">
-                    <span class="glyphicon glyphicon-plus"></span>&nbsp;New&nbsp;<span class="caret"></span></a>
+                <li class="dropdown divider-vertical" <#if !folder.writable>disabled</#if>">
+                  <a title="Add" class="dropdown-toggle <#if !folder.writable>disabled</#if>" role="button" id="newdropdown" name="newdropdown" aria-expanded="false" data-toggle="dropdown">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Add&nbsp;<span class="caret"></span></a>
                   <ul class="dropdown-menu">
                     <li>
                       <a id="newfolder" name="newfolder">
@@ -62,7 +68,7 @@
                       <a id="new_external_link"><span class="glyphicon glyphicon-link"></span>&nbsp;External Link</a></li>
                   </ul>
                 </li>
-                <li class="disabled dropdown divider-vertical multi-select-function-container">
+                <li class="disabled dropdown multi-select-function-container">
                   <a disabled="disabled" class="disabled dropdown-toggle multi-select-function" id="download" role="button" name="download" type="button" aria-expanded="false" data-toggle="dropdown" title="Download selected items.">
                     <span class="glyphicon glyphicon-cloud-download"></span>&nbsp;Download&nbsp;<span class="caret"></span></a>
                   <ul class="dropdown-menu download-dropdown-menu">
@@ -73,12 +79,6 @@
                   </ul>
                 </li>
 </#if>
-                <li class="dataTables_filter">
-                  <form class="navbar-form navbar-left" role="search">
-                    <input id="beacon_filter" class="form-control dataTables_filter"
-                           aria-controls="beacon" placeholder="Search Name..." type="search" />
-                  </form>
-                </li>
 <#if !isRoot>
                 <#-- Disabled by default -->
                 <li class="disabled multi-select-function-container-writable">
