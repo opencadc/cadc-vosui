@@ -126,6 +126,18 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var baseURL;
   var fullexpandedFolder;
   var expandedFolder;
+  var makeEditIcon = function(path, elementAttributes, elementName)
+  {
+    return '<span class="glyphicon glyphicon-pencil"><a href="' +
+    path +
+    'update" title="Edit permissions." ' +
+    'readable="' + elementAttributes[6] +
+    '" path="' + elementAttributes[9] +
+    '" readGroup="' + elementAttributes[5] +
+    '" writeGroup="' + elementAttributes[4] +
+    '" itemName="' + elementName +
+    '" ></a></span>';
+  };
   var $dt = _$beaconTable.DataTable(
     {
       data: _initialData,
@@ -196,23 +208,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                 itemNameDisplay += data;
               }
 
-              // if isWritable bit is true, provide edit icon
-              if (full[13] === "true")
-              {
-                // Add data references to icon so they can be used to populate
-                // the edit prompt
-                var editIcon = '<span class="glyphicon glyphicon-pencil"><a href="' +
-                               contextPath +
-                               'update" title="Edit permissions." ' +
-                               'readable="' + full[6] +
-                               '" path="' + full[9] +
-                               '" readGroup="' + full[5] +
-                               '" writeGroup="' + full[4] +
-                               '" itemName="' + data +
-                               '" ></a></span>';
-                itemNameDisplay += editIcon;
-              }
-
               return itemNameDisplay;
             }
             else
@@ -227,29 +222,53 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           "searchable": false
         },
         {
-          "targets": 5,
+          "targets": 3,
+          "searchable": false
+        },
+        {
+          "targets": 4,
           "searchable": false,
           "render": function (data, type, full)
           {
-            var renderedValue;
+            var renderedValue = "";
 
-            if (full.length > 9)
+            // if isWritable bit is true, provide edit icon
+            if (full[13] === "true")
             {
-              // Column [6] is the public flag.
-              renderedValue = (full[6] === "true")
-                ? lg.public : data;
+              renderedValue += makeEditIcon(contextPath, full, data);
             }
-            else
-            {
-              renderedValue = data;
-            }
+
+            renderedValue += data;
 
             return renderedValue;
           }
         },
         {
-          "targets": [3, 4],
-          "searchable": false
+          "targets": 5,
+          "searchable": false,
+          "render": function (data, type, full)
+          {
+            var renderedValue = "";
+
+            // if isWritable bit is true, provide edit icon
+            if (full[13] === "true")
+            {
+              renderedValue += makeEditIcon(contextPath, full, data);
+            }
+
+            if (full.length > 9)
+            {
+              // Column [6] is the public flag.
+              renderedValue += (full[6] === "true")
+                ? lg.public : data;
+            }
+            else
+            {
+              renderedValue += data;
+            }
+
+            return renderedValue;
+          }
         },
         {
           "targets": [6],
@@ -1063,7 +1082,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var setSrcNodes = function ()
   {
     var selectedItems =
-      $('tr.selected > td:nth-child(2) > span.glyphicon-pencil > a');
+      $('tr.selected > td:nth-child(5) > span.glyphicon-pencil > a');
     var selectedPaths = [];
 
     $(selectedItems).each(function (index, item)
