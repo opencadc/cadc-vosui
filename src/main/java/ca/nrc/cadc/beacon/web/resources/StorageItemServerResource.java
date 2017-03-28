@@ -273,7 +273,7 @@ public class StorageItemServerResource extends SecureServerResource
             }
             else
             {
-                throw new RuntimeException(e);
+                throw new ResourceException(e);
             }
         }
     }

@@ -80,9 +80,11 @@ import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
+import javax.print.attribute.URISyntax;
 import javax.security.auth.Subject;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.*;
 
 
@@ -91,10 +93,46 @@ public class MainPageServerResource extends StorageItemServerResource
     @Get
     public Representation represent() throws Exception
     {
-        final ContainerNode containerNode = getCurrentNode();
+        // TODO: this is the item that fails if you enter the app directly
+        // to a resource you do not have access to
 
-        return representContainerNode(containerNode);
+        Representation rep = null;
+        try {
+            final ContainerNode containerNode = getCurrentNode();
+            rep = representContainerNode(containerNode);
+
+        } catch (Exception e) {
+            rep =  representErrorPage(e);
+
+        }
+
+        return rep;
     }
+
+    private Representation representErrorPage(Exception lastException) throws Exception
+    {
+
+        VOSURI rootURI = new VOSURI(VOSPACE_NODE_URI_PREFIX + "/");
+        final ContainerNode requestedNode = new ContainerNode(getCurrentItemURI(), new ArrayList<NodeProperty>());
+
+        final FolderItem folderItem =
+                storageItemFactory.getFolderItemView(requestedNode);
+
+        final Map<String, Object> context = new HashMap<>();
+
+        context.put("errorMessage", lastException.getMessage());
+
+        // folder.path in login.ftl will allow login to this node
+        // in case this is a permissions issue
+        context.put("folder", folderItem);
+        context.put("rootURI", rootURI);
+
+        return new TemplateRepresentation("error.ftl",
+                getFreeMarkerConfiguration(),
+                context, MediaType.TEXT_HTML);
+
+    }
+
 
     private Representation representContainerNode(
             final ContainerNode containerNode) throws Exception
@@ -124,6 +162,8 @@ public class MainPageServerResource extends StorageItemServerResource
                 }
                 catch (Exception e)
                 {
+                    // TODO: this needs to get a larger range of exceptions & propagate
+                    // them to the front end, such as authentication errors.
                     throw new RuntimeException(e);
                 }
 
