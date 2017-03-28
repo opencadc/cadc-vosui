@@ -79,6 +79,7 @@ import org.restlet.data.MediaType;
 import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 
 import javax.print.attribute.URISyntax;
 import javax.security.auth.Subject;
@@ -93,44 +94,9 @@ public class MainPageServerResource extends StorageItemServerResource
     @Get
     public Representation represent() throws Exception
     {
-        // TODO: this is the item that fails if you enter the app directly
-        // to a resource you do not have access to
+        final ContainerNode containerNode = getCurrentNode();
 
-        Representation rep = null;
-        try {
-            final ContainerNode containerNode = getCurrentNode();
-            rep = representContainerNode(containerNode);
-
-        } catch (Exception e) {
-            rep =  representErrorPage(e);
-
-        }
-
-        return rep;
-    }
-
-    private Representation representErrorPage(Exception lastException) throws Exception
-    {
-
-        VOSURI rootURI = new VOSURI(VOSPACE_NODE_URI_PREFIX + "/");
-        final ContainerNode requestedNode = new ContainerNode(getCurrentItemURI(), new ArrayList<NodeProperty>());
-
-        final FolderItem folderItem =
-                storageItemFactory.getFolderItemView(requestedNode);
-
-        final Map<String, Object> context = new HashMap<>();
-
-        context.put("errorMessage", lastException.getMessage());
-
-        // folder.path in login.ftl will allow login to this node
-        // in case this is a permissions issue
-        context.put("folder", folderItem);
-        context.put("rootURI", rootURI);
-
-        return new TemplateRepresentation("error.ftl",
-                getFreeMarkerConfiguration(),
-                context, MediaType.TEXT_HTML);
-
+        return representContainerNode(containerNode);
     }
 
 
@@ -162,8 +128,6 @@ public class MainPageServerResource extends StorageItemServerResource
                 }
                 catch (Exception e)
                 {
-                    // TODO: this needs to get a larger range of exceptions & propagate
-                    // them to the front end, such as authentication errors.
                     throw new RuntimeException(e);
                 }
 
@@ -242,9 +206,10 @@ public class MainPageServerResource extends StorageItemServerResource
                                    + httpUsername), VOS.Detail.min);
                 dataModel.put("homeDir", httpUsername);
             }
-            catch (NodeNotFoundException nfe)
+            catch (ResourceException re)
             {
                 // homeDir does not need to be set
+                throw new ResourceException(re.getCause());
             }
         }
 
