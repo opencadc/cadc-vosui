@@ -47,11 +47,11 @@
 <div class="container-fluid">
     <div id="errorDisplayDiv" class="errorDisplay" >
         Unable to fulfil request: ${errorMessage}
-        </br>
-        <!-- Return to <a title="Home" href='${contextPath}list/'>Root folder</a>. -->
+        <div class="returnTo">
+            </br>
+            Return to <a title="Home" href='${contextPath}list/'>User Storage Root folder</a>
+        </div>
     </div>
-
-
 </div>
 
 
