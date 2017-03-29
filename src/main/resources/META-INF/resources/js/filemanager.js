@@ -95,6 +95,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var isWritableFlagIndex = 13;
 
   var stringUtil = new org.opencadc.StringUtil();
+  var folderPath = _folderPath;
   var url = contextPath + config.options.pageConnector + _folderPath;
   var defaultPageSize = 400;
 
@@ -138,9 +139,18 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     '" itemName="' + elementName +
     '" ></a></span>';
   };
+
+
+
   var $dt = _$beaconTable.DataTable(
     {
       data: _initialData,
+      initComplete: function(settings, json) {
+        if (folderPath === "" ) // will be this for Root folder
+        {
+            $("#beacon").DataTable().column(6).visible(false);
+        }
+      },
       language: {
         search: "_INPUT_",
         searchPlaceholder: "Search Name..."
@@ -275,7 +285,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           "searchable": false,
           "render": function (data, type, full)
           {
-            return full[14];
+              return full[14];
           }
         }
       ],
