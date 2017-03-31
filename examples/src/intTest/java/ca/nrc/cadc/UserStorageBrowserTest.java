@@ -84,9 +84,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Login test - credentials should be in the gradle build file.
         String username = "CADCtest";
-//        userStoragePage = userStoragePage.doLogin(username, "sywymUL4");
-//        verifyTrue(userStoragePage.isLoggedIn());
-//        System.out.println("logged in");
 
         userStoragePage = loginTest(userStoragePage);
 
@@ -383,11 +380,9 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
     @Test
     public void testErrorPageNotAuthorised() throws Exception {
         // This endpoint should exist, but user won't have access
-        // TODO: this will have to change to a
         UserStorageBrowserPage userStoragePage =
                 goTo(STORAGE_ENDPOINT + "/CADCtest/automated_test/required_folder_please_leave_here", null,
                         UserStorageBrowserPage.class);
-
 
         verifyTrue(userStoragePage.verifyErrorMessage("401"));
 
