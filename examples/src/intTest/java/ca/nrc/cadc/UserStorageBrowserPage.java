@@ -1009,7 +1009,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         waitUntil(ExpectedConditions.attributeContains(
                 By.className("beacon-progress"), "class", "progress-bar-success"));
-        System.out.println("found element");
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
     }
