@@ -59,7 +59,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         verifyTrue(userStoragePage.isDefaultSort());
 
-        // Scenario 1:
         // enter search(filter) value
         // check that rows of table are shorted correctly
         // verify entry is correct
@@ -83,12 +82,13 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         verifyTrue(userStoragePage.isReadAccess());
 
 
-        // Scenario 2: Login test - credentials should be in the gradle build file.
+        // Login test - credentials should be in the gradle build file.
         String username = "CADCtest";
-        userStoragePage = userStoragePage.doLogin(username, "sywymUL4");
-        verifyTrue(userStoragePage.isLoggedIn());
-        System.out.println("logged in");
+//        userStoragePage = userStoragePage.doLogin(username, "sywymUL4");
+//        verifyTrue(userStoragePage.isLoggedIn());
+//        System.out.println("logged in");
 
+        userStoragePage = loginTest(userStoragePage);
 
         rowCount = userStoragePage.getTableRowCount();
 
@@ -98,70 +98,23 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         // Check access to page: should be write accessible
         verifyFalse(userStoragePage.isReadAccess());
 
-        // Scenario 3: Test navigation buttons
+        // Test navigation buttons
         // Test state is currently in a subfolder: Start at Root
         System.out.println("navigating to root...");
         userStoragePage = userStoragePage.navToRoot();
 
         // Verify in Root Folder
         verifyTrue(userStoragePage.isRootFolder());
+        verifyFalse(userStoragePage.quotaIsDisplayed());
 
         // Nav to home directory
         userStoragePage = userStoragePage.navToHome();
         verifyTrue(userStoragePage.getHeaderText().equals("/" + username));
+        verifyTrue(userStoragePage.quotaIsDisplayed());
 
         int startRow = 1;
 
-        System.out.println("Starting navigation tests");
-        // click through to first folder
-        int firstPageRowClicked = userStoragePage
-                .getNextAvailabileFolderRow(startRow);
-        String subFolder1 = userStoragePage.getFolderName(firstPageRowClicked);
-        userStoragePage.clickFolderForRow(firstPageRowClicked);
-        verifyTrue(userStoragePage.isSubFolder(subFolder1));
-        verifyTrue(userStoragePage.quotaIsDisplayed());
-
-        // Go down one more level
-        int secondPageRowCilcked = userStoragePage
-                .getNextAvailabileFolderRow(startRow);
-        String subFolder2 = userStoragePage.getFolderName(secondPageRowCilcked);
-        userStoragePage.clickFolderForRow(secondPageRowCilcked);
-        verifyTrue(userStoragePage.isSubFolder(subFolder2));
-
-        // Navigate up one level (should be up one level)
-        userStoragePage = userStoragePage.navUpLevel();
-        verifyTrue(userStoragePage.isSubFolder(subFolder1));
-
-        // Go back down one folder
-        userStoragePage.clickFolderForRow(secondPageRowCilcked);
-        verifyTrue(userStoragePage.isSubFolder(subFolder2));
-
-        // Go up to root
-        userStoragePage = userStoragePage.navToRoot();
-
-        // Verify in Root Folder
-        verifyTrue(userStoragePage.isRootFolder());
-        verifyFalse(userStoragePage.quotaIsDisplayed());
-
-
-        // Scenario 4: test file actions
-        System.out.println("testing file actions");
-        userStoragePage.clickFolderForRow(firstPageRowClicked);
-        userStoragePage.clickCheckboxForRow(startRow);
-        verifyTrue(userStoragePage.isFileSelectedMode(startRow));
-
-        userStoragePage.clickCheckboxForRow(startRow);
-        verifyFalse(userStoragePage.isFileSelectedMode(startRow));
-
-        // Go up to root
-        userStoragePage = userStoragePage.navToRoot();
-        verifyTrue(userStoragePage.isRootFolder());
-        //  click through to CADCtest folder
-        userStoragePage = userStoragePage.clickFolder(testFolderName);
-        // Verify sub folder page state
-        verifyTrue(userStoragePage.isSubFolder(testFolderName));
-
-
+        // Assert: home directory for CADCtest user is CADCtest
         // navigate to automated test folder
         String autoTestFolder = "automated_test";
 
@@ -180,6 +133,15 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         String parentReadGroup = userStoragePage.getValueForRowCol(1, 6);
         userStoragePage.clickFolder(autoTestFolder);
 
+
+        // Test 'nav up one level' - last nav button to test explicitly
+        userStoragePage = userStoragePage.navUpLevel();
+        verifyTrue(userStoragePage.getHeaderText().equals("/" + username));
+
+        // Return to auto test folder
+        userStoragePage.clickFolder(autoTestFolder);
+
+
         // Create a context group, and run tests in there
         userStoragePage = userStoragePage.createNewFolder(workingDirectoryName);
         userStoragePage.enterSearch(workingDirectoryName);
@@ -190,6 +152,16 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         String tempTestFolder = "vosui_automated_test_tobedeleted_"
                                 + generateAlphaNumeric(8);
         userStoragePage = userStoragePage.createNewFolder(tempTestFolder);
+
+        // Test selecting checkbox
+        System.out.println("testing selecting checkbox");
+        userStoragePage.clickCheckboxForRow(startRow);
+        verifyTrue(userStoragePage.isFileSelectedMode(startRow));
+
+        userStoragePage.clickCheckboxForRow(startRow);
+        verifyFalse(userStoragePage.isFileSelectedMode(startRow));
+
+
         final boolean isPublic = parentReadGroup.equals("Public");
 
         // Test that permissions are same as the parent to start
@@ -336,7 +308,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         userStoragePage = userStoragePage.createNewFolder(linkTestFolder);
         userStoragePage = userStoragePage.navUpLevel();
 
-      //  Kick off first ajax call to populate tree
+        // Kick off first ajax call to populate tree
         userStoragePage = userStoragePage.startVOSpaceLink();
 
         // Navigate through to the target node
@@ -358,7 +330,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Test Delete while cleaning up
         userStoragePage = userStoragePage.navUpLevel();
-//        userStoragePage = userStoragePage.navUpLevel();
 
 		// Nav up one level & delete working folder as well
 		userStoragePage = userStoragePage.navUpLevel();
@@ -374,7 +345,53 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 		System.out.println("Test logout");
         userStoragePage = userStoragePage.doLogout();
 		verifyFalse(userStoragePage.isLoggedIn());
-   
+
     	System.out.println("UserStorageBrowserTest completed");
     }
+
+
+    private UserStorageBrowserPage loginTest(UserStorageBrowserPage userPage) throws Exception
+    {
+        // Scenario 2: Login test - credentials should be in the gradle build file.
+        String username = "CADCtest";
+        userPage = userPage.doLogin(username, "sywymUL4");
+        verifyTrue(userPage.isLoggedIn());
+        System.out.println("logged in");
+
+        return userPage;
+    }
+
+
+    @Test
+    public void testErrorPageNotExist() throws Exception
+    {
+        final String bogusName = "bogus_" + generateAlphaNumeric(16);
+
+        System.out.println("Visiting: " + getWebURL() + STORAGE_ENDPOINT + bogusName);
+
+        // This endpoint shouldn't exist
+        UserStorageBrowserPage userStoragePage =
+                goTo(STORAGE_ENDPOINT + "/bogus", null,
+                        UserStorageBrowserPage.class);
+
+        verifyTrue(userStoragePage.verifyErrorMessage("404"));
+
+        System.out.println("UserStorageBrowserTest.testErrorPageNotExist() completed");
+    }
+
+
+    @Test
+    public void testErrorPageNotAuthorised() throws Exception {
+        // This endpoint should exist, but user won't have access
+        // TODO: this will have to change to a
+        UserStorageBrowserPage userStoragePage =
+                goTo(STORAGE_ENDPOINT + "/CADCtest/automated_test/required_folder_please_leave_here", null,
+                        UserStorageBrowserPage.class);
+
+
+        verifyTrue(userStoragePage.verifyErrorMessage("401"));
+
+        System.out.println("UserStorageBrowserTest.testErrorPageNotAuthorised() completed");
+    }
+
 }

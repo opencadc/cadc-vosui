@@ -119,6 +119,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     private static final By FOLDER_NAME_HEADER_BY =
             By.xpath("//h2[@property='name']");
 
+    // Error Page: is generated using a different template
+    // at the same endpoint: /storage/list
+    private static final By ERROR_DISPLAY = By.id("errorDisplayDiv");
+
 
     public static final String READ_GROUP_DIV = "readGroupDiv";
     public static final String WRITE_GROUP_DIV = "writeGroupDiv";
@@ -180,6 +184,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     @FindBy(id = "more_details")
     private WebElement moredetailsButton;
 
+
     private WebDriver driver = null;
 
 
@@ -188,7 +193,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         super(driver);
         this.driver = driver;
 
-        waitForStorageLoad();
+        if ( elementExists(By.xpath("//*[@id=\"main_section\"]")) )
+        {
+            waitForStorageLoad();
+        }
 
         PageFactory.initElements(driver, this);
     }
@@ -1001,6 +1009,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         waitUntil(ExpectedConditions.attributeContains(
                 By.className("beacon-progress"), "class", "progress-bar-success"));
+        System.out.println("found element");
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
     }
@@ -1012,6 +1021,31 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         // for the scripts to click through. Wait for it to go away
         waitForElementInvisible(By.className("jqifade"));
     }
+
+
+
+    // Error Page access
+    public boolean verifyErrorMessage(String message) throws Exception
+    {
+        try
+        {
+            WebElement errorDisplayDiv = waitForElementPresent(ERROR_DISPLAY);
+            if (errorDisplayDiv.getText().contains(message))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch (NoSuchElementException e)
+        {
+            return false;
+        }
+    }
+
+
 }
 
 
