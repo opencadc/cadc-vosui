@@ -94,7 +94,16 @@ public class MainPageServerResource extends StorageItemServerResource
     @Get
     public Representation represent() throws Exception
     {
-        final ContainerNode containerNode = getCurrentNode();
+        ContainerNode containerNode = null;
+        if (getCurrentPath().equals("/"))
+        {
+            // this will be switched to VOS.Detail.root when it's available
+            containerNode = getCurrentNode(VOS.Detail.raw);
+        }
+        else
+        {
+            containerNode = getCurrentNode(VOS.Detail.max);
+        }
 
         return representContainerNode(containerNode);
     }
