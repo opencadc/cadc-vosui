@@ -209,14 +209,23 @@ public class StorageItemServerResource extends SecureServerResource
             return (T) storageItemFactory.translate(getNode(new VOSURI(uri),
                                                             VOS.Detail.max));
         }
-        catch (NodeNotFoundException e)
+        catch (ResourceException re)
         {
-            throw new FileNotFoundException(e.getMessage());
+            if (re.getCause() instanceof NodeNotFoundException)
+            {
+                throw new FileNotFoundException(re.getMessage());
+            }
+            else
+            {
+                throw new ResourceException(re);
+            }
+
         }
+
     }
 
     <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail)
-            throws NodeNotFoundException
+            throws ResourceException
     {
         final int pageSize;
 
@@ -267,15 +276,9 @@ public class StorageItemServerResource extends SecureServerResource
         }
         catch (Exception e)
         {
-            if (e instanceof NodeNotFoundException)
-            {
-                throw (NodeNotFoundException) e;
-            }
-            else
-            {
-                throw new RuntimeException(e);
-            }
+            throw new ResourceException(e);
         }
+
     }
 
     VOSURI toURI(final String path)

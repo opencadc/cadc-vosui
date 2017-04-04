@@ -94,6 +94,7 @@ import javax.servlet.ServletContext;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.restlet.resource.ResourceException;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
@@ -249,7 +250,7 @@ public class FolderItemServerResourceTest
             @SuppressWarnings("unchecked")
             @Override
             <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail)
-                    throws NodeNotFoundException
+                    throws ResourceException
             {
                 return (T) containerNode;
             }
@@ -386,7 +387,7 @@ public class FolderItemServerResourceTest
             @SuppressWarnings("unchecked")
             @Override
             <T extends Node> T getNode(VOSURI folderURI, VOS.Detail detail)
-                    throws NodeNotFoundException
+                    throws ResourceException
             {
                 return (T) mockDestinationNode;
             }

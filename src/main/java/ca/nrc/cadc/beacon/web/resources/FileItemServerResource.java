@@ -90,6 +90,7 @@ import org.restlet.ext.servlet.ServletUtils;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
 import org.restlet.resource.Put;
+import org.restlet.resource.ResourceException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -275,9 +276,15 @@ public class FileItemServerResource extends StorageItemServerResource
                 throw new NodeAlreadyExistsException(path);
             }
         }
-        catch (NodeNotFoundException e)
+        catch (ResourceException e)
         {
-            createNode(dataNode, false);
+            if (e.getCause() instanceof NodeNotFoundException) {
+                createNode(dataNode, false);
+            }
+            else
+            {
+                throw new ResourceException(e.getCause());
+            }
         }
 
         try

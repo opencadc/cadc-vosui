@@ -182,14 +182,14 @@ button#more_details {
 }
 
 .glyphicon-pencil {
-  float: right;
   opacity: 0.5;
+  margin-right: 8px;
 }
 
 .glyphicon-pencil:hover {
-  float: right;
   opacity: 1.0;
   cursor: pointer;
+  margin-right: 8px;
 }
 
 @-webkit-keyframes glyphicon-spin-r {

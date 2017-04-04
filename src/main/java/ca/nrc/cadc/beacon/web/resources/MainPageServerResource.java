@@ -79,10 +79,13 @@ import org.restlet.data.MediaType;
 import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 
+import javax.print.attribute.URISyntax;
 import javax.security.auth.Subject;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.*;
 
 
@@ -91,10 +94,20 @@ public class MainPageServerResource extends StorageItemServerResource
     @Get
     public Representation represent() throws Exception
     {
-        final ContainerNode containerNode = getCurrentNode();
+        ContainerNode containerNode = null;
+        if (getCurrentPath().equals("/"))
+        {
+            // this will be switched to VOS.Detail.root when it's available
+            containerNode = getCurrentNode(VOS.Detail.raw);
+        }
+        else
+        {
+            containerNode = getCurrentNode(VOS.Detail.max);
+        }
 
         return representContainerNode(containerNode);
     }
+
 
     private Representation representContainerNode(
             final ContainerNode containerNode) throws Exception
@@ -202,9 +215,10 @@ public class MainPageServerResource extends StorageItemServerResource
                                    + httpUsername), VOS.Detail.min);
                 dataModel.put("homeDir", httpUsername);
             }
-            catch (NodeNotFoundException nfe)
+            catch (ResourceException re)
             {
                 // homeDir does not need to be set
+                throw new ResourceException(re.getCause());
             }
         }
 

@@ -89,6 +89,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.junit.Test;
+import org.restlet.resource.ResourceException;
 
 import static org.junit.Assert.*;
 import static org.easymock.EasyMock.*;
@@ -176,7 +177,7 @@ public class MainPageServerResourceTest
             @Override
             <T extends Node> T getNode(final VOSURI folderURI,
                                        final VOS.Detail detail)
-                    throws NodeNotFoundException
+                    throws ResourceException
             {
                 return (T) containerNode;
             }

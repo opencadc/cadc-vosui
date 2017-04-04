@@ -1,3 +1,12 @@
+<#assign redirectPath = "">
+<#if folder??>
+  <#assign redirectPath = folder.path>
+</#if>
+
+<#if requestedFolder??>
+  <#assign redirectPath = requestedFolder>
+</#if>
+
 <#if username??>
 <a title="User actions." class="dropdown-toggle access-actions user-actions" role="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown">
 ${username} <span class="caret"></span></a>
@@ -24,7 +33,7 @@ ${username} <span class="caret"></span></a>
         <label for="password" class="hidden" id="passwordLabel">Password</label>
         <input type="password" id="password" name="password" class="form-control" tabindex="2" required="required" placeholder="Password" />
       </div>
-      <input type="hidden" id="redirectPath" name="redirectPath" value="${folder.path}" />
+      <input type="hidden" id="redirectPath" name="redirectPath" value="${redirectPath}" />
       <button type="submit" id="submitLogin" class="btn btn-success"><span class="glyphicon glyphicon-log-in"></span> Login</button>
     </form>
   </li>
