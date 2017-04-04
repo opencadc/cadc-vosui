@@ -198,7 +198,7 @@ public abstract class StorageItem
 
     public String getOwnerCN()
     {
-        if (owner == null)
+        if ((owner == null) || uri.isRoot() || uri.getParentURI().isRoot())
         {
             return "";
         }
