@@ -72,6 +72,7 @@ import ca.nrc.cadc.beacon.web.StorageItemFactory;
 import ca.nrc.cadc.net.NetUtil;
 import ca.nrc.cadc.vos.ContainerNode;
 import ca.nrc.cadc.vos.Node;
+import ca.nrc.cadc.vos.VOS;
 import ca.nrc.cadc.vos.VOSURI;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 
@@ -112,7 +113,11 @@ abstract class AbstractStorageItemProducer<T extends StorageItemWriter>
 
     String getQuery()
     {
-        return "detail=max&limit=" + ((pageSize > 0) ? pageSize : 300)
+        final VOS.Detail detail = folderURI.isRoot()
+                                  ? VOS.Detail.raw : VOS.Detail.max;
+
+        return "detail=" + detail.name() + "&limit="
+               + ((pageSize > 0) ? pageSize : 300)
                + ((current == null)
                   ? "" : "&uri=" + NetUtil.encode(current.toString()));
     }

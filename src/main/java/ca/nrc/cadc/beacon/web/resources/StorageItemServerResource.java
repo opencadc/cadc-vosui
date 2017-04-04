@@ -233,7 +233,7 @@ public class StorageItemServerResource extends SecureServerResource
         {
             pageSize = -1;
         }
-        else if (detail == VOS.Detail.max)
+        else if ((detail == VOS.Detail.max) || (detail == VOS.Detail.raw))
         {
             pageSize = DEFAULT_DISPLAY_PAGE_SIZE;
         }
