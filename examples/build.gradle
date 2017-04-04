@@ -19,7 +19,6 @@ repositories {
 
 dependencies {
     compile 'org.opencadc:cadc-vosui:1.+'
-//    compile 'javax.websocket:javax.websocket-api:1.+'
 }
 
 sourceCompatibility = '1.7'
