@@ -68,8 +68,7 @@
 
 package ca.nrc.cadc.beacon.web.restlet;
 
-import ca.nrc.cadc.beacon.web.StorageItemFactory;
-import ca.nrc.cadc.beacon.web.view.FolderItem;
+
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
@@ -80,14 +79,11 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.restlet.service.StatusService;
 
 import java.io.FileNotFoundException;
-import java.net.URI;
 import java.security.AccessControlException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,17 +93,17 @@ import java.util.Map;
  */
 public class VOSpaceStatusService extends StatusService
 {
-    static final String VOSPACE_NODE_URI_PREFIX = "vos://cadc.nrc.ca!vospace";
-    StorageItemFactory storageItemFactory;
-
     @Override
-    public Representation toRepresentation(Status status, Request request, Response response) {
+    public Representation toRepresentation(Status status, Request request, Response response)
+    {
 
         final Map<String, Object> dataModel = new HashMap<>();
-        Context curContext = getContext();
+        final Context curContext = getContext();
 
-        final String pathInRequest = (String) request.getAttributes().get("path");
-        String requestedResource =  "/" + ((pathInRequest == null) ? "" : pathInRequest);
+        final String pathInRequest =
+                (String) request.getAttributes().get("path");
+        final String requestedResource =
+                "/" + ((pathInRequest == null) ? "" : pathInRequest);
 
         dataModel.put("errorMessage", status.toString());
 
@@ -116,8 +112,10 @@ public class VOSpaceStatusService extends StatusService
         dataModel.put("requestedFolder", requestedResource);
 
         return new TemplateRepresentation("error.ftl",
-                (FreeMarkerConfiguration)curContext.getAttributes().get(VOSpaceApplication.FREEMARKER_CONFIG_KEY),
-                dataModel, MediaType.TEXT_HTML);
+                                          (FreeMarkerConfiguration) curContext
+                                                  .getAttributes()
+                                                  .get(VOSpaceApplication.FREEMARKER_CONFIG_KEY),
+                                          dataModel, MediaType.TEXT_HTML);
     }
 
 
@@ -149,7 +147,7 @@ public class VOSpaceStatusService extends StatusService
             }
         }
         else if ((throwable instanceof FileNotFoundException) ||
-                (throwable instanceof NodeNotFoundException) )
+                 (throwable instanceof NodeNotFoundException))
         {
             status = Status.CLIENT_ERROR_NOT_FOUND;
         }
