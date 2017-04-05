@@ -1136,7 +1136,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     $('#uploadfolder').off().click(function ()
                                    {
                                      var form = document.createElement("form");
-                                     form.setAttribute("method", "POST");
+                                     form.setAttribute("method", "PUT");
                                      form.setAttribute("action",
                                                        config.upload.url
                                                        + getCurrentPath());
@@ -2118,7 +2118,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     }
   }
 
-  // When we get a page of cvs data from the database containing 
+  // When we get a page of cvs data from the database containing
   // both files and folders, apply this filter to filter out all
   // files.
   var filterOutFiles = function (itemLayer, rowData)
@@ -2784,9 +2784,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                    var downloadMethod =
                      config.download.methods[$thisLink.attr("class")];
                    var form = document.createElement("form");
+                   var formAction = "/downloadManager/download";
+                   // var formAction = contextPath + config.download.connector;
                    form.setAttribute("method", "POST");
-                   form.setAttribute("action", contextPath
-                                               + config.download.connector);
+                   form.setAttribute("action", formAction);
 
                    var methodHiddenField = document.createElement("input");
                    methodHiddenField.setAttribute("type", "hidden");
