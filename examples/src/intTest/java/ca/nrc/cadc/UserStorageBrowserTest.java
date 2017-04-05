@@ -35,6 +35,7 @@ package ca.nrc.cadc;
 
 
 import org.junit.Test;
+import org.openqa.selenium.By;
 
 
 public class UserStorageBrowserTest extends AbstractBrowserTest
@@ -53,6 +54,11 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         UserStorageBrowserPage userStoragePage =
                 goTo(STORAGE_ENDPOINT, null,
                      UserStorageBrowserPage.class);
+
+        if (userStoragePage.isMainPage() == true)
+        {
+            userStoragePage = userStoragePage.waitForStorageLoad();
+        }
 
         final String testFolderName = "CADCtest";
 
@@ -133,6 +139,10 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         // Test 'nav up one level' - last nav button to test explicitly
         userStoragePage = userStoragePage.navUpLevel();
         verifyTrue(userStoragePage.getHeaderText().equals("/" + username));
+
+//        // Once the CADCtest folder gets too big, 'automated_test' folder may not
+//        // show up in the first page, so wait for storage to be complete
+//        userStoragePage = userStoragePage.waitForStorageLoad();
 
         // Return to auto test folder
         userStoragePage = userStoragePage.clickFolder(autoTestFolder);
@@ -358,34 +368,34 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
     }
 
 
-    @Test
-    public void testErrorPageNotExist() throws Exception
-    {
-        final String bogusName = "bogus_" + generateAlphaNumeric(16);
-
-        System.out.println("Visiting: " + getWebURL() + STORAGE_ENDPOINT + bogusName);
-
-        // This endpoint shouldn't exist
-        UserStorageBrowserPage userStoragePage =
-                goTo(STORAGE_ENDPOINT + "/bogus", null,
-                        UserStorageBrowserPage.class);
-
-        verifyTrue(userStoragePage.verifyErrorMessage("404"));
-
-        System.out.println("UserStorageBrowserTest.testErrorPageNotExist() completed");
-    }
-
-
-    @Test
-    public void testErrorPageNotAuthorised() throws Exception {
-        // This endpoint should exist, but user won't have access
-        UserStorageBrowserPage userStoragePage =
-                goTo(STORAGE_ENDPOINT + "/CADCtest/automated_test/required_folder_please_leave_here", null,
-                        UserStorageBrowserPage.class);
-
-        verifyTrue(userStoragePage.verifyErrorMessage("401"));
-
-        System.out.println("UserStorageBrowserTest.testErrorPageNotAuthorised() completed");
-    }
+//    @Test
+//    public void testErrorPageNotExist() throws Exception
+//    {
+//        final String bogusName = "bogus_" + generateAlphaNumeric(16);
+//
+//        System.out.println("Visiting: " + getWebURL() + STORAGE_ENDPOINT + bogusName);
+//
+//        // This endpoint shouldn't exist
+//        UserStorageBrowserPage userStoragePage =
+//                goTo(STORAGE_ENDPOINT + "/bogus", null,
+//                        UserStorageBrowserPage.class);
+//
+//        verifyTrue(userStoragePage.verifyErrorMessage("404"));
+//
+//        System.out.println("UserStorageBrowserTest.testErrorPageNotExist() completed");
+//    }
+//
+//
+//    @Test
+//    public void testErrorPageNotAuthorised() throws Exception {
+//        // This endpoint should exist, but user won't have access
+//        UserStorageBrowserPage userStoragePage =
+//                goTo(STORAGE_ENDPOINT + "/CADCtest/automated_test/required_folder_please_leave_here", null,
+//                        UserStorageBrowserPage.class);
+//
+//        verifyTrue(userStoragePage.verifyErrorMessage("401"));
+//
+//        System.out.println("UserStorageBrowserTest.testErrorPageNotAuthorised() completed");
+//    }
 
 }

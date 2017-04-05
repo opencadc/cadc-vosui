@@ -193,13 +193,15 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         super(driver);
         this.driver = driver;
 
-        if ( elementExists(By.xpath("//*[@id=\"main_section\"]")) )
-        {
-            waitForStorageLoad();
-        }
+//        if ( elementExists(By.xpath("//*[@id=\"main_section\"]")) )
+//        {
+//            waitForStorageLoad();
+//        }
 
         PageFactory.initElements(driver, this);
     }
+
+
 
 
     // Transition functions
@@ -226,8 +228,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     public UserStorageBrowserPage enterSearch(final String searchString) throws Exception
     {
         sendKeys(searchFilter, searchString);
-        waitForStorageLoad();
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
     public UserStorageBrowserPage doLogin(String username, String password) throws
@@ -266,7 +267,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         System.out.println("Folder to be clicked: " + folder.getText());
         click(folder);
 
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
     public void clickFolderForRow(int rowNum) throws Exception
@@ -662,19 +663,19 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     public UserStorageBrowserPage navToRoot() throws Exception
     {
         click(rootButton);
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
     public UserStorageBrowserPage navUpLevel() throws Exception
     {
         click(levelUpButton);
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
     public UserStorageBrowserPage navToHome() throws Exception
     {
         click(homeDirButton);
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
 
@@ -1013,7 +1014,19 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     }
 
 
-    public void waitForStorageLoad() throws Exception
+    public boolean isMainPage() throws Exception
+    {
+        if ( elementExists(By.xpath("//*[@id=\"main_section\"]")) )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public UserStorageBrowserPage waitForStorageLoad() throws Exception
     {
         // The beacon-progress bar state changes while it's loading
         // the page. Firefox doesn't display whole list until the bar is green
@@ -1024,6 +1037,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
                 By.className("beacon-progress"), "class", "progress-bar-success"));
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
+
+        return new UserStorageBrowserPage(driver);
     }
 
 
