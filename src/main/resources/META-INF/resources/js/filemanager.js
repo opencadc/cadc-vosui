@@ -2378,7 +2378,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         $('.itemTree').append(node);
       }
 
-      if ($('#itemsLoading').length)
+      if ($('#itemsLoading').length > 0 )
       {
         $('#itemsLoading').remove();
       }
@@ -2478,7 +2478,13 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       },
       loaded: function ()
       {
-        $('.spinnerSpan').append(spinningWheel);
+        // Only add this if the tree has not been
+        // initialised already
+        if ($('#itemTree').children().length === 0 )
+        {
+          $('.spinnerSpan').append(spinningWheel);
+        }
+
         $(".listener-hook").addClass("disabled");
       },
       submit: params['submitFunction'],
