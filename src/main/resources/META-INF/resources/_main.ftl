@@ -74,8 +74,8 @@
                   <ul class="dropdown-menu download-dropdown-menu">
                     <li><a class="download-url-list"><span class="glyphicon glyphicon-list"></span>&nbsp;URL List</a></li>
                     <li><a class="download-html-list"><span class="glyphicon glyphicon-list-alt"></span>&nbsp;HTML List</a></li>
-                    <li><a class="download-zip-file"><span class="glyphicon glyphicon-compressed"></span>&nbsp;ZIP</a></li>
                     <li><a class="download-download-manager"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;Download Manager</a></li>
+                    <li class="disabled"><a disabled="disabled" class="disabled download-zip-file"><span class="glyphicon glyphicon-compressed"></span>&nbsp;ZIP</a></li>
                   </ul>
                 </li>
 </#if>
