@@ -127,7 +127,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var baseURL;
   var fullexpandedFolder;
   var expandedFolder;
-  var makeEditIcon = function(path, elementAttributes, elementName)
+  var makeEditIcon = function(path, elementAttributes)
   {
     return '<span class="glyphicon glyphicon-pencil"><a href="' +
     path +
@@ -136,7 +136,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     '" path="' + elementAttributes[9] +
     '" readGroup="' + elementAttributes[5] +
     '" writeGroup="' + elementAttributes[4] +
-    '" itemName="' + elementName +
+    '" itemName="' + elementAttributes[1] +
     '" ></a></span>';
   };
 
@@ -245,7 +245,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             // if isWritable bit is true, provide edit icon
             if (full[13] === "true")
             {
-              renderedValue += makeEditIcon(contextPath, full, data);
+              renderedValue += makeEditIcon(contextPath, full);
             }
 
             renderedValue += data;
@@ -263,7 +263,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             // if isWritable bit is true, provide edit icon
             if (full[13] === "true")
             {
-              renderedValue += makeEditIcon(contextPath, full, data);
+              renderedValue += makeEditIcon(contextPath, full);
             }
 
             if (full.length > 9)
