@@ -73,7 +73,7 @@ import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.vos.VOSURI;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 import org.restlet.data.Status;
-import org.restlet.resource.Post;
+import org.restlet.resource.Put;
 
 
 public class BatchUploadServerResource extends StorageItemServerResource
@@ -98,7 +98,7 @@ public class BatchUploadServerResource extends StorageItemServerResource
     }
 
 
-    @Post
+    @Put
     public void accept() throws Exception
     {
         final String destinationPath = getCurrentPath();
