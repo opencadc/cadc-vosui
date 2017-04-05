@@ -2378,10 +2378,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         $('.itemTree').append(node);
       }
 
-      if ($('#itemsLoading').length > 0 )
-      {
-        $('#itemsLoading').remove();
-      }
+      $('#itemsLoading').remove();
+
     };
 
     // callback to update the cached item tree
