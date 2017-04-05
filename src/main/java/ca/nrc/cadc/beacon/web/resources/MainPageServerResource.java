@@ -81,11 +81,9 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 
-import javax.print.attribute.URISyntax;
 import javax.security.auth.Subject;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.net.URISyntaxException;
 import java.util.*;
 
 
@@ -94,18 +92,10 @@ public class MainPageServerResource extends StorageItemServerResource
     @Get
     public Representation represent() throws Exception
     {
-        ContainerNode containerNode = null;
-        if (getCurrentPath().equals("/"))
-        {
-            // this will be switched to VOS.Detail.root when it's available
-            containerNode = getCurrentNode(VOS.Detail.raw);
-        }
-        else
-        {
-            containerNode = getCurrentNode(VOS.Detail.max);
-        }
-
-        return representContainerNode(containerNode);
+        final ContainerNode currentNode =
+                getCurrentNode(getCurrentPath().equals("/")
+                               ? VOS.Detail.raw : VOS.Detail.max);
+        return representContainerNode(currentNode);
     }
 
 

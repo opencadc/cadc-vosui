@@ -92,7 +92,7 @@
         }
     },
     "upload": {
-        "url": "batch-upload",
+        "connector": "batch-upload",
         "multiple": true,
         "number": 5,
         "overwrite": false,

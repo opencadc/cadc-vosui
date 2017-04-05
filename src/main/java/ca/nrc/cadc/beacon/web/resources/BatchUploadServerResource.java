@@ -72,8 +72,19 @@ import ca.nrc.cadc.beacon.web.restlet.UploadJNLPRepresentation;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.vos.VOSURI;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
+import org.restlet.Request;
+import org.restlet.data.MediaType;
 import org.restlet.data.Status;
+import org.restlet.representation.EmptyRepresentation;
+import org.restlet.representation.OutputRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.Get;
 import org.restlet.resource.Put;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 public class BatchUploadServerResource extends StorageItemServerResource
@@ -83,32 +94,63 @@ public class BatchUploadServerResource extends StorageItemServerResource
      */
     public BatchUploadServerResource()
     {
+        super();
     }
 
     /**
      * Complete constructor for testing.
      *
-     * @param registryClient The Registry client to use.
      * @param voSpaceClient  The VOSpace Client to use.
      */
-    BatchUploadServerResource(final RegistryClient registryClient,
-                              final VOSpaceClient voSpaceClient)
+    BatchUploadServerResource(final VOSpaceClient voSpaceClient)
     {
         super(voSpaceClient);
     }
 
+    @Get
+    public Representation representJAR() throws Exception
+    {
+        final Request request = getRequest();
+        final String requestFile = request.getResourceRef().getLastSegment();
+        if ((requestFile != null) && requestFile.endsWith("jar"))
+        {
+            return new OutputRepresentation(MediaType.APPLICATION_JAVA_ARCHIVE)
+            {
+                @Override
+                public void write(OutputStream outputStream) throws IOException
+                {
+                    final InputStream inputStream =
+                            getClass().getClassLoader().getResourceAsStream(
+                                    requestFile);
+
+                    final byte[] buffer = new byte[8192];
+                    int bytesRead;
+
+                    while ((bytesRead = inputStream.read(buffer)) > 0)
+                    {
+                        outputStream.write(buffer, 0, bytesRead);
+                    }
+
+                    outputStream.flush();
+                }
+            };
+        }
+        else
+        {
+            getResponse().setStatus(Status.CLIENT_ERROR_UNSUPPORTED_MEDIA_TYPE);
+            return new StringRepresentation(
+                    "GET is only supported for Upload JAR files.");
+        }
+    }
 
     @Put
-    public void accept() throws Exception
+    public UploadJNLPRepresentation create() throws Exception
     {
         final String destinationPath = getCurrentPath();
 
-        getResponse().setEntity(
-                new UploadJNLPRepresentation(getCodebase(),
+        return new UploadJNLPRepresentation(getCodebase("/batch-upload"),
                                              getCurrentSSOCookie(),
-                                             getCurrentUser(),
                                              new VOSURI(VOSPACE_NODE_URI_PREFIX
-                                                        + destinationPath)));
-        getResponse().setStatus(Status.SUCCESS_OK);
+                                                        + destinationPath));
     }
 }

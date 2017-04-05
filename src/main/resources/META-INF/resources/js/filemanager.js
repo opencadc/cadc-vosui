@@ -1138,7 +1138,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                      var form = document.createElement("form");
                                      form.setAttribute("method", "PUT");
                                      form.setAttribute("action",
-                                                       config.upload.url
+                                                       contextPath + config.upload.connector
                                                        + getCurrentPath());
 
                                      // Move the submit function to another
@@ -1149,6 +1149,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                      document.body.appendChild(form);
 
                                      form._submit_function_();
+
+                                     document.body.removeChild(form);
 
                                      return false;
                                    });

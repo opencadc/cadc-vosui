@@ -84,10 +84,9 @@ public class UploadJNLPRepresentation extends JNLPRepresentation
 
     public UploadJNLPRepresentation(final String codeBase,
                                     final SSOCookieCredential cookieCredential,
-                                    final Subject currentUser,
                                     final VOSURI destination)
     {
-        super(codeBase, cookieCredential, currentUser);
+        super(codeBase, cookieCredential);
         this.destination = destination;
     }
 
@@ -102,10 +101,7 @@ public class UploadJNLPRepresentation extends JNLPRepresentation
     void writeLine(final String line, final OutputStream outputStream)
             throws IOException
     {
-        String uploadLine = line.replace("$$mainclass", Main.class.getName());
-        uploadLine = uploadLine.replace("$$destination",
-                                        destination.toString());
-
-        outputStream.write(uploadLine.getBytes());
+        outputStream.write(line.replace("$$destination$$",
+                                        destination.toString()).getBytes());
     }
 }

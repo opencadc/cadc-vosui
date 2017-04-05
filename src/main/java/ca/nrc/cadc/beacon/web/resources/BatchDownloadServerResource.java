@@ -269,12 +269,11 @@ public class BatchDownloadServerResource extends StorageItemServerResource
             case DOWNLOAD_MANAGER:
             {
                 representation =
-                        new DownloadJNLPRepresentation(getCodebase(),
+                        new DownloadJNLPRepresentation(getCodebase("/batch-download"),
                                                        getCurrentSSOCookie(),
                                                        manifestReader.read(
                                                        manifestStringWriter
-                                                               .toString()),
-                                                       currentUser);
+                                                               .toString()));
 
                 break;
             }

@@ -87,10 +87,9 @@ public class DownloadJNLPRepresentation extends JNLPRepresentation
 
     public DownloadJNLPRepresentation(final String codeBase,
                                       final SSOCookieCredential cookieCredential,
-                                      final Iterator<DownloadDescriptor> downloadDescriptorIterator,
-                                      final Subject currentUser)
+                                      final Iterator<DownloadDescriptor> downloadDescriptorIterator)
     {
-        super(codeBase, cookieCredential, currentUser);
+        super(codeBase, cookieCredential);
 
         while (downloadDescriptorIterator.hasNext())
         {
