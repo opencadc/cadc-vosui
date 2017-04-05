@@ -44,8 +44,8 @@
                   <a id="root" name="root" type="button" title="Navigate to main root." href="${contextPath}list/">
                     <span class="glyphicon glyphicon-folder-close"></span>&nbsp;Root</a></li>
 
-                <li class="dropdown divider-vertical" <#if !folder.writable>disabled</#if>">
-                  <a title="Add" class="dropdown-toggle <#if !folder.writable>disabled</#if>" role="button" id="newdropdown" name="newdropdown" aria-expanded="false" data-toggle="dropdown">
+                <li class="dropdown divider-vertical<#if !folder.writable> disabled</#if>">
+                  <a title="Add" class="dropdown-toggle<#if !folder.writable> disabled</#if>" <#if !folder.writable>disabled="disabled"</#if>role="button" id="newdropdown" name="newdropdown" aria-expanded="false" data-toggle="dropdown">
                     <span class="glyphicon glyphicon-plus"></span>&nbsp;Add&nbsp;<span class="caret"></span></a>
                   <ul class="dropdown-menu">
                     <li>
