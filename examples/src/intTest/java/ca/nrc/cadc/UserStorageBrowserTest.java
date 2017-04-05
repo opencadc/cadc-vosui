@@ -358,34 +358,34 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
     }
 
 
-//    @Test
-//    public void testErrorPageNotExist() throws Exception
-//    {
-//        final String bogusName = "bogus_" + generateAlphaNumeric(16);
-//
-//        System.out.println("Visiting: " + getWebURL() + STORAGE_ENDPOINT + bogusName);
-//
-//        // This endpoint shouldn't exist
-//        UserStorageBrowserPage userStoragePage =
-//                goTo(STORAGE_ENDPOINT + "/bogus", null,
-//                        UserStorageBrowserPage.class);
-//
-//        verifyTrue(userStoragePage.verifyErrorMessage("404"));
-//
-//        System.out.println("UserStorageBrowserTest.testErrorPageNotExist() completed");
-//    }
-//
-//
-//    @Test
-//    public void testErrorPageNotAuthorised() throws Exception {
-//        // This endpoint should exist, but user won't have access
-//        UserStorageBrowserPage userStoragePage =
-//                goTo(STORAGE_ENDPOINT + "/CADCtest/automated_test/required_folder_please_leave_here", null,
-//                        UserStorageBrowserPage.class);
-//
-//        verifyTrue(userStoragePage.verifyErrorMessage("401"));
-//
-//        System.out.println("UserStorageBrowserTest.testErrorPageNotAuthorised() completed");
-//    }
+    @Test
+    public void testErrorPageNotExist() throws Exception
+    {
+        final String bogusName = "bogus_" + generateAlphaNumeric(16);
+
+        System.out.println("Visiting: " + getWebURL() + STORAGE_ENDPOINT + bogusName);
+
+        // This endpoint shouldn't exist
+        UserStorageBrowserPage userStoragePage =
+                goTo(STORAGE_ENDPOINT + "/bogus", null,
+                        UserStorageBrowserPage.class);
+
+        verifyTrue(userStoragePage.verifyErrorMessage("404"));
+
+        System.out.println("UserStorageBrowserTest.testErrorPageNotExist() completed");
+    }
+
+
+    @Test
+    public void testErrorPageNotAuthorised() throws Exception {
+        // This endpoint should exist, but user won't have access
+        UserStorageBrowserPage userStoragePage =
+                goTo(STORAGE_ENDPOINT + "/CADCtest/automated_test/required_folder_please_leave_here", null,
+                        UserStorageBrowserPage.class);
+
+        verifyTrue(userStoragePage.verifyErrorMessage("401"));
+
+        System.out.println("UserStorageBrowserTest.testErrorPageNotAuthorised() completed");
+    }
 
 }
