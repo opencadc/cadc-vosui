@@ -361,6 +361,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         click(createFolderButton);
 
         UserStorageBrowserPage localpage = confirmJqiMsg("success");
+        localpage = waitForStorageLoad();
         return localpage;
     }
 
@@ -426,6 +427,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         UserStorageBrowserPage localPage = clickButton(MOVE_TO);
         localPage = confirmJQIMessageText(MOVE_OK);
         localPage = clickButton(OK);
+        localPage = waitForStorageLoad();
         return localPage;
     }
 
@@ -443,7 +445,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     {
         UserStorageBrowserPage localPage = clickButton(LINK);
         localPage = confirmJQIMessageText(LINK_OK);
-        return clickButton(OK);
+        localPage = clickButton(OK);
+        localPage = waitForStorageLoad();
+        return localPage;
     }
 
 
@@ -463,20 +467,19 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         // confirm folder delete
         localPage = confirmJQIColourMessage(SUCCESSFUL);
         localPage = clickButton(CLOSE);
-
+        localPage = waitForStorageLoad();
         return localPage;
     }
 
 
     // Permissions functions
-    public UserStorageBrowserPage clickEditIconForFirstRow() throws Exception
+    public void clickEditIconForFirstRow() throws Exception
     {
         final By firstRowBy =
                 xpath("//span[contains(@class, 'glyphicon-pencil')]");
         waitForElementClickable(firstRowBy);
         WebElement editIcon = find(firstRowBy);
         click(editIcon);
-        return new UserStorageBrowserPage(driver);
     }
 
     protected UserStorageBrowserPage setGroup(final String idToFind,
@@ -484,7 +487,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
                                               final boolean isModifyNode)
             throws Exception
     {
-        UserStorageBrowserPage localPage = clickEditIconForFirstRow();
+        clickEditIconForFirstRow();
         final WebElement groupInput = find(By.id(idToFind));
         waitForElementClickable(groupInput);
 
@@ -495,11 +498,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         waitForAjaxFinished();
 
-        localPage = clickButton(SAVE);
+        UserStorageBrowserPage localPage = clickButton(SAVE);
 
         final String confirmationBoxMsg = isModifyNode ? MODIFIED : NOT_MODIFIED;
 
         localPage = confirmJqiMsg(confirmationBoxMsg);
+        localPage = waitForStorageLoad();
 
         return localPage;
 
@@ -552,6 +556,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
             localPage = confirmJqiMsg(MODIFIED);
         }
 
+        localPage = waitForStorageLoad();
+
+
         return localPage;
     }
 
@@ -559,7 +566,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     protected UserStorageBrowserPage togglePublicAttributeForRow()
             throws Exception
     {
-        UserStorageBrowserPage localPage = clickEditIconForFirstRow();
+//        UserStorageBrowserPage localPage = clickEditIconForFirstRow();
+        clickEditIconForFirstRow();
         WebElement permissionCheckbox = waitUntil(
                 ExpectedConditions.elementToBeClickable(
                         By.id("publicPermission")));
@@ -568,9 +576,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         waitForAjaxFinished();
 
-        localPage = clickButton(SAVE);
+        UserStorageBrowserPage localPage = clickButton(SAVE);
 
         localPage = confirmJqiMsg(SUCCESSFUL);
+        localPage = waitForStorageLoad();
 
         return localPage;
     }
@@ -580,7 +589,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
                                                   final String newGroup)
             throws Exception {
 
-        UserStorageBrowserPage localPage = clickEditIconForFirstRow();
+        clickEditIconForFirstRow();
         final WebElement recursiveCheckbox = waitUntil(
                 ExpectedConditions.elementToBeClickable(
                         By.id("recursive")));
@@ -595,9 +604,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         waitForAjaxFinished();
 
-        localPage = clickButton(SAVE);
+        UserStorageBrowserPage localPage = clickButton(SAVE);
 
         localPage = confirmJqiMsg(SUBMITTED);
+        localPage = waitForStorageLoad();
 
         return localPage;
     }

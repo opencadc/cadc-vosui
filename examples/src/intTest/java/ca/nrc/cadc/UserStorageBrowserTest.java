@@ -191,7 +191,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         String invalidGroupName = "invalid-group";
 
         // Don't change anything, verify that the correct message is displayed
-        userStoragePage = userStoragePage.clickEditIconForFirstRow();
+        userStoragePage.clickEditIconForFirstRow();
         userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.SAVE);
         userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.CANCEL);
 
