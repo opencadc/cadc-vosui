@@ -71,6 +71,7 @@ package ca.nrc.cadc.beacon.web.restlet;
 import ca.nrc.cadc.auth.SSOCookieCredential;
 import ca.nrc.cadc.net.HttpDownload;
 import ca.nrc.cadc.net.InputStreamWrapper;
+import ca.nrc.cadc.util.FileUtil;
 import org.restlet.data.MediaType;
 
 import javax.security.auth.Subject;
@@ -81,22 +82,20 @@ import java.net.URL;
 public abstract class JNLPRepresentation
         extends AbstractAuthOutputRepresentation
 {
-    private final Subject currentUser;
     private final SSOCookieCredential cookieCredential;
     private final String codeBase;
+
 
     /**
      * Constructor.
      */
     public JNLPRepresentation(final String codeBase,
-                              final SSOCookieCredential cookieCredential,
-                              final Subject currentUser)
+                              final SSOCookieCredential cookieCredential)
     {
         super(MediaType.APPLICATION_JNLP);
 
         this.codeBase = codeBase;
         this.cookieCredential = cookieCredential;
-        this.currentUser = currentUser;
     }
 
     /**
@@ -123,58 +122,29 @@ public abstract class JNLPRepresentation
     @Override
     public void write(final OutputStream outputStream) throws IOException
     {
-        final String ssoCookieData = (cookieCredential == null)
-                                     ? ""
-                                     : "--ssocookie="
-                                       + cookieCredential
-                                               .getSsoCookieValue()
-                                               .replaceAll("&", "&amp;")
-                                       + "</argument>\n"
-                                       + "<argument>--ssocookiedomain="
-                                       + cookieCredential.getDomain();
+        final String file = "VOSpaceUploadLauncher.jnlp";
+        final InputStream launcherFileStream =
+                getClass().getClassLoader().getResourceAsStream(file);
+        final Reader reader = new InputStreamReader(launcherFileStream);
+        final BufferedReader bufferedReader = new BufferedReader(reader);
 
-        final String file = "launcher.jnlp";
+        String line;
 
-        final HttpDownload httpDownload =
-                new HttpDownload(new URL(codeBase + "/" + file),
-                                 new InputStreamWrapper()
-                                 {
-                                     @Override
-                                     public void read(InputStream inputStream) throws
-                                                                               IOException
-                                     {
-                                         final Reader reader =
-                                                 new InputStreamReader(inputStream);
-                                         final BufferedReader bufferedReader =
-                                                 new BufferedReader(reader);
+        while ((line = bufferedReader.readLine()) != null)
+        {
+            // Remove the href as it causes issues...
+            line = line.replace("$$codebase$$", codeBase);
+            if (cookieCredential != null)
+            {
+                line = line.replace("$$ssocookie$$", cookieCredential
+                        .getSsoCookieValue().replaceAll("&", "&amp;"));
+            }
+//            line = line.replace("$$ssocookiedomain$$", cookieCredential.getDomain());
 
-                                         String line;
+            writeLine(line, outputStream);
+        }
 
-                                         while ((line = bufferedReader
-                                                 .readLine()) != null)
-                                         {
-                                             // Remove the href as it causes issues...
-                                             line = line
-                                                     .replace("href='" + file + "'", "");
-                                             line = line
-                                                     .replace("$$codebase",
-                                                              codeBase);
-                                             line = line
-                                                     .replace("$$ssocookiearguments",
-                                                              ssoCookieData);
-
-                                             writeLine(line, outputStream);
-                                         }
-
-                                         bufferedReader.close();
-                                         outputStream.flush();
-                                     }
-                                 });
-
-        httpDownload.setFollowRedirects(true);
-        httpDownload.setRequestProperty("Content-Type",
-                                        MediaType.APPLICATION_JNLP
-                                                .getMainType());
-        downloadAs(currentUser, httpDownload);
+        bufferedReader.close();
+        outputStream.flush();
     }
 }

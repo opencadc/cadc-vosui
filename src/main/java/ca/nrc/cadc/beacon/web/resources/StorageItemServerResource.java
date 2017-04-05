@@ -542,11 +542,12 @@ public class StorageItemServerResource extends SecureServerResource
         return new ContainerNode(getCurrentItemURI());
     }
 
-    String getCodebase() throws IOException
+    String getCodebase(final String appendage) throws IOException
     {
         final URL req = getRequest().getResourceRef().toUrl();
-        return req.getProtocol() + "://" + req.getHost() + ":" + req.getPort()
-               + getServletContext().getContextPath();
+        return req.getProtocol() + "://" + req.getHost()
+               + ((req.getPort() > 0) ? (":" + req.getPort()) : "")
+               + getServletContext().getContextPath() + appendage;
     }
 
     void createNode(final Node newNode, final boolean checkForDuplicate)

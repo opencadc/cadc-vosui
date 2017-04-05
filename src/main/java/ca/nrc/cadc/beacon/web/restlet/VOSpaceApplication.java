@@ -195,7 +195,11 @@ public class VOSpaceApplication extends Application
         router.attach(contextPath + "batch-download/",
                       BatchDownloadServerResource.class);
 
-        final TemplateRoute bachUploadRoute =
+        router.attach(contextPath + "batch-upload",
+                      BatchUploadServerResource.class);
+        router.attach(contextPath + "batch-upload/",
+                      BatchUploadServerResource.class);
+        final TemplateRoute batchUploadRoute =
                 router.attach(contextPath + "batch-upload/{path}",
                               BatchUploadServerResource.class);
 
@@ -222,7 +226,7 @@ public class VOSpaceApplication extends Application
         final Map<String, Variable> routeVariables = new HashMap<>();
         routeVariables.put("path", new Variable(Variable.TYPE_URI_PATH));
 
-        bachUploadRoute.getTemplate().getVariables().putAll(routeVariables);
+        batchUploadRoute.getTemplate().getVariables().putAll(routeVariables);
         itemRoute.getTemplate().getVariables().putAll(routeVariables);
         folderRoute.getTemplate().getVariables().putAll(routeVariables);
         linkRoute.getTemplate().getVariables().putAll(routeVariables);
