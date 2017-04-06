@@ -55,10 +55,10 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
                 goTo(STORAGE_ENDPOINT, null,
                      UserStorageBrowserPage.class);
 
-//        if (userStoragePage.isMainPage() == true)
-//        {
-//            userStoragePage = userStoragePage.waitForStorageLoad();
-//        }
+        if (userStoragePage.isMainPage() == true)
+        {
+            userStoragePage = userStoragePage.waitForStorageLoad();
+        }
 
         final String testFolderName = "CADCtest";
 
