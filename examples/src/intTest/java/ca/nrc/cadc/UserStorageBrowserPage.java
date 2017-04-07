@@ -193,25 +193,28 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         super(driver);
         this.driver = driver;
 
-        if ( elementExists(By.xpath("//*[@id=\"main_section\"]")) )
-        {
-            waitForStorageLoad();
-        }
+//        if ( elementExists(By.xpath("//*[@id=\"main_section\"]")) )
+//        {
+//            waitForStorageLoad();
+//        }
 
         PageFactory.initElements(driver, this);
     }
 
 
+
+
     // Transition functions
-    public void clickButton(String promptText) throws Exception
+    public UserStorageBrowserPage clickButton(String promptText) throws Exception
     {
         final By buttonBy =
                 xpath("//button[contains(text(),\"" + promptText + "\")]");
         waitForElementClickable(buttonBy);
         click(buttonBy);
+        return new UserStorageBrowserPage(driver);
     }
 
-    public void clickButtonWithClass(String promptText, String className) throws
+    public UserStorageBrowserPage clickButtonWithClass(String promptText, String className) throws
                                                                           Exception
     {
         final By buttonWithClassBy =
@@ -219,12 +222,13 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
                       + "') and contains(text(),'" + promptText + "')]");
         waitForElementClickable(buttonWithClassBy);
         click(buttonWithClassBy);
+        return new UserStorageBrowserPage(driver);
     }
 
-    public void enterSearch(final String searchString) throws Exception
+    public UserStorageBrowserPage enterSearch(final String searchString) throws Exception
     {
         sendKeys(searchFilter, searchString);
-        waitForStorageLoad();
+        return waitForStorageLoad();
     }
 
     public UserStorageBrowserPage doLogin(String username, String password) throws
@@ -263,7 +267,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         System.out.println("Folder to be clicked: " + folder.getText());
         click(folder);
 
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
     public void clickFolderForRow(int rowNum) throws Exception
@@ -356,8 +360,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
                 find(xpath("//button[contains(text(),\"Create Folder\")]"));
         click(createFolderButton);
 
-        confirmJqiMsg("success");
-        return new UserStorageBrowserPage(driver);
+        UserStorageBrowserPage localpage = confirmJqiMsg("success");
+        localpage = waitForStorageLoad();
+        return localpage;
     }
 
 
@@ -419,10 +424,11 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
     public UserStorageBrowserPage doMove() throws Exception
     {
-        clickButton(MOVE_TO);
-        confirmJQIMessageText(MOVE_OK);
-        clickButton(OK);
-        return new UserStorageBrowserPage(driver);
+        UserStorageBrowserPage localPage = clickButton(MOVE_TO);
+        localPage = confirmJQIMessageText(MOVE_OK);
+        localPage = clickButton(OK);
+        localPage = waitForStorageLoad();
+        return localPage;
     }
 
 
@@ -437,10 +443,11 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
     public UserStorageBrowserPage doVOSpaceLink() throws Exception
     {
-        clickButton(LINK);
-        confirmJQIMessageText(LINK_OK);
-        clickButton(OK);
-        return new UserStorageBrowserPage(driver);
+        UserStorageBrowserPage localPage = clickButton(LINK);
+        localPage = confirmJQIMessageText(LINK_OK);
+        localPage = clickButton(OK);
+        localPage = waitForStorageLoad();
+        return localPage;
     }
 
 
@@ -454,14 +461,14 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         }
 
         // locate folder, select checkbox, select delete button
-        confirmJQIMessageText(DELETE_CONFIRMATION_TEXT);
-        clickButtonWithClass(YES, "btn-danger");
+        UserStorageBrowserPage localPage = confirmJQIMessageText(DELETE_CONFIRMATION_TEXT);
+        localPage = clickButtonWithClass(YES, "btn-danger");
 
         // confirm folder delete
-        confirmJQIColourMessage(SUCCESSFUL);
-        clickButton(CLOSE);
-
-        return new UserStorageBrowserPage(driver);
+        localPage = confirmJQIColourMessage(SUCCESSFUL);
+        localPage = clickButton(CLOSE);
+        localPage = waitForStorageLoad();
+        return localPage;
     }
 
 
@@ -491,13 +498,14 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         waitForAjaxFinished();
 
-        clickButton(SAVE);
+        UserStorageBrowserPage localPage = clickButton(SAVE);
 
         final String confirmationBoxMsg = isModifyNode ? MODIFIED : NOT_MODIFIED;
 
-        confirmJqiMsg(confirmationBoxMsg);
+        localPage = confirmJqiMsg(confirmationBoxMsg);
+        localPage = waitForStorageLoad();
 
-        return new UserStorageBrowserPage(driver);
+        return localPage;
 
     }
 
@@ -508,10 +516,11 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
      * @param message
      * @throws Exception
      */
-    public void confirmJqiMsg(String message) throws Exception
+    public UserStorageBrowserPage confirmJqiMsg(String message) throws Exception
     {
-        confirmJQIMessageText(message);
-        clickButton(OK);
+        UserStorageBrowserPage localPage = confirmJQIMessageText(message);
+        localPage = clickButton(OK);
+        return localPage;
     }
 
     protected UserStorageBrowserPage setGroupOnly(final String idToFind,
@@ -537,23 +546,27 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         click(groupInput);
         sendKeys(groupInput, newGroup);
 
-        clickButton(SAVE);
+        UserStorageBrowserPage localPage = clickButton(SAVE);
 
         // read/writeGroupDiv should have 'has-error' class
         // confirm here is conditional because it won't
         // show up if an invalid group has been sent in.
         if (confirm)
         {
-            confirmJqiMsg(MODIFIED);
+            localPage = confirmJqiMsg(MODIFIED);
         }
 
-        return new UserStorageBrowserPage(driver);
+        localPage = waitForStorageLoad();
+
+
+        return localPage;
     }
 
 
     protected UserStorageBrowserPage togglePublicAttributeForRow()
             throws Exception
     {
+//        UserStorageBrowserPage localPage = clickEditIconForFirstRow();
         clickEditIconForFirstRow();
         WebElement permissionCheckbox = waitUntil(
                 ExpectedConditions.elementToBeClickable(
@@ -563,11 +576,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         waitForAjaxFinished();
 
-        clickButton(SAVE);
+        UserStorageBrowserPage localPage = clickButton(SAVE);
 
-        confirmJqiMsg(SUCCESSFUL);
+        localPage = confirmJqiMsg(SUCCESSFUL);
+        localPage = waitForStorageLoad();
 
-        return new UserStorageBrowserPage(driver);
+        return localPage;
     }
 
 
@@ -590,11 +604,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         waitForAjaxFinished();
 
-        clickButton(SAVE);
+        UserStorageBrowserPage localPage = clickButton(SAVE);
 
-        confirmJqiMsg(SUBMITTED);
+        localPage = confirmJqiMsg(SUBMITTED);
+        localPage = waitForStorageLoad();
 
-        return new UserStorageBrowserPage(driver);
+        return localPage;
     }
 
     /**
@@ -634,12 +649,13 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     }
 
     // Row Checkbox related
-    public void clickCheckboxForRow(int rowNum) throws Exception
+    public UserStorageBrowserPage clickCheckboxForRow(int rowNum) throws Exception
     {
         WebElement firstCheckbox = waitUntil(ExpectedConditions
                                                      .elementToBeClickable(
                                                              xpath("//*[@id=\"beacon\"]/tbody/tr[" + rowNum + "]/td[1]")));
         click(firstCheckbox);
+        return new UserStorageBrowserPage(driver);
     }
 
     public void clickCheckboxForFolder(String folderName) throws Exception
@@ -657,19 +673,19 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     public UserStorageBrowserPage navToRoot() throws Exception
     {
         click(rootButton);
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
     public UserStorageBrowserPage navUpLevel() throws Exception
     {
         click(levelUpButton);
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
     public UserStorageBrowserPage navToHome() throws Exception
     {
         click(homeDirButton);
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
 
@@ -876,7 +892,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
 
     // Impromptu convenience functions
-    public void confirmJQIMessageText(String message) throws Exception
+    public UserStorageBrowserPage confirmJQIMessageText(String message) throws Exception
     {
         final By messageBy = By.className("jqimessage");
 
@@ -893,13 +909,21 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
                                + "\"" + find(messageBy).getText() + "\"");
             throw e;
         }
+        // returning this because the page state will have changed over
+        // the course of the waits...
+        return new UserStorageBrowserPage(driver);
+
     }
 
-    public void confirmJQIColourMessage(String message) throws Exception
+    public UserStorageBrowserPage confirmJQIColourMessage(String message) throws Exception
     {
         waitForElementPresent(
                 xpath("//div[contains(@class, 'jqimessage')]/span[contains(text(), '"
                       + message + "')]"));
+
+        // returning this because the page state will have changed over
+        // the course of the waits...
+        return new UserStorageBrowserPage(driver);
     }
 
 
@@ -1000,7 +1024,19 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     }
 
 
-    public void waitForStorageLoad() throws Exception
+    public boolean isMainPage() throws Exception
+    {
+        if ( elementExists(By.xpath("//*[@id=\"main_section\"]")) )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public UserStorageBrowserPage waitForStorageLoad() throws Exception
     {
         // The beacon-progress bar state changes while it's loading
         // the page. Firefox doesn't display whole list until the bar is green
@@ -1011,6 +1047,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
                 By.className("beacon-progress"), "class", "progress-bar-success"));
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
+
+        return new UserStorageBrowserPage(driver);
     }
 
 
