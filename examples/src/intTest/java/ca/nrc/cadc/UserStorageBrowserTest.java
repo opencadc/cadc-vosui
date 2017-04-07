@@ -35,7 +35,6 @@ package ca.nrc.cadc;
 
 
 import org.junit.Test;
-import org.openqa.selenium.By;
 
 
 public class UserStorageBrowserTest extends AbstractBrowserTest
@@ -55,12 +54,12 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
                 goTo(STORAGE_ENDPOINT, null,
                      UserStorageBrowserPage.class);
 
-        if (userStoragePage.isMainPage() == true)
+        if (userStoragePage.isMainPage())
         {
             userStoragePage = userStoragePage.waitForStorageLoad();
         }
 
-        final String testFolderName = "CADCtest";
+        final String testFolderName = getUsername();
 
         verifyTrue(userStoragePage.isDefaultSort());
 
@@ -68,7 +67,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         // check that rows of table are shorted correctly
         // verify entry is correct
 
-        userStoragePage = userStoragePage.enterSearch(testFolderName);
+        userStoragePage.enterSearch(testFolderName);
         int rowCount = userStoragePage.getTableRowCount();
         verifyTrue(rowCount < 3);
         verifyTrue(userStoragePage
@@ -88,7 +87,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
 
         // Login test - credentials should be in the gradle build file.
-        String username = "CADCtest";
+        String username = getUsername();
 
         userStoragePage = loginTest(userStoragePage);
 
@@ -128,7 +127,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         if (userStoragePage.isTableEmpty())
         {
             userStoragePage = userStoragePage.createNewFolder(autoTestFolder);
-            userStoragePage = userStoragePage.enterSearch(autoTestFolder);
+            userStoragePage.enterSearch(autoTestFolder);
         }
 
         String parentWriteGroup = userStoragePage.getValueForRowCol(1, 5);
@@ -150,7 +149,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Create a context group, and run tests in there
         userStoragePage = userStoragePage.createNewFolder(workingDirectoryName);
-        userStoragePage = userStoragePage.enterSearch(workingDirectoryName);
+        userStoragePage.enterSearch(workingDirectoryName);
         userStoragePage = userStoragePage.clickFolder(workingDirectoryName);
 
         // Create second test folder
@@ -161,18 +160,20 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Test selecting checkbox
         System.out.println("testing selecting checkbox");
-        userStoragePage = userStoragePage.clickCheckboxForRow(startRow);
+        userStoragePage.clickCheckboxForRow(startRow);
         verifyTrue(userStoragePage.isFileSelectedMode(startRow));
 
-        userStoragePage = userStoragePage.clickCheckboxForRow(startRow);
+        userStoragePage.clickCheckboxForRow(startRow);
         verifyFalse(userStoragePage.isFileSelectedMode(startRow));
 
 
         final boolean isPublic = parentReadGroup.equals("Public");
 
         // Test that permissions are same as the parent to start
-        verifyTrue(userStoragePage
-                           .isPermissionDataForRow(1, parentWriteGroup, parentReadGroup, isPublic));
+        verifyTrue(userStoragePage.isPermissionDataForRow(1,
+                                                          parentWriteGroup,
+                                                          parentReadGroup,
+                                                          isPublic));
 
         // Edit permissions on the form
         String currentReadGroup =
@@ -192,8 +193,10 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Don't change anything, verify that the correct message is displayed
         userStoragePage.clickEditIconForFirstRow();
-        userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.SAVE);
-        userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.CANCEL);
+        userStoragePage = userStoragePage
+                .clickButton(UserStorageBrowserPage.SAVE);
+        userStoragePage = userStoragePage
+                .clickButton(UserStorageBrowserPage.CANCEL);
 
         PermissionsFormData formData = userStoragePage.getValuesFromEditIcon();
         Boolean isModifyNode = true;
@@ -237,37 +240,47 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         // Test response to invalid autocomplete selection
         userStoragePage.clickEditIconForFirstRow();
         // last parameter says 'don't confirm anything'
-        userStoragePage = userStoragePage.setGroupOnly(UserStorageBrowserPage.READ_GROUP_INPUT, invalidGroupName, false);
-        verifyTrue(userStoragePage.isGroupError(UserStorageBrowserPage.READ_GROUP_DIV));
+        userStoragePage = userStoragePage
+                .setGroupOnly(UserStorageBrowserPage.READ_GROUP_INPUT, invalidGroupName, false);
+        verifyTrue(userStoragePage
+                           .isGroupError(UserStorageBrowserPage.READ_GROUP_DIV));
 
         readGroupName = "CHIMPS";
         // Enter correct one in order to close the prompt
-        userStoragePage = userStoragePage.setGroupOnly(UserStorageBrowserPage.READ_GROUP_INPUT, readGroupName, true);
-        verifyTrue(userStoragePage.isPermissionDataForRow(1, writeGroupName, readGroupName, false));
+        userStoragePage = userStoragePage
+                .setGroupOnly(UserStorageBrowserPage.READ_GROUP_INPUT, readGroupName, true);
+        verifyTrue(userStoragePage
+                           .isPermissionDataForRow(1, writeGroupName, readGroupName, false));
 
         // Test response to invalid autocomplete selection
         userStoragePage.clickEditIconForFirstRow();
         // second parameter says 'don't confirm anything'
-        userStoragePage = userStoragePage.setGroupOnly(UserStorageBrowserPage.WRITE_GROUP_INPUT, invalidGroupName, false);
-        verifyTrue(userStoragePage.isGroupError(UserStorageBrowserPage.WRITE_GROUP_DIV));
+        userStoragePage = userStoragePage
+                .setGroupOnly(UserStorageBrowserPage.WRITE_GROUP_INPUT, invalidGroupName, false);
+        verifyTrue(userStoragePage
+                           .isGroupError(UserStorageBrowserPage.WRITE_GROUP_DIV));
 
         // Enter correct one in order to close the prompt
         writeGroupName = "CHIMPS";
-        userStoragePage = userStoragePage.setGroupOnly(UserStorageBrowserPage.WRITE_GROUP_INPUT, writeGroupName, true);
-        verifyTrue(userStoragePage.isPermissionDataForRow(1, writeGroupName, readGroupName, false));
+        userStoragePage = userStoragePage
+                .setGroupOnly(UserStorageBrowserPage.WRITE_GROUP_INPUT, writeGroupName, true);
+        verifyTrue(userStoragePage
+                           .isPermissionDataForRow(1, writeGroupName, readGroupName, false));
 
         // Toggle public permissions to set them
         // Group name displayed in table should read "Public"
         userStoragePage = userStoragePage.togglePublicAttributeForRow();
 
-        verifyTrue(userStoragePage.isPermissionDataForRow(1, writeGroupName, "Public", true));
+        verifyTrue(userStoragePage
+                           .isPermissionDataForRow(1, writeGroupName, "Public", true));
         System.out.println("Set read group to public");
 
         // Toggle public permission to unset
         userStoragePage = userStoragePage.togglePublicAttributeForRow();
-        verifyTrue(userStoragePage.isPermissionDataForRow(1, writeGroupName, readGroupName, false));
+        verifyTrue(userStoragePage
+                           .isPermissionDataForRow(1, writeGroupName, readGroupName, false));
 
-        userStoragePage = userStoragePage.enterSearch(tempTestFolder);
+        userStoragePage.enterSearch(tempTestFolder);
         userStoragePage = userStoragePage.clickFolder(tempTestFolder);
 
         String recursiveTestFolder = "recursive_tobedeleted"; // + generateAlphaNumeric(8);
@@ -275,38 +288,44 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         userStoragePage = userStoragePage.navUpLevel();
 
-        userStoragePage.applyRecursivePermissions(UserStorageBrowserPage.WRITE_GROUP_INPUT, "cadcsw");
-        verifyTrue(userStoragePage.isPermissionDataForRow(1, "cadcsw", readGroupName, false));
+        userStoragePage
+                .applyRecursivePermissions(UserStorageBrowserPage.WRITE_GROUP_INPUT, "cadcsw");
+        verifyTrue(userStoragePage
+                           .isPermissionDataForRow(1, "cadcsw", readGroupName, false));
 
         userStoragePage = userStoragePage.clickFolder(tempTestFolder);
-        verifyTrue(userStoragePage.isPermissionDataForRow(1, "cadcsw", readGroupName, false));
+        verifyTrue(userStoragePage
+                           .isPermissionDataForRow(1, "cadcsw", readGroupName, false));
 
 
         // Test Move folder
         String moveTestFolder = "moveTest_toBeDeleted_" + generateAlphaNumeric(4);
         userStoragePage = userStoragePage.createNewFolder(moveTestFolder);
 
-        userStoragePage = userStoragePage.enterSearch(moveTestFolder);
-        userStoragePage = userStoragePage.clickCheckboxForRow(1);
+        userStoragePage.enterSearch(moveTestFolder);
+        userStoragePage.clickCheckboxForRow(1);
 
         // Kick off first ajax call to populate tree
         userStoragePage = userStoragePage.startMove();
 
         // Navigate through to the target node
-        userStoragePage = userStoragePage.selectFolderFromTree("CADCtest");
+        userStoragePage = userStoragePage.selectFolderFromTree(getUsername());
         userStoragePage = userStoragePage.selectFolderFromTree(autoTestFolder);
-        userStoragePage = userStoragePage.selectFolderFromTree(workingDirectoryName);
+        userStoragePage = userStoragePage
+                .selectFolderFromTree(workingDirectoryName);
         userStoragePage = userStoragePage.selectFolderFromTree(tempTestFolder);
-        userStoragePage = userStoragePage.selectFolderFromTree(recursiveTestFolder);
+        userStoragePage = userStoragePage
+                .selectFolderFromTree(recursiveTestFolder);
 
         userStoragePage = userStoragePage.doMove();
 
         // verify folder was moved to expected location
         userStoragePage = userStoragePage.clickFolder(recursiveTestFolder);
-        userStoragePage = userStoragePage.enterSearch(moveTestFolder);
+        userStoragePage.enterSearch(moveTestFolder);
         rowCount = userStoragePage.getTableRowCount();
         verifyTrue(rowCount < 3);
-        verifyTrue(userStoragePage.verifyFolderName(rowCount - 1, moveTestFolder));
+        verifyTrue(userStoragePage
+                           .verifyFolderName(rowCount - 1, moveTestFolder));
 
 
         // Test Link folder (can't do link to file yet if no browser test for upload file...
@@ -318,53 +337,56 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         userStoragePage = userStoragePage.startVOSpaceLink();
 
         // Navigate through to the target node
-        userStoragePage = userStoragePage.selectFolderFromTree("CADCtest");
+        userStoragePage = userStoragePage.selectFolderFromTree(getUsername());
         userStoragePage = userStoragePage.selectFolderFromTree(autoTestFolder);
-        userStoragePage = userStoragePage.selectFolderFromTree(workingDirectoryName);
+        userStoragePage = userStoragePage
+                .selectFolderFromTree(workingDirectoryName);
         userStoragePage = userStoragePage.selectFolderFromTree(tempTestFolder);
-        userStoragePage = userStoragePage.selectFolderFromTree(recursiveTestFolder);
+        userStoragePage = userStoragePage
+                .selectFolderFromTree(recursiveTestFolder);
         userStoragePage = userStoragePage.selectFolderFromTree(linkTestFolder);
 
         userStoragePage = userStoragePage.doVOSpaceLink();
 
         // Verify item exists on page
-        userStoragePage = userStoragePage.enterSearch(linkTestFolder);
+        userStoragePage.enterSearch(linkTestFolder);
         rowCount = userStoragePage.getTableRowCount();
         verifyTrue(rowCount < 3);
         verifyTrue(userStoragePage
-                .verifyFolderName(rowCount - 1, linkTestFolder));
+                           .verifyFolderName(rowCount - 1, linkTestFolder));
 
         // Test Delete while cleaning up
         userStoragePage = userStoragePage.navUpLevel();
 
-		// Nav up one level & delete working folder as well
-		userStoragePage = userStoragePage.navUpLevel();
-        userStoragePage = userStoragePage.enterSearch(workingDirectoryName);
-        userStoragePage = userStoragePage.clickCheckboxForRow(1);
+        // Nav up one level & delete working folder as well
+        userStoragePage = userStoragePage.navUpLevel();
+        userStoragePage.enterSearch(workingDirectoryName);
+        userStoragePage.clickCheckboxForRow(1);
         userStoragePage = userStoragePage.deleteFolder();
 
         // verify the folder is no longer there
-        userStoragePage = userStoragePage.enterSearch(tempTestFolder);
+        userStoragePage.enterSearch(tempTestFolder);
         verifyTrue(userStoragePage.isTableEmpty());
 
-		// Scenario 5: logout
-		System.out.println("Test logout");
+        // Scenario 5: logout
+        System.out.println("Test logout");
         userStoragePage = userStoragePage.doLogout();
-		verifyFalse(userStoragePage.isLoggedIn());
+        verifyFalse(userStoragePage.isLoggedIn());
 
-    	System.out.println("UserStorageBrowserTest completed");
+        System.out.println("UserStorageBrowserTest completed");
     }
 
 
-    private UserStorageBrowserPage loginTest(UserStorageBrowserPage userPage) throws Exception
+    private UserStorageBrowserPage loginTest(
+            final UserStorageBrowserPage userPage) throws Exception
     {
         // Scenario 2: Login test - credentials should be in the gradle build file.
-        String username = "CADCtest";
-        userPage = userPage.doLogin(username, "sywymUL4");
-        verifyTrue(userPage.isLoggedIn());
+        final UserStorageBrowserPage authPage =
+                userPage.doLogin(getUsername(), getPassword());
+        verifyTrue(authPage.isLoggedIn());
         System.out.println("logged in");
 
-        return userPage;
+        return authPage;
     }
 
 
