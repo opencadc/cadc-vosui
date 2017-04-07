@@ -158,7 +158,7 @@ public class StorageItemServerResource extends SecureServerResource
             this.storageItemFactory =
                     new StorageItemFactory(URI_EXTRACTOR, getRegistryClient(),
                                            (getServletContext() == null)
-                                           ? ""
+                                           ? VOSpaceApplication.DEFAULT_CONTEXT_PATH
                                            : getServletContext()
                                                    .getContextPath());
         }

@@ -237,9 +237,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         waitForElementVisible(PASSWORD_INPUT_BY);
         sendKeys(find(USERNAME_INPUT_BY), username);
         sendKeys(find(PASSWORD_INPUT_BY), password);
-        click(LOGIN_SUBMIT_BUTTON_BY);
-        waitForElementPresent(By.id("logout"));
-        return new UserStorageBrowserPage(driver);
+        click(find(LOGIN_SUBMIT_BUTTON_BY));
+
+        return waitForStorageLoad();
+//        return new UserStorageBrowserPage(driver);
     }
 
     public UserStorageBrowserPage doLogout() throws Exception

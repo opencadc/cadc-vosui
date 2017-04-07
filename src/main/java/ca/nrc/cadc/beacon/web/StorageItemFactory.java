@@ -104,11 +104,6 @@ public class StorageItemFactory
 
     private String getTarget(final DataNode dataNode)
     {
-        // TODO
-        // TODO - Is the data web service with the /pub/vospace path portable?
-        // TODO - It may be CADC specific.
-        // TODO - jenkinsd 2016.07.12
-        // TODO
         final VOSURI dataNodeURI = dataNode.getUri();
 
         final URL downloadServiceURL = registryClient
@@ -124,12 +119,14 @@ public class StorageItemFactory
 
     private String getTarget(final ContainerNode containerNode)
     {
-        return contextPath + "/list" + containerNode.getUri().getPath();
+        return contextPath + (contextPath.endsWith("/") ? "" : "/") + "list"
+               + containerNode.getUri().getPath();
     }
 
     private String getTarget(final LinkNode linkNode)
     {
-        return contextPath + "/link" + linkNode.getUri().getPath();
+        return contextPath + (contextPath.endsWith("/") ? "" : "/") + "link"
+               + linkNode.getUri().getPath();
     }
 
     /**

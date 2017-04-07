@@ -72,6 +72,7 @@ package ca.nrc.cadc.beacon.web.resources;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
 import ca.nrc.cadc.accesscontrol.AccessControlUtil;
 import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
+import ca.nrc.cadc.net.NetUtil;
 import ca.nrc.cadc.util.StringUtil;
 import org.restlet.data.Cookie;
 import org.restlet.data.CookieSetting;
@@ -103,8 +104,10 @@ public class AccessControlServerResource extends SecureServerResource
                                               passwordString.toCharArray());
 
             final CookieSetting cookieSetting =
-                    new CookieSetting(0, "CADC_SSO", cookieValue, "/",
-                                      null, null, 60 * 60 * 24 * 2, false,
+                    new CookieSetting(0, "CADC_SSO",
+                                      "\"" + cookieValue + "\"", "/",
+                                      NetUtil.getDomainName(getRequest().getResourceRef().toUrl()),
+                                      null, 60 * 60 * 24 * 2, false,
                                       false);
 
             getResponse().getCookieSettings().add(cookieSetting);
