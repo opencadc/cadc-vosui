@@ -1136,15 +1136,22 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     $('#uploadfolder').off().click(function ()
                                    {
                                      var form = document.createElement("form");
-                                     form.setAttribute("method", "PUT");
-                                     form.setAttribute("action",
-                                                       contextPath + config.upload.connector
-                                                       + getCurrentPath());
+                                     var formAction = '/uploadManager/upload';
+                                     // var formAction = contextPath + config.upload.connector + getCurrentPath();
+                                     form.setAttribute("method", "POST");
+                                     form.setAttribute("action", formAction);
 
                                      // Move the submit function to another
                                      // variable so that it doesn't get
                                      // overwritten.
                                      form._submit_function_ = form.submit;
+
+                                     var destinationHiddenField = document.createElement("input");
+                                     destinationHiddenField.setAttribute("type", "hidden");
+                                     destinationHiddenField.setAttribute("name", "destination");
+                                     destinationHiddenField.setAttribute("value", getCurrentPath());
+
+                                     form.appendChild(destinationHiddenField);
 
                                      document.body.appendChild(form);
 
@@ -2793,8 +2800,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                    methodHiddenField.setAttribute("type", "hidden");
                    methodHiddenField.setAttribute("name", "method");
                    methodHiddenField.setAttribute("value", downloadMethod.id);
-
-                   form.appendChild(methodHiddenField);
 
                    //Move the submit function to another variable
                    //so that it doesn't get overwritten.

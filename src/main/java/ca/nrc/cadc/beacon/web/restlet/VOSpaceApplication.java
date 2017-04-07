@@ -190,19 +190,6 @@ public class VOSpaceApplication extends Application
         router.attach(contextPath + "list/",
                       MainPageServerResource.class);
 
-        router.attach(contextPath + "batch-download",
-                      BatchDownloadServerResource.class);
-        router.attach(contextPath + "batch-download/",
-                      BatchDownloadServerResource.class);
-
-        router.attach(contextPath + "batch-upload",
-                      BatchUploadServerResource.class);
-        router.attach(contextPath + "batch-upload/",
-                      BatchUploadServerResource.class);
-        final TemplateRoute batchUploadRoute =
-                router.attach(contextPath + "batch-upload/{path}",
-                              BatchUploadServerResource.class);
-
         // Generic endpoint for files, folders, or links.
         final TemplateRoute itemRoute =
                 router.attach(contextPath + "item/{path}",
@@ -226,7 +213,6 @@ public class VOSpaceApplication extends Application
         final Map<String, Variable> routeVariables = new HashMap<>();
         routeVariables.put("path", new Variable(Variable.TYPE_URI_PATH));
 
-        batchUploadRoute.getTemplate().getVariables().putAll(routeVariables);
         itemRoute.getTemplate().getVariables().putAll(routeVariables);
         folderRoute.getTemplate().getVariables().putAll(routeVariables);
         linkRoute.getTemplate().getVariables().putAll(routeVariables);
@@ -267,7 +253,7 @@ public class VOSpaceApplication extends Application
                         VOSpaceApplication.DEFAULT_GMS_SERVICE_ID)));
     }
 
-    public ServletContext getServletContext()
+    private ServletContext getServletContext()
     {
         return (ServletContext) getContext().getAttributes().get(
                 VOSpaceApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
@@ -277,7 +263,7 @@ public class VOSpaceApplication extends Application
      * Override this to set a custom FreeMarkerConfiguration.
      * @return          FreeMarkerConfiguration instance.
      */
-    public FreeMarkerConfiguration createFreemarkerConfig()
+    protected FreeMarkerConfiguration createFreemarkerConfig()
     {
         final FreeMarkerConfiguration freeMarkerConfiguration =
                 new FreeMarkerConfiguration();
