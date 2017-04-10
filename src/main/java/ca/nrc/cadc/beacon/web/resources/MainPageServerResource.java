@@ -207,8 +207,7 @@ public class MainPageServerResource extends StorageItemServerResource
             }
             catch (ResourceException re)
             {
-                // homeDir does not need to be set
-                throw new ResourceException(re.getCause());
+                // Ignore this as there is no 'home' VOSpace.
             }
         }
 
