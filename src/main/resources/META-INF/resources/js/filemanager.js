@@ -2801,6 +2801,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                    methodHiddenField.setAttribute("name", "method");
                    methodHiddenField.setAttribute("value", downloadMethod.id);
 
+                   form.appendChild(methodHiddenField);
+
                    //Move the submit function to another variable
                    //so that it doesn't get overwritten.
                    form._submit_function_ = form.submit;
