@@ -68,18 +68,13 @@
 
 package ca.nrc.cadc.beacon.web.resources;
 
-import ca.nrc.cadc.auth.AuthMethod;
 import ca.nrc.cadc.beacon.web.StorageItemFactory;
 import ca.nrc.cadc.beacon.web.URIExtractor;
 import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
 import ca.nrc.cadc.beacon.web.view.StorageItem;
-import ca.nrc.cadc.net.HttpDownload;
-import ca.nrc.cadc.net.InputStreamWrapper;
-import ca.nrc.cadc.reg.Standards;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.vos.client.ClientRecursiveSetNode;
-import ca.nrc.cadc.vos.client.VOSClientUtil;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 import org.json.JSONObject;
 import org.restlet.Context;
@@ -94,7 +89,6 @@ import javax.security.auth.Subject;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -182,14 +176,12 @@ public class StorageItemServerResource extends SecureServerResource
         return toURI(getCurrentPath());
     }
 
-    final <T extends Node> T getCurrentNode()
-            throws NodeNotFoundException, IOException
+    final <T extends Node> T getCurrentNode() throws NodeNotFoundException, IOException
     {
         return getCurrentNode(VOS.Detail.max);
     }
 
-    final <T extends Node> T getCurrentNode(final VOS.Detail detail)
-            throws NodeNotFoundException, IOException
+    final <T extends Node> T getCurrentNode(final VOS.Detail detail) throws NodeNotFoundException, IOException
     {
         return getNode(getCurrentItemURI(), detail);
     }
@@ -269,8 +261,7 @@ public class StorageItemServerResource extends SecureServerResource
                 @SuppressWarnings("unchecked")
                 public T run() throws Exception
                 {
-                    return (T) voSpaceClient
-                            .getNode(folderURI.getPath(), query);
+                    return (T) voSpaceClient.getNode(folderURI.getPath(), query);
                 }
             });
         }
@@ -293,21 +284,14 @@ public class StorageItemServerResource extends SecureServerResource
         final List<NodeProperty> newNodeProperties = newNode.getProperties();
 
         // Clean slate.
-        newNodeProperties.remove(
-                new NodeProperty(VOS.PROPERTY_URI_GROUPREAD, ""));
-        newNodeProperties.remove(
-                new NodeProperty(VOS.PROPERTY_URI_GROUPWRITE, ""));
-        newNodeProperties.remove(
-                new NodeProperty(VOS.PROPERTY_URI_ISPUBLIC, ""));
+        newNodeProperties.remove(new NodeProperty(VOS.PROPERTY_URI_GROUPREAD, ""));
+        newNodeProperties.remove(new NodeProperty(VOS.PROPERTY_URI_GROUPWRITE, ""));
+        newNodeProperties.remove(new NodeProperty(VOS.PROPERTY_URI_ISPUBLIC, ""));
 
-        final String parentReadGroupURIValue =
-                parentNode.getPropertyValue(
-                        VOS.PROPERTY_URI_GROUPREAD);
+        final String parentReadGroupURIValue = parentNode.getPropertyValue(VOS.PROPERTY_URI_GROUPREAD);
         if (StringUtil.hasText(parentReadGroupURIValue))
         {
-            newNodeProperties.add(
-                    new NodeProperty(VOS.PROPERTY_URI_GROUPREAD,
-                                     parentReadGroupURIValue));
+            newNodeProperties.add(new NodeProperty(VOS.PROPERTY_URI_GROUPREAD, parentReadGroupURIValue));
         }
 
         final String parentWriteGroupURIValue =
@@ -334,68 +318,6 @@ public class StorageItemServerResource extends SecureServerResource
     }
 
     /**
-     * Remove the Node associated with the given Path.
-     * <p>
-     * It is the responsibility of the caller to handle proper closing of
-     * the writer.
-     *
-     * @param path   The path of the Node to delete.
-     * @param writer Where to pump output to.
-     */
-    void getManifest(final String path, final Writer writer) throws IOException
-    {
-        // length 0 is root: no
-        // Path must be absolute
-        final String nodePath = (path.length() > 0 && !path.startsWith("/"))
-                                ? ("/" + path) : path;
-        try
-        {
-            final URL vospaceURL = getRegistryClient()
-                    .getServiceURL(URI.create(getContext().getAttributes().get(
-                            VOSpaceApplication.VOSPACE_SERVICE_ID_KEY)
-                                                      .toString()),
-                                   Standards.VOSPACE_NODES_20,
-                                   AuthMethod.ANON);
-            final URL url = new URL(vospaceURL.toExternalForm() + nodePath
-                                    + "?view=manifest");
-
-            final HttpDownload httpDownload =
-                    new HttpDownload(url, new InputStreamWrapper()
-                    {
-                        @Override
-                        public void read(InputStream inputStream)
-                                throws IOException
-                        {
-                            // create byte buffer
-                            final Reader reader =
-                                    new InputStreamReader(inputStream, "UTF-8");
-                            char[] buffer = new char[8092];
-                            int charLength;
-
-                            while ((charLength = reader.read(buffer)) > 0)
-                            {
-                                writer.write(buffer, 0, charLength);
-                            }
-
-                            writer.flush();
-                            reader.close();
-                        }
-                    });
-
-            httpDownload.run();
-            VOSClientUtil.checkFailure(httpDownload.getThrowable());
-        }
-        catch (MalformedURLException e)
-        {
-            throw new IOException(e);
-        }
-        catch (NodeNotFoundException e)
-        {
-            throw new FileNotFoundException("Item not found at " + path);
-        }
-    }
-
-    /**
      * Resolve this link Node's target to its final destination.  This method
      * will follow the target of the provided LinkNode, and continue to do so
      * until an external URL is found, or Node that is not a Link Node.
@@ -418,8 +340,7 @@ public class StorageItemServerResource extends SecureServerResource
      * @return URI of the target.
      * @throws NodeNotFoundException If the target is not found.
      */
-    private URI resolveLink(final LinkNode linkNode)
-            throws NodeNotFoundException, IOException
+    private URI resolveLink(final LinkNode linkNode) throws NodeNotFoundException, IOException
     {
         final URI endPoint;
         final URI targetURI = linkNode.getTarget();
@@ -427,8 +348,7 @@ public class StorageItemServerResource extends SecureServerResource
         // Should ALWAYS be true for a LinkNode!
         if (targetURI == null)
         {
-            throw new IllegalArgumentException(
-                    "**BUG**: LinkNode has a null target!");
+            throw new IllegalArgumentException("**BUG**: LinkNode has a null target!");
         }
         else
         {
@@ -439,9 +359,7 @@ public class StorageItemServerResource extends SecureServerResource
 
                 if (targetNode == null)
                 {
-                    throw new NodeNotFoundException(
-                            "No target found or broken link for node: "
-                            + linkNode.getName());
+                    throw new NodeNotFoundException("No target found or broken link for node: " + linkNode.getName());
                 }
                 else
                 {
@@ -451,8 +369,7 @@ public class StorageItemServerResource extends SecureServerResource
                     }
                     else
                     {
-                        final StorageItem storageItem =
-                                storageItemFactory.translate(targetNode);
+                        final StorageItem storageItem = storageItemFactory.translate(targetNode);
                         endPoint = URI.create(storageItem.getTargetURL());
                     }
                 }
@@ -474,26 +391,24 @@ public class StorageItemServerResource extends SecureServerResource
      *
      * @param newNode The Node whose permissions are to be recursively set
      */
-    private ClientRecursiveSetNode setNodeRecursiveSecure(final Node newNode)
-            throws IOException
+    private void setNodeRecursiveSecure(final Node newNode) throws IOException
     {
         try
         {
-            return Subject
-                    .doAs(generateVOSpaceUser(), new PrivilegedExceptionAction<ClientRecursiveSetNode>()
-                    {
-                        @Override
-                        public ClientRecursiveSetNode run() throws Exception
-                        {
-                            final ClientRecursiveSetNode rj =
-                                    voSpaceClient.setNodeRecursive(newNode);
-                            // Fire & forget is 'false'. 'true' will mean the run job does not return until it's finished.
-                            rj.setMonitor(false);
-                            rj.run();
+            Subject.doAs(generateVOSpaceUser(), new PrivilegedExceptionAction<Void>()
+            {
+                @Override
+                public Void run() throws Exception
+                {
+                    final ClientRecursiveSetNode rj = voSpaceClient.setNodeRecursive(newNode);
 
-                            return rj;
-                        }
-                    });
+                    // Fire & forget is 'false'. 'true' will mean the run job does not return until it's finished.
+                    rj.setMonitor(false);
+                    rj.run();
+
+                    return null;
+                }
+            });
         }
         catch (PrivilegedActionException pae)
         {
@@ -523,7 +438,7 @@ public class StorageItemServerResource extends SecureServerResource
 
     void createLink(final URI target) throws Exception
     {
-        createNode(toLinkNode(target), false);
+        createNode(toLinkNode(target));
     }
 
     private LinkNode toLinkNode(final URI target)
@@ -534,7 +449,7 @@ public class StorageItemServerResource extends SecureServerResource
 
     void createFolder() throws Exception
     {
-        createNode(toContainerNode(), false);
+        createNode(toContainerNode());
     }
 
     private ContainerNode toContainerNode()
@@ -542,23 +457,14 @@ public class StorageItemServerResource extends SecureServerResource
         return new ContainerNode(getCurrentItemURI());
     }
 
-    String getCodebase(final String appendage) throws IOException
-    {
-        final URL req = getRequest().getResourceRef().toUrl();
-        return req.getProtocol() + "://" + req.getHost()
-               + ((req.getPort() > 0) ? (":" + req.getPort()) : "")
-               + getServletContext().getContextPath() + appendage;
-    }
-
-    void createNode(final Node newNode, final boolean checkForDuplicate)
-            throws Exception
+    void createNode(final Node newNode) throws Exception
     {
         executeSecurely(new PrivilegedExceptionAction<Void>()
         {
             @Override
             public Void run() throws Exception
             {
-                voSpaceClient.createNode(newNode, checkForDuplicate);
+                voSpaceClient.createNode(newNode, false);
                 return null;
             }
         });
@@ -578,8 +484,7 @@ public class StorageItemServerResource extends SecureServerResource
         });
     }
 
-    <T> T executeSecurely(final PrivilegedExceptionAction<T> runnable)
-            throws Exception
+    <T> T executeSecurely(final PrivilegedExceptionAction<T> runnable) throws Exception
     {
         try
         {
@@ -591,14 +496,15 @@ public class StorageItemServerResource extends SecureServerResource
         }
     }
 
-    private void setNodeProperty(List<NodeProperty> nodeProperties,
-                                 String propertyName, String propertyValue)
+    private void setNodeProperty(final List<NodeProperty> nodeProperties, final String propertyName,
+                                 final String propertyValue)
     {
         nodeProperties.remove(new NodeProperty(propertyName, ""));
 
         if (!StringUtil.hasLength(propertyValue))
         {
-            NodeProperty np = new NodeProperty(propertyName, "");
+            final NodeProperty np = new NodeProperty(propertyName, "");
+
             np.setMarkedForDeletion(true);
             nodeProperties.add(np);
         }
@@ -620,17 +526,12 @@ public class StorageItemServerResource extends SecureServerResource
 
         if (keySet.contains("publicPermission"))
         {
-            final String parameterValue = jsonObject.get("publicPermission")
-                                                  .equals("on")
-                                          ? Boolean.toString(true)
-                                          : Boolean.toString(false);
-            final NodeProperty np =
-                    currentNode.findProperty(VOS.PROPERTY_URI_ISPUBLIC);
+            final String parameterValue = Boolean.toString(jsonObject.get("publicPermission").equals("on"));
+            final NodeProperty np = currentNode.findProperty(VOS.PROPERTY_URI_ISPUBLIC);
 
             if ((np != null) && !np.getPropertyValue().equals(parameterValue))
             {
-                setNodeProperty(nodeProperties, VOS.PROPERTY_URI_ISPUBLIC,
-                                parameterValue);
+                setNodeProperty(nodeProperties, VOS.PROPERTY_URI_ISPUBLIC, parameterValue);
             }
         }
 
@@ -647,8 +548,7 @@ public class StorageItemServerResource extends SecureServerResource
             if (((np != null) && !np.getPropertyValue().equals(parameterValue))
                 || ((np == null) && StringUtil.hasLength(parameterValue)))
             {
-                setNodeProperty(nodeProperties, VOS.PROPERTY_URI_GROUPREAD,
-                                parameterValue);
+                setNodeProperty(nodeProperties, VOS.PROPERTY_URI_GROUPREAD, parameterValue);
             }
         }
 
@@ -664,8 +564,7 @@ public class StorageItemServerResource extends SecureServerResource
             if (((np != null) && !np.getPropertyValue().equals(parameterValue))
                 || ((np == null) && StringUtil.hasLength(parameterValue)))
             {
-                setNodeProperty(nodeProperties, VOS.PROPERTY_URI_GROUPWRITE,
-                                parameterValue);
+                setNodeProperty(nodeProperties, VOS.PROPERTY_URI_GROUPWRITE, parameterValue);
             }
         }
 

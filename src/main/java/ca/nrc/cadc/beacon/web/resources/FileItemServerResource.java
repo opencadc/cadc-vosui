@@ -144,10 +144,7 @@ public class FileItemServerResource extends StorageItemServerResource
 
             // Obtain the file upload Representation as an iterator.
             final ServletFileUpload upload = parseRepresentation();
-
-            final FileItemIterator fileItemIterator =
-                    upload.getItemIterator(
-                            ServletUtils.getRequest(getRequest()));
+            final FileItemIterator fileItemIterator = upload.getItemIterator(ServletUtils.getRequest(getRequest()));
 
             if (!fileItemIterator.hasNext())
             {
@@ -163,8 +160,7 @@ public class FileItemServerResource extends StorageItemServerResource
         else
         {
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            getResponse().setEntity("Nothing to upload or invalid data.",
-                                    MediaType.TEXT_PLAIN);
+            getResponse().setEntity("Nothing to upload or invalid data.", MediaType.TEXT_PLAIN);
         }
     }
 
@@ -178,17 +174,14 @@ public class FileItemServerResource extends StorageItemServerResource
         {
             while (fileItemIterator.hasNext())
             {
-                final FileItemStream nextFileItemStream =
-                        fileItemIterator.next();
+                final FileItemStream nextFileItemStream = fileItemIterator.next();
 
                 if (nextFileItemStream.getFieldName().startsWith(
                         UPLOAD_FILE_KEY))
                 {
                     newNodeURI = upload(nextFileItemStream);
-
                 }
-                else if (nextFileItemStream.getFieldName().equals(
-                        "inheritPermissionsCheckBox"))
+                else if (nextFileItemStream.getFieldName().equals("inheritPermissionsCheckBox"))
                 {
                     inheritParentPermissions = true;
                 }
@@ -218,19 +211,15 @@ public class FileItemServerResource extends StorageItemServerResource
 
         if (fileValidator.validateString(filename))
         {
-            final String path = getCurrentItemURI().getPath() + "/"
-                                + URLEncoder.encode(filename, "UTF-8");
+            final String path = getCurrentItemURI().getPath() + "/" + URLEncoder.encode(filename, "UTF-8");
             final DataNode dataNode = new DataNode(toURI(path));
 
-            // WebRT 19564: Add content type to the response of
-            // uploaded items.
+            // WebRT 19564: Add content type to the response of uploaded items.
             final List<NodeProperty> properties = new ArrayList<>();
 
-            properties.add(new NodeProperty(VOS.PROPERTY_URI_TYPE,
-                                            fileItemStream.getContentType()));
+            properties.add(new NodeProperty(VOS.PROPERTY_URI_TYPE, fileItemStream.getContentType()));
             properties.add(new NodeProperty(VOS.PROPERTY_URI_CONTENTLENGTH,
-                                            Long.toString(
-                                                    getRequest().getEntity().getSize())));
+                                            Long.toString(getRequest().getEntity().getSize())));
 
             dataNode.setProperties(properties);
 
@@ -255,8 +244,7 @@ public class FileItemServerResource extends StorageItemServerResource
      * @param inputStream The InputStream to pull from.
      * @param dataNode    The DataNode to upload to.
      */
-    protected void upload(final InputStream inputStream,
-                          final DataNode dataNode) throws Exception
+    protected void upload(final InputStream inputStream, final DataNode dataNode) throws Exception
     {
         final String path = dataNode.getUri().getPath();
 
@@ -278,8 +266,9 @@ public class FileItemServerResource extends StorageItemServerResource
         }
         catch (ResourceException e)
         {
-            if (e.getCause() instanceof NodeNotFoundException) {
-                createNode(dataNode, false);
+            if (e.getCause() instanceof NodeNotFoundException)
+            {
+                createNode(dataNode);
             }
             else
             {
@@ -303,8 +292,7 @@ public class FileItemServerResource extends StorageItemServerResource
         {
             final String message;
 
-            if ((e.getCause() != null)
-                && StringUtil.hasText(e.getCause().getMessage()))
+            if ((e.getCause() != null) && StringUtil.hasText(e.getCause().getMessage()))
             {
                 message = e.getCause().getMessage();
             }

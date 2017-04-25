@@ -13,12 +13,12 @@ repositories {
 }
 
 dependencies {
-    compile 'org.opencadc:cadc-vosui:1.+'
+    compile 'org.opencadc:cadc-vosui:[1.0.21, )'
 }
 
 sourceCompatibility = '1.7'
 
-def docker_image_name = 'mach378.cadc.dao.nrc.ca:5000/storage:at88mph'
+def docker_image_name = 'opencadc/storage'
 
 war {
     archiveName 'storage.war'
