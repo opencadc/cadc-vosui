@@ -71,6 +71,17 @@ public class AbstractBrowserTest extends AbstractWebApplicationIntegrationTest
      * Generate an ASCII string, replacing the '\' and '+' characters with
      * underscores to keep them URL friendly.
      *
+     * @return              An ASCII string of 16.
+     */
+    protected String generateAlphaNumeric()
+    {
+        return generateAlphaNumeric(16);
+    }
+
+    /**
+     * Generate an ASCII string, replacing the '\' and '+' characters with
+     * underscores to keep them URL friendly.
+     *
      * @param length        The desired length of the generated string.
      * @return              An ASCII string of the given length.
      */
