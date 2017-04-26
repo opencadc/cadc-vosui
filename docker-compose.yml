@@ -1,8 +1,16 @@
 version: '2'
 services:
+  firefox:
+    image: selenium/standalone-firefox:2.53.1
+    ports:
+      - '127.0.0.1:4444:4444'
+    network_mode: 'host'
   storage-ui:
     image: opencadc/storage
     ports:
-      - '8080:8080'
+      - '127.0.0.1:8080:8080'
+    network_mode: 'host'
+    depends_on: 
+      - 'firefox'
     environment:
-      - CATALINA_OPTS="-DSSO_SERVERS=jenkinsd.cadc.dao.nrc.ca apps.canfar.net www.canfar.phys.uvic.ca"
+      - CATALINA_OPTS="-DSSO_SERVERS=127.0.0.1 apps.canfar.net www.canfar.phys.uvic.ca"
