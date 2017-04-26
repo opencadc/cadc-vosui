@@ -1,16 +1,22 @@
 version: '2'
 services:
-  firefox:
+  firefox.cadc.dao.nrc.ca:
     image: selenium/standalone-firefox:2.53.1
     ports:
-      - '127.0.0.1:4444:4444'
+      - '4444:4444'
     network_mode: 'host'
-  storage-ui:
+  application.cadc.dao.nrc.ca:
     image: opencadc/storage
     ports:
-      - '127.0.0.1:8080:8080'
+      - '8080:8080'
     network_mode: 'host'
     depends_on: 
-      - 'firefox'
+      - 'firefox.cadc.dao.nrc.ca'
     environment:
-      - CATALINA_OPTS="-DSSO_SERVERS=127.0.0.1 apps.canfar.net www.canfar.phys.uvic.ca"
+      - CATALINA_OPTS="-DSSO_SERVERS=apps.canfar.net www.canfar.phys.uvic.ca"
+  reports:
+    image: nginx:alpine
+    ports:
+      - '9000:80'
+    volumes:
+      - '/usr/local/opencadc/cadc-vosui/examples:/usr/share/nginx/html'
