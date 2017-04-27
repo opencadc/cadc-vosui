@@ -69,7 +69,7 @@
 package ca.nrc.cadc.beacon.web.resources;
 
 
-import ca.nrc.cadc.beacon.web.FileValidator;
+import ca.nrc.cadc.beacon.web.RegexFileValidator;
 import ca.nrc.cadc.beacon.web.UploadOutputStreamWrapper;
 import ca.nrc.cadc.beacon.web.UploadVerifier;
 import ca.nrc.cadc.reg.client.RegistryClient;
@@ -139,7 +139,7 @@ public class FileItemServerResourceTest
 
         testSubject = new FileItemServerResource(mockVOSpaceClient,
                                                  new UploadVerifier(),
-                                                 new FileValidator())
+                                                 new RegexFileValidator())
         {
             @Override
             public Response getResponse()
