@@ -78,7 +78,9 @@ import org.restlet.Response;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.TemplateRepresentation;
+import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 import org.restlet.service.StatusService;
 
@@ -94,28 +96,32 @@ import java.util.Map;
 public class VOSpaceStatusService extends StatusService
 {
     @Override
-    public Representation toRepresentation(Status status, Request request, Response response)
+    public Representation toRepresentation(final Status status, final Request request, final Response response)
     {
+        if (status.getCode() == Status.CLIENT_ERROR_BAD_REQUEST.getCode())
+        {
+            response.setStatus(status);
+            return new StringRepresentation(status.getReasonPhrase(), MediaType.TEXT_PLAIN);
+        }
+        else
+        {
+            final Map<String, Object> dataModel = new HashMap<>();
+            final Context curContext = getContext();
 
-        final Map<String, Object> dataModel = new HashMap<>();
-        final Context curContext = getContext();
+            final String pathInRequest = (String) request.getAttributes().get("path");
+            final String requestedResource = "/" + ((pathInRequest == null) ? "" : pathInRequest);
 
-        final String pathInRequest =
-                (String) request.getAttributes().get("path");
-        final String requestedResource =
-                "/" + ((pathInRequest == null) ? "" : pathInRequest);
+            dataModel.put("errorMessage", status.toString());
 
-        dataModel.put("errorMessage", status.toString());
+            // requestedFolder in login.ftl will allow login to this node
+            // in case this is a permissions issue
+            dataModel.put("requestedFolder", requestedResource);
 
-        // requestedFolder in login.ftl will allow login to this node
-        // in case this is a permissions issue
-        dataModel.put("requestedFolder", requestedResource);
-
-        return new TemplateRepresentation("error.ftl",
-                                          (FreeMarkerConfiguration) curContext
-                                                  .getAttributes()
-                                                  .get(VOSpaceApplication.FREEMARKER_CONFIG_KEY),
-                                          dataModel, MediaType.TEXT_HTML);
+            return new TemplateRepresentation("error.ftl",
+                                              (FreeMarkerConfiguration) curContext.getAttributes()
+                                                      .get(VOSpaceApplication.FREEMARKER_CONFIG_KEY),
+                                              dataModel, MediaType.TEXT_HTML);
+        }
     }
 
 
@@ -128,26 +134,22 @@ public class VOSpaceStatusService extends StatusService
      * @return The representation of the given status.
      */
     @Override
-    public Status toStatus(final Throwable throwable, final Request request,
-                           final Response response)
+    public Status toStatus(final Throwable throwable, final Request request, final Response response)
     {
         final Status status;
 
         if (throwable instanceof ResourceException)
         {
             final Throwable cause = throwable.getCause();
-
-            if (cause == null)
-            {
-                status = super.toStatus(throwable, request, response);
-            }
-            else
-            {
-                status = toStatus(cause, request, response);
-            }
+            status = (cause == null)
+                     ? super.toStatus(throwable, request, response) : toStatus(cause, request, response);
         }
-        else if ((throwable instanceof FileNotFoundException) ||
-                 (throwable instanceof NodeNotFoundException))
+        else if (throwable instanceof IllegalArgumentException)
+        {
+            status = new Status(Status.CLIENT_ERROR_BAD_REQUEST.getCode(), throwable.getMessage(),
+                                throwable.getMessage());
+        }
+        else if ((throwable instanceof FileNotFoundException) || (throwable instanceof NodeNotFoundException))
         {
             status = Status.CLIENT_ERROR_NOT_FOUND;
         }
@@ -163,14 +165,8 @@ public class VOSpaceStatusService extends StatusService
         {
             final String message = throwable.getMessage();
 
-            if (message.contains("(409)"))
-            {
-                status = Status.CLIENT_ERROR_CONFLICT;
-            }
-            else
-            {
-                status = super.toStatus(throwable, request, response);
-            }
+            status = (message.contains("(409)"))
+                     ? Status.CLIENT_ERROR_CONFLICT : super.toStatus(throwable, request, response);
         }
         else
         {

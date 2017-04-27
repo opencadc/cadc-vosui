@@ -82,6 +82,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 
+/**
+ * Represent a ZIP file output stream for a series of files and folders to download.
+ *
+ * CURRENTLY NOT USED, BUT HERE FOR PERSERVATION
+ * jenkinsd 2017.04.25
+ */
 public class ZIPFileRepresentation extends AbstractAuthOutputRepresentation
 {
     private final Iterator<DownloadDescriptor> downloadDescriptorIterator;
@@ -103,21 +109,18 @@ public class ZIPFileRepresentation extends AbstractAuthOutputRepresentation
     @Override
     public void write(final OutputStream outputStream) throws IOException
     {
-        final ZipOutputStream zos =
-                new ZipOutputStream(outputStream);
+        final ZipOutputStream zos = new ZipOutputStream(outputStream);
 
-        while ( downloadDescriptorIterator.hasNext() )
+        while (downloadDescriptorIterator.hasNext())
         {
-            final DownloadDescriptor downloadDescriptor =
-                    downloadDescriptorIterator.next();
+            final DownloadDescriptor downloadDescriptor = downloadDescriptorIterator.next();
             if (downloadDescriptor.url != null)
             {
                 final InputStreamWrapper inputStreamWrapper =
                         new InputStreamWrapper()
                         {
                             @Override
-                            public void read(final InputStream inputStream)
-                                    throws IOException
+                            public void read(final InputStream inputStream) throws IOException
                             {
                                 int length;
 
@@ -127,12 +130,9 @@ public class ZIPFileRepresentation extends AbstractAuthOutputRepresentation
                                 // Begin writing a new ZIP entry, positions
                                 // the stream to the start of the entry
                                 // data.
-                                zos.putNextEntry(new ZipEntry(
-                                        downloadDescriptor.destination));
+                                zos.putNextEntry(new ZipEntry(downloadDescriptor.destination));
 
-                                while ((length =
-                                        inputStream
-                                                .read(buffer)) > 0)
+                                while ((length = inputStream.read(buffer)) > 0)
                                 {
                                     zos.write(buffer, 0, length);
                                 }
@@ -143,9 +143,7 @@ public class ZIPFileRepresentation extends AbstractAuthOutputRepresentation
                             }
                         };
 
-                final HttpDownload httpDownload =
-                        new HttpDownload(downloadDescriptor.url,
-                                         inputStreamWrapper);
+                final HttpDownload httpDownload = new HttpDownload(downloadDescriptor.url, inputStreamWrapper);
 
                 httpDownload.setFollowRedirects(true);
 

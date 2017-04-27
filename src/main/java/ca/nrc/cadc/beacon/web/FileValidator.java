@@ -68,49 +68,23 @@
 
 package ca.nrc.cadc.beacon.web;
 
-import ca.nrc.cadc.util.StringUtil;
 
-public class FileValidator
+
+public interface FileValidator
 {
-    private static final String VALID_FILENAME_REGEX =
-            "[a-zA-Z0-9_\\-()=+!,;:@*$.\\s]+";
-
-
-    public String getExtension(final String filename)
-    {
-        final String extension;
-
-        if (StringUtil.hasText(filename))
-        {
-            int lastPoint = filename.lastIndexOf('.');
-
-            if (lastPoint >= 0)
-            {
-                extension = filename.substring(lastPoint + 1);
-            }
-            else
-            {
-                extension = "";
-            }
-        }
-        else
-        {
-            extension = "";
-        }
-
-        return extension;
-    }
-
     /**
      * Validate the given String for use when submitting text entry values.
      * This implementation will check for a null or empty String, as well as
      * a String with a space in it, which is not allowed.
      *
-     * @param filename     The String to validate.
+     * @param fileName     The String to validate.
      * @return  True if it's valid, false otherwise.
      */
-    public boolean validateString(final String filename)
-    {
-        return (filename != null) && filename.matches(VALID_FILENAME_REGEX);
-    }
+    boolean validateFileName(final String fileName);
+
+    /**
+     * Obtain the rule, in String format.  This is used to print an error message if validation fails.
+     * @return      String rule.
+     */
+    String getRule();
 }

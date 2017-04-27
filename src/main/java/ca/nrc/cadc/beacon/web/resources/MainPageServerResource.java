@@ -92,15 +92,13 @@ public class MainPageServerResource extends StorageItemServerResource
     @Get
     public Representation represent() throws Exception
     {
-        final ContainerNode currentNode =
-                getCurrentNode(getCurrentPath().equals("/")
-                               ? VOS.Detail.raw : VOS.Detail.max);
+        final ContainerNode currentNode = getCurrentNode(getCurrentPath().equals("/")
+                                                         ? VOS.Detail.raw : VOS.Detail.max);
         return representContainerNode(currentNode);
     }
 
 
-    private Representation representContainerNode(
-            final ContainerNode containerNode) throws Exception
+    private Representation representContainerNode(final ContainerNode containerNode) throws Exception
     {
         final List<Node> childNodes = containerNode.getNodes();
         final Iterator<String> initialRows = new Iterator<String>()
@@ -117,13 +115,11 @@ public class MainPageServerResource extends StorageItemServerResource
             public String next()
             {
                 final Writer writer = new StringWriter();
-                final StorageItemWriter storageItemWriter =
-                        new StorageItemCSVWriter(writer);
+                final StorageItemWriter storageItemWriter = new StorageItemCSVWriter(writer);
 
                 try
                 {
-                    storageItemWriter.write(storageItemFactory.translate(
-                            childNodeIterator.next()));
+                    storageItemWriter.write(storageItemFactory.translate(childNodeIterator.next()));
                 }
                 catch (Exception e)
                 {
@@ -178,8 +174,7 @@ public class MainPageServerResource extends StorageItemServerResource
     {
         final Map<String, Object> dataModel = new HashMap<>();
         final AccessControlClient accessControlClient =
-                getContextAttribute(
-                        VOSpaceApplication.ACCESS_CONTROL_CLIENT_KEY);
+                getContextAttribute(VOSpaceApplication.ACCESS_CONTROL_CLIENT_KEY);
 
         dataModel.put("initialRows", initialRows);
         dataModel.put("folder", folderItem);
@@ -190,9 +185,7 @@ public class MainPageServerResource extends StorageItemServerResource
         }
 
         // HttpPrincipal username will be pulled from current user
-        Subject s = getCurrentUser();
-        String httpUsername = accessControlClient
-                .getCurrentHttpPrincipalUsername(s);
+        final String httpUsername = accessControlClient.getCurrentHttpPrincipalUsername(getCurrentUser());
 
         if (httpUsername != null)
         {
@@ -201,8 +194,7 @@ public class MainPageServerResource extends StorageItemServerResource
             try
             {
                 // Check to see if home directory exists
-                getNode(new VOSURI(VOSPACE_NODE_URI_PREFIX + "/"
-                                   + httpUsername), VOS.Detail.min);
+                getNode(new VOSURI(VOSPACE_NODE_URI_PREFIX + "/" + httpUsername), VOS.Detail.min);
                 dataModel.put("homeDir", httpUsername);
             }
             catch (ResourceException re)
@@ -211,8 +203,7 @@ public class MainPageServerResource extends StorageItemServerResource
             }
         }
 
-        return new TemplateRepresentation("index.ftl",
-                                          getFreeMarkerConfiguration(),
-                                          dataModel, MediaType.TEXT_HTML);
+        return new TemplateRepresentation("index.ftl", getFreeMarkerConfiguration(), dataModel,
+                                          MediaType.TEXT_HTML);
     }
 }

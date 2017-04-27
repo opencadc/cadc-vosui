@@ -188,7 +188,7 @@ public class StorageItemFactory
 
         final String writableFlagValue =
                 node.getPropertyValue(VOS.PROPERTY_URI_WRITABLE);
-        final boolean writableFlag = writableFlagValue == null ? true :
+        final Boolean writableFlag = writableFlagValue == null ? null :
                 StringUtil.hasLength(writableFlagValue) && Boolean.parseBoolean(writableFlagValue) ;
         
         final String owner = node.getPropertyValue(VOS.PROPERTY_URI_CREATOR);

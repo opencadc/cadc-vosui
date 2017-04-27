@@ -133,13 +133,14 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     path +
     'update" title="Edit permissions." ' +
     'readable="' + elementAttributes[6] +
+    '" writable="' + elementAttributes[13] +
     '" path="' + elementAttributes[9] +
+    '" uri="' + elementAttributes[10] +
     '" readGroup="' + elementAttributes[5] +
     '" writeGroup="' + elementAttributes[4] +
     '" itemName="' + elementAttributes[1] +
     '" ></a></span>';
   };
-
 
 
   var $dt = _$beaconTable.DataTable(
@@ -243,7 +244,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             var renderedValue = "";
 
             // if isWritable bit is true, provide edit icon
-            if (full[13] === "true")
+            if (full[13] === "true" || full[13] === "null")
             {
               renderedValue += makeEditIcon(contextPath, full);
             }
@@ -261,7 +262,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             var renderedValue = "";
 
             // if isWritable bit is true, provide edit icon
-            if (full[13] === "true")
+            if (full[13] === "true" || full[13] === "null")
             {
               renderedValue += makeEditIcon(contextPath, full);
             }
@@ -1557,13 +1558,51 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     // will be referenced for seeing if form values have changed
     iconAnchor.setAttribute("class", "editing");
 
+    // Check to see if a call to server is necessary to confirm access to this node
+    // Everything below would go into another function that will fire
+    // if the ajax call returns the correct value.
+
+    if (iconAnchor.getAttribute("writable") === "null")
+    { // verify authorization for editing this node
+      // authenticate, pass in URI
+      // url: contextPath + "ac/authenticate" + "?uri=" + iconAnchor.getAttribute("uri"),
+      $.ajax(
+          {
+            url: contextPath + "access" + iconAnchor.getAttribute("path"),
+            method: "GET",
+            statusCode: {
+              200: function ()
+              {
+                loadEditPermPrompt(iconAnchor);
+              },
+              403: function ()
+              {
+                $.prompt(lg.NOT_ALLOWED_SYSTEM);
+              },
+              500: function ()
+              {
+                $.prompt(lg.server_error);
+              }
+            }
+          });
+    }
+    else
+    {
+        loadEditPermPrompt(iconAnchor);
+    }
+  });
+
+
+  var loadEditPermPrompt = function (promptData)
+  {
+
     var checkboxState = "";
-    var readGroupBoxDisabled = "false";
-    if (iconAnchor.getAttribute("readable") === "true")
+    // var readGroupBoxDisabled = "false";
+    // May be able to remove this? - TODO
+    if (promptData.getAttribute("readable") === "true")
     {
       checkboxState = "checked";
     }
-
     var msg =
       '<div class="form-group fm-prompt">' +
       '<label for="publicPermission" class="control-label col-sm-4">' +
@@ -1602,7 +1641,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       '<div class="col-sm-7 prompt-link">' +
       '<a href="http://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
       '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' +
-      iconAnchor.getAttribute("path") + '">' +
+      promptData.getAttribute("path") + '">' +
       '</div>' +
       '</div>';
 
@@ -1628,7 +1667,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     var states = {
       state0: {
-        title: '<h3 class="prompt-h3">' + iconAnchor.getAttribute("itemName") +
+        title: '<h3 class="prompt-h3">' + promptData.getAttribute("itemName") +
                '</h3>',
         html: msg,
         buttons: btns,
@@ -1667,8 +1706,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         );
 
         // Set initial form state
-        $("#readGroup").val(iconAnchor.getAttribute("readGroup"));
-        $("#writeGroup").val(iconAnchor.getAttribute("writeGroup"));
+        $("#readGroup").val(promptData.getAttribute("readGroup"));
+        $("#writeGroup").val(promptData.getAttribute("writeGroup"));
         var listenerHook = $(".listener-hook");
         listenerHook.addClass("disabled");
 
@@ -1680,7 +1719,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       }
     }); // end prompt declaration
 
-  });
+  };
 
 
   /*---------------------------------------------------------
@@ -1940,7 +1979,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                           var newFile = $('#fileR', form).val();
 
                           // Test if a value is given
-                          if (newFile == '')
+                          if (newFile === '')
                           {
                             return false;
                           }
@@ -2801,6 +2840,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                    methodHiddenField.setAttribute("name", "method");
                    methodHiddenField.setAttribute("value", downloadMethod.id);
 
+                   form.appendChild(methodHiddenField);
+
                    //Move the submit function to another variable
                    //so that it doesn't get overwritten.
                    form._submit_function_ = form.submit;
@@ -3440,16 +3481,14 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                      buttons: btns
                                    });
 
-                                   var $progressBar =
-                                     $("#total-progress").find(".progress-bar");
+                                   var $progressBar = $("#total-progress").find(".progress-bar");
                                    var $uploadResponse = $("#uploadresponse");
 
                                    $("div#multiple-uploads").dropzone({
                                                                         paramName: "upload",
                                                                         url: contextPath +
-                                                                             config.options.fileConnector +
-                                                                             path,
-                                                                        method: 'put',
+                                                                             config.options.fileConnector + path,
+                                                                        method: "PUT",
                                                                         maxFilesize: config.upload.fileSizeLimit,  // 10GB max.
                                                                         maxFiles: config.upload.number,
                                                                         addRemoveLinks: true,
@@ -3476,79 +3515,44 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                                                         },
                                                                         totaluploadprogress: function (progress)
                                                                         {
-                                                                          $progressBar.css('width', progress +
-                                                                                                    "%");
+                                                                          $progressBar.css('width', progress + "%");
                                                                         },
                                                                         sending: function (file, xhr, formData)
                                                                         {
                                                                           formData.append("mode", "add");
                                                                           formData.append("currentpath", path);
                                                                         },
-                                                                        error: function ()
+                                                                        error: function (file, response)
                                                                         {
-                                                                          error_flag =
-                                                                            true;
+                                                                          var message = (typeof response === "string")
+                                                                              ? response : response.message;
+
+                                                                          // Decorate the individual files.
+                                                                          file.previewElement.classList.add("dz-error");
+                                                                          var _ref = file.previewElement
+                                                                              .querySelectorAll("[data-dz-errormessage]");
+                                                                          var _results = [];
+                                                                          for (var _i = 0, _len = _ref.length; _i < _len;
+                                                                               _i++)
+                                                                          {
+                                                                            var node = _ref[_i];
+                                                                            _results.push(node.textContent = message);
+                                                                          }
+
+                                                                          $.prompt(message);
                                                                         },
                                                                         success: function (file, jsonResponse)
                                                                         {
                                                                           $uploadResponse.empty().text(jsonResponse);
 
-                                                                          if (jsonResponse.code ==
-                                                                              0)
-                                                                          {
-                                                                            this.removeFile(file);
-                                                                          }
-                                                                          else
-                                                                          {
-                                                                            getFolderInfo(path);
-                                                                            $.prompt(jsonResponse.error);
-                                                                            error_flag =
-                                                                              true;
-                                                                          }
-                                                                        },
-                                                                        complete: function ()
-                                                                        {
-                                                                          if ((this.getUploadingFiles().length ===
-                                                                               0)
-                                                                              &&
-                                                                              (this.getQueuedFiles().length ===
-                                                                               0))
-                                                                          {
-                                                                            $progressBar.css('width', '0%');
+                                                                          this.removeFile(file);
 
-                                                                            if (error_flag ===
-                                                                                true)
-                                                                            {
-                                                                              var rejects = this.getRejectedFiles();
-
-                                                                              for (var rfi = 0, rfl = rejects.length;
-                                                                                   rfi <
-                                                                                   rfl;
-                                                                                   rfi++)
-                                                                              {
-
-                                                                              }
-
-                                                                              $.prompt(lg.unsuccessful_added_file);
-                                                                            }
-                                                                            else if (config.options.showConfirmation)
-                                                                            {
-                                                                              $.prompt(lg.successful_added_file, {
-                                                                                submit: function ()
-                                                                                {
-                                                                                  refreshPage();
-                                                                                }
-                                                                              });
-                                                                            }
-                                                                            else
+                                                                          $.prompt(lg.successful_added_file, {
+                                                                            submit: function ()
                                                                             {
                                                                               refreshPage();
                                                                             }
-                                                                          }
-
-                                                                          // Reset.
-                                                                          error_flag =
-                                                                            false;
+                                                                          });
                                                                         }
                                                                       });
 

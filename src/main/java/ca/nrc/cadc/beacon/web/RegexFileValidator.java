@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2016.                            (c) 2016.
+ *  (c) 2017.                            (c) 2017.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -66,91 +66,35 @@
  ************************************************************************
  */
 
-package ca.nrc.cadc.beacon;
+package ca.nrc.cadc.beacon.web;
 
 
-import ca.nrc.cadc.beacon.web.view.StorageItem;
-
-import com.opencsv.CSVWriter;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-
-
-public class StorageItemCSVWriter implements StorageItemWriter
+public class RegexFileValidator implements FileValidator
 {
-    private final CSVWriter csvWriter;
+    private static final String VALID_FILENAME_REGEX = "[a-zA-Z0-9_\\-()=+!,;:@*$.\\s]+";
 
 
-    public StorageItemCSVWriter(final Writer writer)
+    /**
+     * Validate the given String for use when submitting text entry values.
+     * This implementation will check for a null or empty String, as well as
+     * a String with a space in it, which is not allowed.
+     *
+     * @param fileName     The String to validate.
+     * @return  True if it's valid, false otherwise.
+     */
+    public boolean validateFileName(final String fileName)
     {
-        this(new CSVWriter(writer));
+        return (fileName != null) && fileName.matches(RegexFileValidator.VALID_FILENAME_REGEX);
     }
 
-    public StorageItemCSVWriter(CSVWriter csvWriter)
-    {
-        this.csvWriter = csvWriter;
-    }
-
-
+    /**
+     * Obtain the rule, in String format.  This is used to print an error message if validation fails.
+     *
+     * @return String rule.
+     */
     @Override
-    public void write(final StorageItem storageItem) throws IOException
+    public String getRule()
     {
-        final List<String> row = new ArrayList<>();
-
-        // Checkbox column [0]
-        row.add("");
-
-        // Name [1]
-        row.add(storageItem.getName());
-
-        // File size in human readable format. [2]
-        row.add(storageItem.getSizeHumanReadable());
-
-        // Last Modified in human readable format. [3]
-        row.add(storageItem.getLastModifiedHumanReadable());
-
-        // Write Group Names [4]
-        row.add(storageItem.getWriteGroupNames());
-
-        // Read Group Names [5]
-        row.add(storageItem.getReadGroupNames());
-
-        // Hidden items.
-
-        // Is public flag. [6]
-        row.add(Boolean.toString(storageItem.isPublic()));
-
-        // Is Locked flag. [7]
-        row.add(Boolean.toString(storageItem.isLocked()));
-
-        // CSS for icon to display [8]
-        row.add(storageItem.getItemIconCSS());
-
-        // Path [9]
-        row.add(storageItem.getPath());
-
-        // URI [10]
-        row.add(storageItem.getURI().toString());
-
-        // Link for click action. [11]
-        row.add(storageItem.getTargetURL());
-
-        // Readable flag.  [12]
-        row.add(Boolean.toString(storageItem.isReadable()));
-
-        // Writable flag.  [13]
-        Boolean isWritable = storageItem.isWritable();
-        String writableFlag = isWritable == null ? "null" : Boolean.toString(isWritable);
-        row.add(writableFlag);
-
-        // Owner: distinguished name [14]
-        // TODO: change this to human readable name when issue
-        // of authentication for /ac/users/{userid}?typeId=http  is solved for this app
-        row.add(storageItem.getOwnerCN());
-
-        csvWriter.writeNext(row.toArray(new String[row.size()]));
+        return "a-zA-Z0-9_\\-()=+!,;:@*$. ";
     }
 }

@@ -79,7 +79,7 @@ public class FileItem extends StorageItem
     public FileItem(VOSURI uri, long sizeInBytes, Date lastModified,
                     boolean publicFlag, boolean lockedFlag,
                     URI[] writeGroupURIs, URI[] readGroupURIs, String owner,
-                    boolean readableFlag, boolean writableFlag, final String targetURL)
+                    boolean readableFlag, Boolean writableFlag, final String targetURL)
     {
         super(uri, sizeInBytes, lastModified, publicFlag, lockedFlag,
               writeGroupURIs, readGroupURIs, owner, readableFlag, writableFlag, targetURL);

@@ -51,6 +51,16 @@ directory for that user actually exists -->
   <#assign homeURL = '${contextPath}list/${username}'>
 </#if>
 
+<#assign folderWritable = false>
+<#if (folder.writable)!true >
+    <#assign folderWritable = false>
+<#else>
+    <#if folder.writable == true>
+        <#assign folderWritable = true>
+    </#if>
+</#if>
+
+
 
 <#include "_top_nav.ftl">
 
@@ -112,7 +122,7 @@ directory for that user actually exists -->
                                      +
                                      '<tr><td>Last used</td><td class="info">${folder.lastModifiedHumanReadable}</td></tr>'
                                      +
-                                     '<tr><td colspan="2">Is <#if !folder.writable><span class="text-danger">not </span></#if>writable by you.</td></tr>'
+                                     '<tr><td colspan="2">Is <#if !folderWritable><span class="text-danger">not </span></#if>writable by you.</td></tr>'
                                      + '</tbody></table>';
                             }
                           });
@@ -136,7 +146,7 @@ directory for that user actually exists -->
                                   // a moving barber pole progress.
                                   fileManager(rows, $("#beacon"),
                                               "<#if startURI??>${startURI}</#if>",
-                                              "${folder.path}", ${folder.writable?c},
+                                              "${folder.path}", ${folder.writable!true?c},
                                               100 , json, "${contextPath}", true);
                                 })
                           .fail(function (request, textStatus, errorThrown)

@@ -145,9 +145,9 @@ public class UploadVerifier
 
         if (!StringUtil.hasLength(serverMD5String))
         {
-            throw new UploadVerificationFailedException("** ERROR YOUR UPLOAD DID NOT SUCCEED **\n"
+            throw new UploadVerificationFailedException("** ERROR YOUR UPLOAD DID NOT SUCCEED ** "
                                                         + "MD5 checksum was not produced by "
-                                                        + "service!\nThis was not expected, please "
+                                                        + "service!  This was not expected, please "
                                                         + "contact canfarhelp@nrc-cnrc.gc.ca for "
                                                         + "assistance.");
         }
