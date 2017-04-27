@@ -1940,7 +1940,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                           var newFile = $('#fileR', form).val();
 
                           // Test if a value is given
-                          if (newFile == '')
+                          if (newFile === '')
                           {
                             return false;
                           }
@@ -3442,16 +3442,14 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                      buttons: btns
                                    });
 
-                                   var $progressBar =
-                                     $("#total-progress").find(".progress-bar");
+                                   var $progressBar = $("#total-progress").find(".progress-bar");
                                    var $uploadResponse = $("#uploadresponse");
 
                                    $("div#multiple-uploads").dropzone({
                                                                         paramName: "upload",
                                                                         url: contextPath +
-                                                                             config.options.fileConnector +
-                                                                             path,
-                                                                        method: 'put',
+                                                                             config.options.fileConnector + path,
+                                                                        method: "PUT",
                                                                         maxFilesize: config.upload.fileSizeLimit,  // 10GB max.
                                                                         maxFiles: config.upload.number,
                                                                         addRemoveLinks: true,
@@ -3478,79 +3476,44 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                                                         },
                                                                         totaluploadprogress: function (progress)
                                                                         {
-                                                                          $progressBar.css('width', progress +
-                                                                                                    "%");
+                                                                          $progressBar.css('width', progress + "%");
                                                                         },
                                                                         sending: function (file, xhr, formData)
                                                                         {
                                                                           formData.append("mode", "add");
                                                                           formData.append("currentpath", path);
                                                                         },
-                                                                        error: function ()
+                                                                        error: function (file, response)
                                                                         {
-                                                                          error_flag =
-                                                                            true;
+                                                                          var message = (typeof response === "string")
+                                                                              ? response : response.message;
+
+                                                                          // Decorate the individual files.
+                                                                          file.previewElement.classList.add("dz-error");
+                                                                          var _ref = file.previewElement
+                                                                              .querySelectorAll("[data-dz-errormessage]");
+                                                                          var _results = [];
+                                                                          for (var _i = 0, _len = _ref.length; _i < _len;
+                                                                               _i++)
+                                                                          {
+                                                                            var node = _ref[_i];
+                                                                            _results.push(node.textContent = message);
+                                                                          }
+
+                                                                          $.prompt(message);
                                                                         },
                                                                         success: function (file, jsonResponse)
                                                                         {
                                                                           $uploadResponse.empty().text(jsonResponse);
 
-                                                                          if (jsonResponse.code ==
-                                                                              0)
-                                                                          {
-                                                                            this.removeFile(file);
-                                                                          }
-                                                                          else
-                                                                          {
-                                                                            getFolderInfo(path);
-                                                                            $.prompt(jsonResponse.error);
-                                                                            error_flag =
-                                                                              true;
-                                                                          }
-                                                                        },
-                                                                        complete: function ()
-                                                                        {
-                                                                          if ((this.getUploadingFiles().length ===
-                                                                               0)
-                                                                              &&
-                                                                              (this.getQueuedFiles().length ===
-                                                                               0))
-                                                                          {
-                                                                            $progressBar.css('width', '0%');
+                                                                          this.removeFile(file);
 
-                                                                            if (error_flag ===
-                                                                                true)
-                                                                            {
-                                                                              var rejects = this.getRejectedFiles();
-
-                                                                              for (var rfi = 0, rfl = rejects.length;
-                                                                                   rfi <
-                                                                                   rfl;
-                                                                                   rfi++)
-                                                                              {
-
-                                                                              }
-
-                                                                              $.prompt(lg.unsuccessful_added_file);
-                                                                            }
-                                                                            else if (config.options.showConfirmation)
-                                                                            {
-                                                                              $.prompt(lg.successful_added_file, {
-                                                                                submit: function ()
-                                                                                {
-                                                                                  refreshPage();
-                                                                                }
-                                                                              });
-                                                                            }
-                                                                            else
+                                                                          $.prompt(lg.successful_added_file, {
+                                                                            submit: function ()
                                                                             {
                                                                               refreshPage();
                                                                             }
-                                                                          }
-
-                                                                          // Reset.
-                                                                          error_flag =
-                                                                            false;
+                                                                          });
                                                                         }
                                                                       });
 

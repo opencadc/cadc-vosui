@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2016.                            (c) 2016.
+ *  (c) 2017.                            (c) 2017.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -69,9 +69,11 @@
 package ca.nrc.cadc.beacon.web;
 
 
-
-public interface FileValidator
+public class RegexFileValidator implements FileValidator
 {
+    private static final String VALID_FILENAME_REGEX = "[a-zA-Z0-9_\\-()=+!,;:@*$.\\s]+";
+
+
     /**
      * Validate the given String for use when submitting text entry values.
      * This implementation will check for a null or empty String, as well as
@@ -80,11 +82,19 @@ public interface FileValidator
      * @param fileName     The String to validate.
      * @return  True if it's valid, false otherwise.
      */
-    boolean validateFileName(final String fileName);
+    public boolean validateFileName(final String fileName)
+    {
+        return (fileName != null) && fileName.matches(RegexFileValidator.VALID_FILENAME_REGEX);
+    }
 
     /**
      * Obtain the rule, in String format.  This is used to print an error message if validation fails.
-     * @return      String rule.
+     *
+     * @return String rule.
      */
-    String getRule();
+    @Override
+    public String getRule()
+    {
+        return "a-zA-Z0-9_\\-()=+!,;:@*$. ";
+    }
 }

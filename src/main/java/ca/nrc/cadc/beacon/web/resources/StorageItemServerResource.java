@@ -89,6 +89,7 @@ import javax.security.auth.Subject;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
@@ -176,7 +177,7 @@ public class StorageItemServerResource extends SecureServerResource
         return toURI(getCurrentPath());
     }
 
-    final <T extends Node> T getCurrentNode() throws NodeNotFoundException, IOException
+    private <T extends Node> T getCurrentNode() throws NodeNotFoundException, IOException
     {
         return getCurrentNode(VOS.Detail.max);
     }
@@ -184,36 +185,6 @@ public class StorageItemServerResource extends SecureServerResource
     final <T extends Node> T getCurrentNode(final VOS.Detail detail) throws NodeNotFoundException, IOException
     {
         return getNode(getCurrentItemURI(), detail);
-    }
-
-    /**
-     * @param uri URI to look up.
-     * @param <T> Type to translate to.
-     * @return Translated Node to StorageItem.
-     * @throws IOException For any problems.
-     */
-    @SuppressWarnings("unchecked")
-    final <T extends StorageItem> T getStorageItem(final URI uri)
-            throws IOException
-    {
-        try
-        {
-            return (T) storageItemFactory.translate(getNode(new VOSURI(uri),
-                                                            VOS.Detail.max));
-        }
-        catch (ResourceException re)
-        {
-            if (re.getCause() instanceof NodeNotFoundException)
-            {
-                throw new FileNotFoundException(re.getMessage());
-            }
-            else
-            {
-                throw new ResourceException(re);
-            }
-
-        }
-
     }
 
     <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail)
@@ -274,7 +245,14 @@ public class StorageItemServerResource extends SecureServerResource
 
     VOSURI toURI(final String path)
     {
-        return new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + path));
+        try
+        {
+            return new VOSURI(new URI(VOSPACE_NODE_URI_PREFIX + path));
+        }
+        catch (URISyntaxException e)
+        {
+            throw new ResourceException(new IllegalArgumentException("Invalid name: " + path));
+        }
     }
 
     void setInheritedPermissions(final VOSURI newNodeURI) throws Exception
@@ -294,24 +272,17 @@ public class StorageItemServerResource extends SecureServerResource
             newNodeProperties.add(new NodeProperty(VOS.PROPERTY_URI_GROUPREAD, parentReadGroupURIValue));
         }
 
-        final String parentWriteGroupURIValue =
-                parentNode.getPropertyValue(
-                        VOS.PROPERTY_URI_GROUPWRITE);
+        final String parentWriteGroupURIValue = parentNode.getPropertyValue(VOS.PROPERTY_URI_GROUPWRITE);
+
         if (StringUtil.hasText(parentWriteGroupURIValue))
         {
-            newNodeProperties.add(
-                    new NodeProperty(VOS.PROPERTY_URI_GROUPWRITE,
-                                     parentWriteGroupURIValue));
+            newNodeProperties.add(new NodeProperty(VOS.PROPERTY_URI_GROUPWRITE, parentWriteGroupURIValue));
         }
 
-        final String isPublicValue =
-                parentNode.getPropertyValue(
-                        VOS.PROPERTY_URI_ISPUBLIC);
+        final String isPublicValue = parentNode.getPropertyValue(VOS.PROPERTY_URI_ISPUBLIC);
         if (StringUtil.hasText(isPublicValue))
         {
-            newNodeProperties.add(
-                    new NodeProperty(VOS.PROPERTY_URI_ISPUBLIC,
-                                     isPublicValue));
+            newNodeProperties.add(new NodeProperty(VOS.PROPERTY_URI_ISPUBLIC, isPublicValue));
         }
 
         setNodeSecure(newNode);
@@ -543,8 +514,7 @@ public class StorageItemServerResource extends SecureServerResource
                     ? IVO_GMS_PROPERTY_PREFIX + jsonObject.get("readGroup")
                     : "";
 
-            final NodeProperty np =
-                    currentNode.findProperty(VOS.PROPERTY_URI_GROUPREAD);
+            final NodeProperty np = currentNode.findProperty(VOS.PROPERTY_URI_GROUPREAD);
             if (((np != null) && !np.getPropertyValue().equals(parameterValue))
                 || ((np == null) && StringUtil.hasLength(parameterValue)))
             {
@@ -559,8 +529,7 @@ public class StorageItemServerResource extends SecureServerResource
                     ? IVO_GMS_PROPERTY_PREFIX + jsonObject.get("writeGroup")
                     : "";
 
-            final NodeProperty np =
-                    currentNode.findProperty(VOS.PROPERTY_URI_GROUPWRITE);
+            final NodeProperty np = currentNode.findProperty(VOS.PROPERTY_URI_GROUPWRITE);
             if (((np != null) && !np.getPropertyValue().equals(parameterValue))
                 || ((np == null) && StringUtil.hasLength(parameterValue)))
             {
