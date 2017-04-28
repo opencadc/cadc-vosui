@@ -36,7 +36,7 @@ dependencies {
 
 sourceCompatibility = '1.7'
 group = 'org.opencadc'
-version = '1.1.22'
+version = '1.1.23'
 mainClassName = "ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication"
 
 run {
