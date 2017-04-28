@@ -244,7 +244,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             var renderedValue = "";
 
             // if isWritable bit is true, provide edit icon
-            if (full[13] === "true" || full[13] === "null")
+            // need to check if person is logged in for second parameter
+            // to be pertinent.
+            if (full[13] === "true" ||
+                  (($("#loginForm").size() == 0) && full[13] === "null"))
             {
               renderedValue += makeEditIcon(contextPath, full);
             }
@@ -262,7 +265,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             var renderedValue = "";
 
             // if isWritable bit is true, provide edit icon
-            if (full[13] === "true" || full[13] === "null")
+            if (full[13] === "true" ||
+                (($("#loginForm").size() == 0) && full[13] === "null"))
             {
               renderedValue += makeEditIcon(contextPath, full);
             }
@@ -666,6 +670,14 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
                               return false;
                             });
+  }
+
+  /**
+   * Check for specific element to determine if user is logged in
+   */
+
+  var isLoggedIn = function() {
+    return $("a.access-actions");
   }
 
   /**
@@ -1575,9 +1587,9 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
               {
                 loadEditPermPrompt(iconAnchor);
               },
-              403: function ()
+              401: function ()
               {
-                $.prompt(lg.NOT_ALLOWED_SYSTEM);
+                $.prompt(lg.authorization_required);
               },
               500: function ()
               {

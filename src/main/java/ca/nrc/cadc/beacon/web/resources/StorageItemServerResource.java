@@ -83,6 +83,7 @@ import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
+//import sun.jvm.hotspot.debugger.cdbg.AccessControl;
 
 
 import javax.security.auth.Subject;
@@ -90,10 +91,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.AccessControlContext;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
+import java.security.*;
 import java.util.List;
 import java.util.Set;
 
