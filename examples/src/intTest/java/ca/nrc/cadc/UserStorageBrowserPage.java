@@ -939,6 +939,27 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         return isDisplayed;
     }
 
+    public boolean isRowItemPermissionsEditable(int rowNum) throws Exception
+    {
+        try
+        {
+            beaconTable.findElement(
+                    xpath("//*[@id='beacon']/tbody/tr[" + rowNum
+                            + "]/td[4]/span[contains(@class, 'glyphicon-pencil']"));
+
+            beaconTable.findElement(
+                    xpath("//*[@id='beacon']/tbody/tr[" + rowNum
+                            + "]/td[5]/span[contains(@class, 'glyphicon-pencil']"));
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+
+        return true;
+
+    }
+
 
     public boolean isPromptOpen()
     {

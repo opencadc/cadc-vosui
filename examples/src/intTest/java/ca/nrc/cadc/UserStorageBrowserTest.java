@@ -59,6 +59,9 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         verifyTrue(userStoragePage.isDefaultSort());
 
+        // Verify no edit icons are present
+        verifyFalse(userStoragePage.isRowItemPermissionsEditable(1));
+
         // enter search(filter) value
         // check that rows of table are shorted correctly
         // verify entry is correct
@@ -68,7 +71,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         verifyTrue(rowCount < 3);
         verifyTrue(userStoragePage.verifyFolderName(rowCount - 1, testFolderName));
         verifyTrue(userStoragePage.verifyFolderSize(rowCount - 1));
-
 
         // Verify page permissions prior to logging in
         // click through to CADCtest folder
@@ -80,11 +82,16 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         // Check permissions on page
         verifyTrue(userStoragePage.isReadAccess());
 
+        // Verify no edit icons are present
+        verifyFalse(userStoragePage.isRowItemPermissionsEditable(1));
 
         // Login test - credentials should be in the gradle build file.
         String username = getUsername();
 
         userStoragePage = loginTest(userStoragePage);
+
+        // verify edit icons are now present - as this is the user's own folder
+        verifyTrue(userStoragePage.isRowItemPermissionsEditable(1));
 
         rowCount = userStoragePage.getTableRowCount();
 
@@ -102,6 +109,9 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         // Verify in Root Folder
         verifyTrue(userStoragePage.isRootFolder());
         verifyFalse(userStoragePage.quotaIsDisplayed());
+
+        // verify edit icons are still present - #s2106
+        verifyTrue(userStoragePage.isRowItemPermissionsEditable(1));
 
         // Nav to home directory
         userStoragePage = userStoragePage.navToHome();
@@ -287,7 +297,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         userStoragePage = userStoragePage.doMove();
 
         // verify folder was moved to expected location
-//        userStoragePage = userStoragePage.clickFolder(recursiveTestFolder);
         userStoragePage.enterSearch(moveTestFolder);
         rowCount = userStoragePage.getTableRowCount();
         verifyTrue(rowCount < 3);
@@ -339,7 +348,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         System.out.println("UserStorageBrowserTest completed");
     }
 
-
     private UserStorageBrowserPage loginTest(final UserStorageBrowserPage userPage) throws Exception
     {
         // Scenario 2: Login test - credentials should be in the gradle build file.
@@ -349,4 +357,5 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         return authPage;
     }
+
 }
