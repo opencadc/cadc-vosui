@@ -21,7 +21,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     return results ? results[1] : 0;
   };
 
-  /*---------------------------------------------------------
+  /*------------------------------------7---------------------
    Setup, Layout, and Status Functions
    ---------------------------------------------------------*/
 
@@ -133,9 +133,9 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     path + "update\" title=\"Edit permissions.\" " +
     "data-readable=\"" + elementAttributes[6] +
     "\" data-path=\"" + elementAttributes[9] +
-    "\" data-readGroup=\"" + elementAttributes[5] +
-    "\" data-writeGroup=\"" + elementAttributes[4] +
-    "\" data-itemName=\"" + elementAttributes[1] +
+    "\" data-readgroup=\"" + elementAttributes[5] +
+    "\" data-writegroup=\"" + elementAttributes[4] +
+    "\" data-itemname=\"" + elementAttributes[1] +
     "\" ></a></span>";
   };
 
@@ -364,7 +364,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     }
   });
 
-  // $dt.on("draw.dtSelect.dt select.dtSelect.dt deselect.dtSelect.dt",
   $dt.on("select.dtSelect.dt deselect.dtSelect.dt",
          function ()
          {
@@ -1329,11 +1328,11 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     // Values to check against are in the currently edited icon
     var $clickedEditIcon = $('.editing');
 
-    if (formValues["writeGroup"] !== $clickedEditIcon.data("writeGroup"))
+    if (formValues["writeGroup"] !== $clickedEditIcon.data("writegroup"))
     {
       return true;
     }
-    else if (formValues["readGroup"] !== $clickedEditIcon.data("readGroup"))
+    else if (formValues["readGroup"] !== $clickedEditIcon.data("readgroup"))
     {
       return true;
     }
@@ -1602,8 +1601,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         );
 
         // Set initial form state
-        $("#readGroup").val($iconAnchor.data("readGroup"));
-        $("#writeGroup").val($iconAnchor.data("writeGroup"));
+        $("#readGroup").val($iconAnchor.data("readgroup"));
+        $("#writeGroup").val($iconAnchor.data("writegroup"));
         var listenerHook = $(".listener-hook");
         listenerHook.addClass("disabled");
 
@@ -1650,7 +1649,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         var win = tinyMCEPopup.getWindowArg("window");
         win.document.getElementById(tinyMCEPopup.getWindowArg("input")).value =
           url;
-        if (typeof(win.ImageDialog) != "undefined")
+        if (typeof(win.ImageDialog) !== "undefined")
         {
           // Update image dimensions
           if (win.ImageDialog.getImageData)

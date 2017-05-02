@@ -194,14 +194,13 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         {
             isModifyNode = false;
         }
-        userStoragePage = userStoragePage.setGroup(UserStorageBrowserPage.READ_GROUP_INPUT, "", isModifyNode);
+        userStoragePage = userStoragePage.setReadGroup("", isModifyNode);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, parentWriteGroup, "", false));
         userStoragePage.waitForPromptFinish();
 
         isModifyNode = true;
         // Set read group to selected group
-        userStoragePage = userStoragePage.setGroup(UserStorageBrowserPage.READ_GROUP_INPUT,
-                                                   readGroupName, true);
+        userStoragePage = userStoragePage.setReadGroup(readGroupName, true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, parentWriteGroup, readGroupName, false));
 
         // Set write group to blank
@@ -209,16 +208,16 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         {
             isModifyNode = false;
         }
-        userStoragePage = userStoragePage.setGroup(UserStorageBrowserPage.WRITE_GROUP_INPUT, "", isModifyNode);
+        userStoragePage = userStoragePage.setWriteGroup("", isModifyNode);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, "", readGroupName, false));
-        userStoragePage = userStoragePage.setGroup(UserStorageBrowserPage.WRITE_GROUP_INPUT, writeGroupName, true);
+        userStoragePage = userStoragePage.setWriteGroup(writeGroupName, true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, writeGroupName, readGroupName, false));
 
         // Test response to invalid autocomplete selection
         userStoragePage.clickEditIconForFirstRow();
         // last parameter says 'don't confirm anything'
-        userStoragePage = userStoragePage.setGroupOnly(UserStorageBrowserPage.READ_GROUP_INPUT,
-                                                       invalidGroupName, false);
+        userStoragePage = userStoragePage.setGroupOnly(UserStorageBrowserPage.READ_GROUP_INPUT, invalidGroupName,
+                                                       false);
         verifyTrue(userStoragePage.isGroupError(UserStorageBrowserPage.READ_GROUP_DIV));
 
         readGroupName = "CHIMPS";
