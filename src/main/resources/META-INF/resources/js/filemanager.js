@@ -33,30 +33,30 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     var url;
 
-    if (type == 'user')
+    if (type === "user")
     {
-      if ($.urlParam('config') != 0)
+      if ($.urlParam("config") !== 0)
       {
-        url = contextPath + 'scripts/' + $.urlParam('config');
-        userconfig = $.urlParam('config');
+        url = contextPath + "scripts/" + $.urlParam("config");
+        userconfig = $.urlParam("config");
       }
       else
       {
-        url = contextPath + 'scripts/filemanager.config.json';
-        userconfig = 'filemanager.config.json';
+        url = contextPath + "scripts/filemanager.config.json";
+        userconfig = "filemanager.config.json";
       }
     }
     else
     {
-      url = contextPath + 'scripts/filemanager.config.default.json';
+      url = contextPath + "scripts/filemanager.config.default.json";
     }
 
     $.ajax({
-             'async': false,
-             'url': url,
-             'dataType': "json",
+             "async": false,
+             "url": url,
+             "dataType": "json",
              cache: false,
-             'success': function (data)
+             "success": function (data)
              {
                json = data;
              }
@@ -65,7 +65,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   };
 
 // loading default configuration file
-  var configd = loadConfigFile('default');
+  var configd = loadConfigFile("default");
 // loading user configuration file
   var config = loadConfigFile();
 // we remove version from user config file
@@ -103,23 +103,23 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
   requestData.pageSize = defaultPageSize;
 
-  if (_startURI != "")
+  if (stringUtil.hasText(_startURI))
   {
     requestData.startURI = encodeURIComponent(_startURI);
   }
 
 // Options for alert, prompt, and confirm dialogues.
   $.prompt.setDefaults({
-                         overlayspeed: 'fast',
-                         show: 'fadeIn',
-                         hide: 'fadeOut',
+                         overlayspeed: "fast",
+                         show: "fadeIn",
+                         hide: "fadeOut",
                          opacity: 0.4,
                          persistent: false
                        });
 
   var selectInput = {
-    style: 'os',
-    selector: 'td:first-child.select-checkbox'
+    style: "os",
+    selector: "td:first-child.select-checkbox"
   };
 
   var $fileInfo = $("#fileInfo");
@@ -129,24 +129,22 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var expandedFolder;
   var makeEditIcon = function(path, elementAttributes)
   {
-    return '<span class="glyphicon glyphicon-pencil"><a href="' +
-    path +
-    'update" title="Edit permissions." ' +
-    'readable="' + elementAttributes[6] +
-    '" path="' + elementAttributes[9] +
-    '" readGroup="' + elementAttributes[5] +
-    '" writeGroup="' + elementAttributes[4] +
-    '" itemName="' + elementAttributes[1] +
-    '" ></a></span>';
+    return "<span class=\"glyphicon glyphicon-pencil\"><a href=\"" +
+    path + "update\" title=\"Edit permissions.\" " +
+    "data-readable=\"" + elementAttributes[6] +
+    "\" data-path=\"" + elementAttributes[9] +
+    "\" data-readGroup=\"" + elementAttributes[5] +
+    "\" data-writeGroup=\"" + elementAttributes[4] +
+    "\" data-itemName=\"" + elementAttributes[1] +
+    "\" ></a></span>";
   };
-
 
 
   var $dt = _$beaconTable.DataTable(
     {
       data: _initialData,
       initComplete: function(settings, json) {
-        if (folderPath === "" ) // will be this for Root folder
+        if (folderPath === "") // will be this for Root folder
         {
             $("#beacon").DataTable().column(6).visible(false);
         }
@@ -182,8 +180,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
               {
                 var lockedFlag = (full[7] === "true");
 
-                renderedValue = lockedFlag
-                  ? lockedIcon : data;
+                renderedValue = lockedFlag ? lockedIcon : data;
               }
               else
               {
@@ -205,13 +202,11 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
           {
             if (full.length > 10)
             {
-              var itemNameDisplay =
-                '<span class="glyphicon ' + full[8] + '"></span>&nbsp;&nbsp;';
+              var itemNameDisplay = "<span class=\"glyphicon " + full[8] + "\"></span>&nbsp;&nbsp;";
 
               if (full[12] === "true")
               {
-                itemNameDisplay +=
-                  '<a href="' + full[11] + '">' + data + '</a>';
+                itemNameDisplay += "<a href=\"" + full[11] + "\">" + data + "</a>";
               }
               else
               {
@@ -269,8 +264,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             if (full.length > 9)
             {
               // Column [6] is the public flag.
-              renderedValue += (full[6] === "true")
-                ? lg.public : data;
+              renderedValue += (full[6] === "true") ? lg.public : data;
             }
             else
             {
@@ -306,18 +300,17 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     var $selectorContainers = $(selector);
 
     // These elements will toggle regardless of permissions
-    var $selectorFunctions =
-      $selectorContainers.find(selectClass);
+    var $selectorFunctions = $selectorContainers.find(selectClass);
 
     if (_disabledFlag === true)
     {
-      $selectorContainers.addClass("disabled");
-      $selectorFunctions.addClass("disabled");
+      $selectorContainers.prop("disabled", true).attr("disabled", "disabled").addClass("disabled");
+      $selectorFunctions.prop("disabled", true).attr("disabled", "disabled").addClass("disabled");
     }
     else
     {
-      $selectorContainers.removeClass("disabled");
-      $selectorFunctions.removeClass("disabled");
+      $selectorContainers.prop("disabled", false).removeAttr("disabled").removeClass("disabled");
+      $selectorFunctions.prop("disabled", false).removeAttr("disabled").removeClass("disabled");
     }
 
   };
@@ -371,19 +364,13 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     }
   });
 
-  $dt.on("draw.dtSelect.dt select.dtSelect.dt deselect.dtSelect.dt",
+  // $dt.on("draw.dtSelect.dt select.dtSelect.dt deselect.dtSelect.dt",
+  $dt.on("select.dtSelect.dt deselect.dtSelect.dt",
          function ()
          {
            var selectedRows = $dt.rows({selected: true});
            enableMultiFunctionButtons(isSelectionWritable(selectedRows));
          });
-
-  $dt.on("info.dt",
-         function ()
-         {
-           disableMultiFunctionButtons();
-         });
-
 
   $dt.on("deselect", function (event, dataTablesAPI, type)
   {
@@ -1097,7 +1084,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     $(selectedItems).each(function (index, item)
                           {
-                            selectedPaths.push($(item).attr('path'));
+                            selectedPaths.push($(item).data("path"));
                           });
 
     return (selectedPaths.length > 0) ? selectedPaths.join(",") : "";
@@ -1251,61 +1238,21 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     // Cosmetic
     $fileInfo.find("button").each(function ()
                                   {
-                                    // check if span doesn't exist yet, when
-                                    // bindToolbar called from renameItem for
-                                    // example
-                                    if ($(this).find('span').length == 0)
+                                    // check if span doesn't exist yet.
+                                    if ($(this).find("span").length === 0)
                                     {
                                       $(this).wrapInner('<span></span>');
                                     }
                                   });
 
-    if (!has_capability(data, 'select'))
-    {
-      $fileInfo.find('button#select').hide();
-    }
-    else
-    {
-      $fileInfo.find('button#select').click(function ()
-                                            {
-                                              selectItem(data);
-                                            }).show();
-
-      if (window.opener || window.tinyMCEPopup)
-      {
-        var $previewImage = $("#preview").find("img");
-        $previewImage.attr('title', lg.select);
-        $previewImage.click(function ()
-                            {
-                              selectItem(data);
-                            }).css("cursor", "pointer");
-      }
-    }
-
-    if (!has_capability(data, 'rename'))
-    {
-      $fileInfo.find('button#rename').hide();
-    }
-    else
-    {
-      $fileInfo.find('button#rename').click(function ()
-                                            {
-                                              var newName = renameItem(data);
-                                              if (newName.length)
-                                              {
-                                                $('#fileinfo > h1').text(newName);
-                                              }
-                                            }).show();
-    }
-
     // @todo
-    if (!has_capability(data, 'replace'))
+    if (!has_capability(data, "replace"))
     {
-      $fileInfo.find('button#replace').hide();
+      $fileInfo.find("button#replace").hide();
     }
     else
     {
-      $fileInfo.find('button#replace').click(function ()
+      $fileInfo.find("button#replace").click(function ()
                                              {
                                                replaceItem(data);
                                              }).show();
@@ -1380,39 +1327,28 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var isPermissionChanged = function (formValues)
   {
     // Values to check against are in the currently edited icon
-    var clickedEditIcon = $('.editing')[0];
-    var isChanged = false;
+    var $clickedEditIcon = $('.editing');
 
-    if (formValues["writeGroup"] !== clickedEditIcon.getAttribute("writeGroup"))
+    if (formValues["writeGroup"] !== $clickedEditIcon.data("writeGroup"))
     {
       return true;
     }
-
-    if (formValues["readGroup"] !== clickedEditIcon.getAttribute("readGroup"))
+    else if (formValues["readGroup"] !== $clickedEditIcon.data("readGroup"))
     {
       return true;
     }
-
-    if (formValues["recursive"] === "on")
+    else if (formValues["recursive"] === "on")
     {
       return true;
-    }
-
-    if ((clickedEditIcon.getAttribute("readable") === "true" &&
-         formValues["publicPermission"] === "on") ||
-        (clickedEditIcon.getAttribute("readable") === "false") &&
-        (typeof(formValues["publicPermission"]) === "undefined"))
-    {
-      return false;
     }
     else
     {
-      return true;
+      return !(($clickedEditIcon.data("readable") === true &&
+                formValues["publicPermission"] === "on") ||
+               ($clickedEditIcon.data("readable") === false) &&
+               (typeof(formValues["publicPermission"]) === "undefined"));
     }
-
-    return false;
-
-  }
+  };
 
   // Submit function for $.prompt instance
   var handleEditPermissions = function (event, value, message, formVals)
@@ -1548,20 +1484,20 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   }; // end handleEditPermissions
 
 
-  $(document).on('click', '.glyphicon-pencil', function (event)
+  $(document).on("click", ".glyphicon-pencil", function (event)
   {
     // Pull attributes from edit icon
-    var iconAnchor = $(event.currentTarget).find("a")[0];
+    var $iconAnchor = $(event.currentTarget).find("a");
 
     // Flag this icon as the currently active one
     // will be referenced for seeing if form values have changed
-    iconAnchor.setAttribute("class", "editing");
+    $iconAnchor.addClass("editing");
 
     var checkboxState = "";
-    var readGroupBoxDisabled = "false";
-    if (iconAnchor.getAttribute("readable") === "true")
+
+    if ($iconAnchor.data("readable") === true)
     {
-      checkboxState = "checked";
+      checkboxState = "checked=\"checked\"";
     }
 
     var msg =
@@ -1602,7 +1538,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       '<div class="col-sm-7 prompt-link">' +
       '<a href="http://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
       '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' +
-      iconAnchor.getAttribute("path") + '">' +
+      $iconAnchor.data("path") + '">' +
       '</div>' +
       '</div>';
 
@@ -1628,8 +1564,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     var states = {
       state0: {
-        title: '<h3 class="prompt-h3">' + iconAnchor.getAttribute("itemName") +
-               '</h3>',
+        title: "<h3 class=\"prompt-h3\">" + $iconAnchor.data("itemName") + "</h3>",
         html: msg,
         buttons: btns,
         submit: handleEditPermissions
@@ -1637,18 +1572,18 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     };
     $.prompt(states, {
       classes: {
-        form: 'form-horizontal',
-        box: '',
-        fade: '',
-        prompt: '',
-        close: '',
-        title: 'lead',
-        message: '',
-        buttons: '',
-        button: 'btn',
-        defaultButton: 'btn-primary'
+        form: "form-horizontal",
+        box: "",
+        fade: "",
+        prompt: "",
+        close: "",
+        title: "lead",
+        message: "",
+        buttons: "",
+        button: "btn",
+        defaultButton: "btn-primary"
       },
-      loaded: function (event)
+      loaded: function ()
       {
         // Get the group names list for populating the dropdown first
         $.ajax(
@@ -1659,7 +1594,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             {
               handleLoadAutocomplete(returnValue);
             },
-            error: function (errorValue)
+            error: function ()
             {
               $.prompt(lg.ERROR_GROUPNAMES);
             }
@@ -1667,8 +1602,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         );
 
         // Set initial form state
-        $("#readGroup").val(iconAnchor.getAttribute("readGroup"));
-        $("#writeGroup").val(iconAnchor.getAttribute("writeGroup"));
+        $("#readGroup").val($iconAnchor.data("readGroup"));
+        $("#writeGroup").val($iconAnchor.data("writeGroup"));
         var listenerHook = $(".listener-hook");
         listenerHook.addClass("disabled");
 
@@ -1766,7 +1701,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         else
         {
           // use FCKEditor 2.0 integration method
-          if (data['Properties']['Width'] != '')
+          if (data['Properties']['Width'] !== "")
           {
             var p = url;
             var w = data['Properties']['Width'];
@@ -1791,235 +1726,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     }
   };
 
-// Renames the current item and returns the new name.
-// Called by clicking the "Rename" button in detail views
-// or choosing the "Rename" contextual menu option in
-// list views.
-  var renameItem = function (data)
-  {
-    var finalName = '';
-    var fileName = config.security.allowChangeExtensions ? data['Filename'] :
-                   getFilename(data['Filename']);
-    var msg = lg.new_filename +
-              ' : <input id="rname" name="rname" type="text" value="' +
-              fileName + '" />';
-
-    var getNewName = function (v, m)
-    {
-      if (v != 1)
-      {
-        return false;
-      }
-      rname = m.children('#rname').val();
-
-      if (rname != '')
-      {
-
-        var givenName = rname;
-
-        if (!config.security.allowChangeExtensions)
-        {
-          givenName = nameFormat(rname);
-          var suffix = getExtension(data['Filename']);
-          if (suffix.length > 0)
-          {
-            givenName = givenName + '.' + suffix;
-          }
-        }
-
-        // File only - Check if file extension is allowed
-        if (data['Path'].charAt(data['Path'].length - 1) != '/' &&
-            !isAuthorizedFile(givenName))
-        {
-          var str = '<p>' + lg.INVALID_FILE_TYPE + '</p>';
-          if (config.security.uploadPolicy == 'DISALLOW_ALL')
-          {
-            str += '<p>' + lg.ALLOWED_FILE_TYPE +
-                   config.security.uploadRestrictions.join(', ') + '.</p>';
-          }
-          if (config.security.uploadPolicy == 'ALLOW_ALL')
-          {
-            str += '<p>' + lg.DISALLOWED_FILE_TYPE +
-                   config.security.uploadRestrictions.join(', ') + '.</p>';
-          }
-          $("#filepath").val('');
-          $.prompt(str);
-          return false;
-        }
-
-        var connectString = fileConnector + '?mode=rename&old=' +
-                            encodeURIComponent(data['Path']) + '&new=' +
-                            encodeURIComponent(givenName) + '&config=' +
-                            userconfig;
-
-        $.ajax({
-                 type: 'GET',
-                 url: connectString,
-                 dataType: 'json',
-                 async: false,
-                 success: function (result)
-                 {
-                   if (result['Code'] == 0)
-                   {
-                     var newPath = result['New Path'];
-                     var newName = result['New Name'];
-                     var oldPath = result['Old Path'];
-
-                     var $previewH1 = $("#preview").find("h1");
-
-                     var title = $previewH1.attr("title");
-
-                     if (typeof title != "undefined" && title == oldPath)
-                     {
-                       $previewH1.text(newName);
-                     }
-
-                     var $tdInfo =
-                       $fileInfo.find('td[data-path="' + oldPath + '"]');
-                     $tdInfo.text(newName).attr('data-path', newPath);
-
-                     $previewH1.html(newName);
-
-                     // actualized data for binding
-                     data['Path'] = newPath;
-                     data['Filename'] = newName;
-
-                     // Bind toolbar functions.
-                     $fileInfo.find('button#rename, #delete, button#download').off();
-                     bindToolbar(data);
-
-                     if (config.options.showConfirmation)
-                     {
-                       $.prompt(lg.successful_rename);
-                     }
-                   }
-                   else
-                   {
-                     $.prompt(result['Error']);
-                   }
-
-                   finalName = result['New Name'];
-                 }
-               });
-      }
-    };
-    var btns = {};
-    btns[lg.rename] = true;
-    btns[lg.cancel] = false;
-    $.prompt(msg, {
-      callback: getNewName,
-      buttons: btns
-    });
-
-    return finalName;
-  };
-
-// Replace the current file and keep the same name.
-// Called by clicking the "Replace" button in detail views
-// or choosing the "Replace" contextual menu option in
-// list views.
-  var replaceItem = function (data)
-  {
-    // we auto-submit form when user filled it up
-    $('#fileR').on('change', function ()
-    {
-      $(this).closest("form#toolbar").submit();
-    });
-
-    var $toolbar = $("#toolbar");
-
-    // we set the connector to send data to
-    $toolbar.attr('action', fileConnector).attr('method', 'post');
-
-    // submission script
-    $toolbar.ajaxForm({
-                        target: '#uploadresponse',
-                        beforeSubmit: function (arr, form, options)
-                        {
-
-                          var newFile = $('#fileR', form).val();
-
-                          // Test if a value is given
-                          if (newFile === '')
-                          {
-                            return false;
-                          }
-
-                          // Check if file extension is matching with the
-                          // original
-                          if (getExtension(newFile) != data["File Type"])
-                          {
-                            $.prompt(lg.ERROR_REPLACING_FILE + " ." +
-                                     getExtension(data["Filename"]));
-                            return false;
-                          }
-                          $('#replace').attr('disabled', true);
-                          $('#upload span').addClass('loading').text(lg.loading_data);
-
-                          // if config.upload.itimit == auto we
-                          // delegate size test to connector
-                          if (typeof FileReader !== "undefined" &&
-                              typeof config.upload.fileSizeLimit != "auto")
-                          {
-                            // Check file size using html5 FileReader API
-                            var size = $('#fileR', form).get(0).files[0].size;
-                            if (size >
-                                config.upload.fileSizeLimit * 1024 * 1024)
-                            {
-                              $.prompt("<p>" + lg.file_too_big +
-                                       "</p><p>" + lg.file_size_limit +
-                                       config.upload.fileSizeLimit + " " +
-                                       lg.mb + ".</p>");
-                              $('#upload').removeAttr('disabled').find("span").removeClass('loading').text(lg.upload);
-                              return false;
-                            }
-                          }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown)
-                        {
-                          $('#upload').removeAttr('disabled').find("span").removeClass('loading').text(lg.upload);
-                          $.prompt(lg.ERROR_UPLOADING_FILE);
-                        },
-                        success: function (result)
-                        {
-                          var data = jQuery.parseJSON($('#uploadresponse').find('textarea').text());
-
-                          if (data['Code'] == 0)
-                          {
-                            var fullpath = data["Path"] + '/' +
-                                           data["Name"];
-
-                            // Reloading file info
-                            getFileInfo(fullpath);
-
-                            // Visual effects for user to see action is
-                            // successful
-                            $('#preview').find('img').hide().fadeIn('slow'); // on
-                                                                             // right
-                                                                             // panel
-
-                            if (config.options.showConfirmation)
-                            {
-                              $.prompt(lg.successful_replace);
-                            }
-
-                          }
-                          else
-                          {
-                            $.prompt(data['Error']);
-                          }
-                          $('#replace').removeAttr('disabled');
-                          $('#upload span').removeClass('loading').text(lg.upload);
-                        }
-                      });
-
-    // we pass data path value - original file
-    $('#newfilepath').val(data["Path"]);
-
-    // we open the input file dialog window
-    $('#fileR').click();
-  };
-
   function ItemLayer()
   {
     ItemLayer.makeNode = function ()
@@ -2027,7 +1733,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       return {name: null, path: null, uri: null, child: null};
     };
 
-    this.head = new Array();
+    this.head = [];
 
     this.addNode = function (name, path, uri)
     {
@@ -2036,20 +1742,20 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       node.path = path;
       node.uri = uri;
       this.head.push(node);
-    }
+    };
 
     this.findNodeOnCurrentLayer = function (name)
     {
       for (var i = 0; i < this.head.length; i++)
       {
-        if (this.head[i].name == name)
+        if (this.head[i].name === name)
         {
           return this.head[i];
         }
       }
 
       return null;
-    }
+    };
 
     this.findNode = function (fullName)
     {
@@ -2068,7 +1774,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       }
 
       return node;
-    }
+    };
 
     this.toHTML = function ()
     {
@@ -2076,7 +1782,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
       $.each(this.head, function (index, node)
       {
-        if (node.child == null)
+        if (!node.child || (node.child === null))
         {
           returnHTML = returnHTML
                        + '<li><div class="layerItemName" fullName="' +
@@ -2186,7 +1892,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   // Submit function for move usage of collapsible list prompt
   var doMove = function (event, value, msg, formVals)
   {
-    if (value == true)
+    if (value === true)
     {
 
       // Target destination for the operation
@@ -2291,52 +1997,44 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     itemRequest.pageSize = defaultPageSize;
     var spinningWheel = $.parseHTML('<span id="itemsLoading" class="glyphicon glyphicon-refresh fast-right-spinner"></span>');
 
-    $(document).on('.layerItemName').click(function (event)
+    $(document).on(".layerItemName").click(function (event)
                                            {
                                              var target = $(event)[0].target;
-                                             var nameWithPath = $(target).attr('fullName');
+                                             var nameWithPath = $(target).attr("fullName");
                                              var node = itemTree.findNode(nameWithPath);
-                                             // Clear all highlights
-                                             $(".layerItemName.bg-success").removeClass("bg-success");
 
-                                             $(target).addClass("bg-success");
-
-                                             if (node != null &&
-                                                 target.parentNode.className !=
-                                                 'collapsibleListClosed')
+                                             if (node && (node !== null)
+                                                 && (target.parentNode.className !== "collapsibleListClosed"))
                                              {
-                                               if (node.child == null)
+                                               if (!node || (node.child === null))
                                                {
                                                  // we have no sub-folders for
                                                  // this node, get them
                                                  fullName = nameWithPath;
-                                                 pageUrl = contextPath +
-                                                           config.options.pageConnector +
-                                                           node.path;
+                                                 pageUrl = contextPath + config.options.pageConnector + node.path;
                                                  itemRequest.startURI = null;
                                                  buildItemLayer(itemRequest, updateItemTree);
                                                }
 
                                                // display path should be the
                                                // current item, not entire path
-                                               $('#destNodeDisplay').val(" " +
-                                                                         node.name);
+                                               $("#destNodeDisplay").val(" " + node.name);
 
                                                // entire path (or should this
                                                // be URI?) is passed in to back
                                                // end
-                                               $('#destNode').val(node.path);
-                                               $('#selectedNodeURI').val(node.uri);
-                                               $('#itemName').val(node.name);
+                                               $("#destNode").val(node.path);
+                                               $("#selectedNodeURI").val(node.uri);
+                                               $("#itemName").val(node.name);
                                                $(".listener-hook").removeClass("disabled");
                                              }
                                            });
 
     var getPageOfItems = function (_pageRequest, _callback)
     {
-      if (!$('#itemsLoading').length)
+      if (!$("#itemsLoading").length)
       {
-        $('.spinnerSpan').append(spinningWheel);
+        $(".spinnerSpan").append(spinningWheel);
       }
 
       $.get({
@@ -2355,39 +2053,37 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       // add the new layer to the tree and draw the item tree
       itemTree.addLayer(fullName, itemLayer);
 
-      if ($('.collapsibleList').length)
+      if ($(".collapsibleList").length)
       {
         // we already have the collapsible list, add to it
         var layerNodes = $.parseHTML(itemLayer.toHTML());
-        var selectedNode = $('ul.collapsibleList').find('div[fullName="' +
-                                                        fullName +
-                                                        '"]').closest('li');
-        var containerNode = selectedNode.find('ul');
+        var selectedNode = $("ul.collapsibleList").find("div[fullName='" + fullName + "']").closest("li");
+        var $containerNode = selectedNode.find("ul");
 
-        if (layerNodes == null)
+        if (!layerNodes || (layerNodes === null))
         {
           // leaf node, indicate it in the collapsible list
-          containerNode.remove();
-          containerNode = selectedNode;
-          containerNode[0].classList.remove('collapsibleListOpen');
+          $containerNode.remove();
+          $containerNode = selectedNode;
+          $containerNode.removeClass("collapsibleListOpen");
         }
         else
         {
           // non-leaf node, insert as a list of sub-nodes
-          containerNode.append(layerNodes);
+          $containerNode.append(layerNodes);
         }
 
-        CollapsibleLists.applyTo(containerNode[0], false);
+        CollapsibleLists.applyTo($containerNode[0], false);
       }
       else
       {
         // initial load, no collapsible list, draw the vospace root item layer
         var node = $.parseHTML(itemTree.toHTML())[0];
         CollapsibleLists.applyTo(node, false);
-        $('.itemTree').append(node);
+        $(".itemTree").append(node);
       }
 
-      $('#itemsLoading').remove();
+      $("#itemsLoading").remove();
 
     };
 
@@ -3239,15 +2935,13 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       $('div.version').html(config.version);
 
       // Loading theme
-      loadCSS(contextPath + 'themes/' + config.options.theme +
-              '/styles/filemanager.css');
+      loadCSS(contextPath + "themes/" + config.options.theme + "/styles/filemanager.css");
       $.ajax({
-               url: contextPath + 'themes/' + config.options.theme +
-                    '/styles/ie.css',
+               url: contextPath + "themes/" + config.options.theme + "/styles/ie.css",
                async: false,
                success: function (data)
                {
-                 $('head').append(data);
+                 $("head").append(data);
                }
              });
 
@@ -3256,58 +2950,52 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       if (stringUtil.hasText(currPath))
       {
         $.ajax({
-                 method: 'GET',
-                 url: contextPath + config.options.folderConnector + '/' +
-                      currPath.split('/')[1],
-                 dataType: 'json',
+                 method: "GET",
+                 url: contextPath + config.options.folderConnector + "/" + currPath.split("/")[1],
+                 dataType: "json",
                  async: false,
                  success: function (data)
                  {
                    var htmlString = stringUtil.format(
-                     '<strong >{1}</strong> remaining of <strong>{2}</strong> <span class="request-more-link">(<a href="mailto:support@canfar.net">Request more</a>)</span>',
+                     "<strong >{1}</strong> remaining of <strong>{2}</strong> "
+                     + "<span class=\"request-more-link\">(<a href=\"mailto:support@canfar.net\">Request more</a>)</span>",
                      [data.size, data.quota]);
-                   $('div.quota').html(htmlString);
+                   $("div.quota").html(htmlString);
                  }
                });
       }
 
       // loading zeroClipboard
-      loadJS(contextPath + 'scripts/zeroclipboard/dist/ZeroClipboard.js');
+      loadJS(contextPath + "scripts/zeroclipboard/dist/ZeroClipboard.js");
 
       // Loading CodeMirror if enabled for online edition
       if (config.edit.enabled)
       {
-        loadCSS(contextPath + 'scripts/CodeMirror/lib/codemirror.css');
-        loadCSS(contextPath + 'scripts/CodeMirror/theme/' + config.edit.theme +
-                '.css');
-        loadJS(contextPath + 'scripts/CodeMirror/lib/codemirror.js');
+        loadCSS(contextPath + "scripts/CodeMirror/lib/codemirror.css");
+        loadCSS(contextPath + "scripts/CodeMirror/theme/" + config.edit.theme +
+                ".css");
+        loadJS(contextPath + "scripts/CodeMirror/lib/codemirror.js");
         loadJS(contextPath +
-               'scripts/CodeMirror/addon/selection/active-line.js');
+               "scripts/CodeMirror/addon/selection/active-line.js");
         loadCSS(contextPath +
-                'scripts/CodeMirror/addon/display/fullscreen.css');
-        loadJS(contextPath + 'scripts/CodeMirror/addon/display/fullscreen.js');
-        loadJS(contextPath + 'scripts/CodeMirror/dynamic-mode.js');
+                "scripts/CodeMirror/addon/display/fullscreen.css");
+        loadJS(contextPath + "scripts/CodeMirror/addon/display/fullscreen.js");
+        loadJS(contextPath + "scripts/CodeMirror/dynamic-mode.js");
       }
 
       if (!config.options.fileRoot)
       {
-        fileRoot = '/' +
-                   document.location.pathname.substring(1, document.location.pathname.lastIndexOf('/') +
-                   1) + 'userfiles/';
+        fileRoot = "/" +
+                   document.location.pathname.substring(1, document.location.pathname.lastIndexOf("/") +
+                   1) + "userfiles/";
       }
       else
       {
-        if (!config.options.serverRoot)
-        {
-          fileRoot = config.options.fileRoot;
-        }
-        else
-        {
-          fileRoot = '/' + config.options.fileRoot;
-        }
+        fileRoot = ((config.options.serverRoot) ? "/" : "") + config.options.fileRoot;
+
         // we remove double slashes - can happen when using PHP SetFileRoot()
-        // function with fileRoot = '/' value
-        fileRoot = fileRoot.replace(/\/\//g, '\/');
+        // function with fileRoot = "/" value
+        fileRoot = fileRoot.replace(/\/\//g, "\/");
       }
 
       if (config.options.baseUrl === false)
@@ -3319,24 +3007,24 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         baseURL = config.options.baseUrl;
       }
 
-      if ($.urlParam('exclusiveFolder') != 0)
+      if ($.urlParam("exclusiveFolder") !== 0)
       {
-        fileRoot += $.urlParam('exclusiveFolder');
-        if (fileRoot.charAt(fileRoot.length - 1) != '/')
+        fileRoot += $.urlParam("exclusiveFolder");
+        if (fileRoot.charAt(fileRoot.length - 1) !== "/")
         {
-          fileRoot += '/';
-        } // add last '/' if needed
-        fileRoot = fileRoot.replace(/\/\//g, '\/');
+          fileRoot += "/";
+        } // add last "/" if needed
+        fileRoot = fileRoot.replace(/\/\//g, "\/");
       }
 
-      if ($.urlParam('expandedFolder') != 0)
+      if ($.urlParam("expandedFolder") !== 0)
       {
-        expandedFolder = $.urlParam('expandedFolder');
+        expandedFolder = $.urlParam("expandedFolder");
         fullexpandedFolder = fileRoot + expandedFolder;
       }
       else
       {
-        expandedFolder = '';
+        expandedFolder = "";
         fullexpandedFolder = null;
       }
 
@@ -3348,7 +3036,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
       // we finalize the FileManager UI initialization
       // with localized text if necessary
-      if (config.options.autoload == true)
+      if (config.options.autoload === true)
       {
         $fileInfo.find('h1').append(lg.select_from_left);
         $itemOptions.find('a[href$="#select"]').append(lg.select);
@@ -3428,8 +3116,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                    msg += '<div class="prompt-info">' +
                                           lg.dz_dictMaxFilesExceeded.replace('%s', config.upload.number) +
                                           lg.file_size_limit +
-                                          config.upload.fileSizeLimit + ' ' +
-                                          lg.mb + '.</div>';
+                                          config.upload.fileSizeLimit + " " +
+                                          lg.mb + ".</div>";
                                    msg += '<button id="process-upload">' +
                                           lg.upload + '</button></div>';
 
@@ -3526,42 +3214,38 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
         $('#uploader').attr('action', fileConnector + '?config=' + userconfig);
 
-        $('#uploader').ajaxForm({
-                                  target: '#uploadresponse',
+        $("#uploader").ajaxForm({
+                                  target: "#uploadresponse",
                                   beforeSubmit: function (arr, form, options)
                                   {
                                     // Test if a value is given
-                                    if ($('#newfile', form).val() == '')
+                                    if ($("#newfile", form).val() === "")
                                     {
                                       return false;
                                     }
                                     // Check if file extension is allowed
-                                    if (!isAuthorizedFile($('#newfile', form).val()))
+                                    if (!isAuthorizedFile($("#newfile", form).val()))
                                     {
-                                      var str = '<p>' + lg.INVALID_FILE_TYPE +
-                                                '</p>';
-                                      if (config.security.uploadPolicy ==
-                                          'DISALLOW_ALL')
+                                      var str = "<p>" + lg.INVALID_FILE_TYPE + "</p>";
+                                      if (config.security.uploadPolicy === "DISALLOW_ALL")
                                       {
-                                        str += '<p>' + lg.ALLOWED_FILE_TYPE +
-                                               config.security.uploadRestrictions.join(', ') +
-                                               '.</p>';
+                                        str += "<p>" + lg.ALLOWED_FILE_TYPE +
+                                               config.security.uploadRestrictions.join(", ") +
+                                               ".</p>";
                                       }
-                                      if (config.security.uploadPolicy ==
-                                          'ALLOW_ALL')
+                                      if (config.security.uploadPolicy === "ALLOW_ALL")
                                       {
-                                        str += '<p>' + lg.DISALLOWED_FILE_TYPE +
-                                               config.security.uploadRestrictions.join(', ') +
-                                               '.</p>';
+                                        str += "<p>" + lg.DISALLOWED_FILE_TYPE +
+                                               config.security.uploadRestrictions.join(", ") +
+                                               ".</p>";
                                       }
-                                      $("#filepath").val('');
+                                      $("#filepath").val("");
                                       $.prompt(str);
                                       return false;
                                     }
-                                    $('#upload').attr('disabled', true);
-                                    $('#upload span').addClass('loading').text(lg.loading_data);
-                                    if ($.urlParam('type').toString().toLowerCase() ==
-                                        'images')
+                                    $("#upload").attr("disabled", true);
+                                    $("#upload").find("span").addClass("loading").text(lg.loading_data);
+                                    if ($.urlParam("type").toString().toLowerCase() === "images")
                                     {
                                       // Test if uploaded file extension is in
                                       // valid image extensions
@@ -3569,9 +3253,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                       var found = false;
                                       for (key in config.images.imagesExt)
                                       {
-                                        if (config.images.imagesExt[key] ==
-                                            newfileSplitted[newfileSplitted.length -
-                                                            1])
+                                        if (config.images.imagesExt[key]
+                                            === newfileSplitted[newfileSplitted.length - 1])
                                         {
                                           found = true;
                                         }
@@ -3586,8 +3269,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                     // if config.upload.fileSizeLimit == auto
                                     // we delegate size test to connector
                                     if (typeof FileReader !== "undefined" &&
-                                        typeof config.upload.fileSizeLimit !=
-                                        "auto")
+                                        typeof config.upload.fileSizeLimit !== "auto")
                                     {
                                       // Check file size using html5 FileReader
                                       // API
@@ -3616,7 +3298,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                   success: function (result)
                                   {
                                     var data = jQuery.parseJSON($('#uploadresponse').find('textarea').text());
-                                    if (data['Code'] == 0)
+                                    if (data['Code'] === 0)
                                     {
                                       // addNode(data['Path'], data['Name']);
                                       $("#filepath, #newfile").val('');
@@ -3633,7 +3315,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                       $.prompt(data['Error']);
                                     }
                                     $('#upload').removeAttr('disabled');
-                                    $('#upload span').removeClass('loading').text(lg.upload);
+                                    $('#upload').find('span').removeClass('loading').text(lg.upload);
                                     $("#filepath").val('');
                                   }
                                 });
@@ -3644,14 +3326,12 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       // to prevent bug
       if (config.customScrollbar.enabled)
       {
-        loadCSS(contextPath +
-                'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css');
-        loadJS(contextPath +
-               'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js');
+        loadCSS(contextPath + 'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css');
+        loadJS(contextPath + 'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js');
 
-        var csTheme = config.customScrollbar.theme != undefined ?
+        var csTheme = config.customScrollbar.theme !== undefined ?
                       config.customScrollbar.theme : 'inset-2-dark';
-        var csButton = config.customScrollbar.button != undefined ?
+        var csButton = config.customScrollbar.button !== undefined ?
                        config.customScrollbar.button : true;
 
         $(window).load(function ()
@@ -3674,10 +3354,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       if (!(window.opener || window.tinyMCEPopup ||
             $.urlParam('field_name')))
       {
-        $('#itemOptions a[href$="#select"]').remove();
+        $("#itemOptions").find("a[href$='#select']").remove();
       }
       // Keep only browseOnly features if needed
-      if (config.options.browseOnly == true)
+      if (config.options.browseOnly === true)
       {
         $('#file-input-container').remove();
         $('#upload').remove();
@@ -3698,7 +3378,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       getDetailView(fileRoot + expandedFolder);
     });
 
-// add useragent string to html element for IE 10/11 detection
+  // add useragent string to html element for IE 10/11 detection
   var doc = document.documentElement;
   doc.setAttribute('data-useragent', navigator.userAgent);
 

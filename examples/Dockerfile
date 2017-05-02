@@ -8,4 +8,3 @@ COPY LocalAuthority.properties /root/config/
 COPY *.war webapps/
 
 EXPOSE 5555
-
