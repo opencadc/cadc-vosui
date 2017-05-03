@@ -1500,17 +1500,17 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   $(document).on("click", ".glyphicon-pencil", function (event)
   {
     // Pull attributes from edit icon
-    var iconAnchor = $(event.currentTarget).find("a")[0];
+    var $iconAnchor = $(event.currentTarget).find("a");
 
     // Flag this icon as the currently active one
     // will be referenced for seeing if form values have changed
-    iconAnchor.setAttribute("class", "editing");
+    $iconAnchor.addClass("editing");
 
     // Check to see if a call to server is necessary to confirm access to this node
     // Everything below would go into another function that will fire
     // if the ajax call returns the correct value.
 
-    if (iconAnchor.getAttribute("writable") === "null")
+    if ($iconAnchor.data("writable") === "null")
     { // verify authorization for editing this node
       // authenticate, pass in URI
       // url: contextPath + "ac/authenticate" + "?uri=" + iconAnchor.getAttribute("uri"),
@@ -1544,7 +1544,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var loadEditPermPrompt = function (promptData)
   {
     var checkboxState = "";
-    if (promptData.getAttribute("readable") === "true")
+    if ($promptData.data("readable") === "true")
     {
       checkboxState = "checked=\"checked\"";
     }
@@ -1586,7 +1586,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       '<div class="col-sm-7 prompt-link">' +
       '<a href="http://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
       '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' +
-      promptData.getAttribute("path") + '">' +
+      $promptData.data("path") + '">' +
       '</div>' +
       '</div>';
 
@@ -1612,7 +1612,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     var states = {
       state0: {
-        title: '<h3 class="prompt-h3">' + promptData.getAttribute("itemName") +
+        title: '<h3 class="prompt-h3">' + $promptData.data("itemName") +
                '</h3>',
         html: msg,
         buttons: btns,
@@ -1651,8 +1651,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         );
 
         // Set initial form state
-        $("#readGroup").val(promptData.getAttribute("readGroup"));
-        $("#writeGroup").val(promptData.getAttribute("writeGroup"));
+        $("#readGroup").val(promptData.data("readGroup"));
+        $("#writeGroup").val(promptData.data("writeGroup"));
         var listenerHook = $(".listener-hook");
         listenerHook.addClass("disabled");
 
