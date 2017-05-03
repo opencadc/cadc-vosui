@@ -18,7 +18,7 @@ script:
 - gradle clean dockerize
 - docker-compose up -d
 - docker ps -a
-- gradle -i -PintTest_selenium_server_url=http://firefox.cadc.dao.nrc.ca:4444 -PintTest_web_app_url=http://application.cadc.dao.nrc.ca:8080 intTestFirefox
+- gradle -i -PintTest_selenium_server_url=http://localhost:4444 -PintTest_web_app_url=http://storage.cadc.dao.nrc.ca:8080 intTestFirefox
 after_success:
 - if [ "$(. ./can-deploy.sh)" = "DEPLOY" ]; then
     docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
