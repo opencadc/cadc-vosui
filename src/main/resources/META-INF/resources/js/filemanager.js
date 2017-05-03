@@ -1651,8 +1651,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         );
 
         // Set initial form state
-        $("#readGroup").val(promptData.data("readGroup"));
-        $("#writeGroup").val(promptData.data("writeGroup"));
+        $("#readGroup").val($promptData.data("readGroup"));
+        $("#writeGroup").val($promptData.data("writeGroup"));
         var listenerHook = $(".listener-hook");
         listenerHook.addClass("disabled");
 
