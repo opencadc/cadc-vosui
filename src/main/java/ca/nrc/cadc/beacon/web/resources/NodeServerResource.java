@@ -81,7 +81,6 @@ import org.json.JSONWriter;
 import org.restlet.data.Status;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
-//import sun.jvm.hotspot.debugger.cdbg.AccessControl;
 
 import java.io.FileNotFoundException;
 import java.security.AccessControlException;
@@ -92,60 +91,29 @@ public class NodeServerResource extends StorageItemServerResource
     @Get("json")
     public void checkItemAccess() throws ResourceException
     {
-//        try {
+        Node requestedNode = getNode(getCurrentItemURI(), VOS.Detail.max, 0);
+        // Node properties are in a known order, as in StorageItemCSVWriter.java
+        final String writeGroupStr = requestedNode.getPropertyValue(VOS.PROPERTY_URI_WRITABLE);
+        final String readGroupStr = requestedNode.getPropertyValue(VOS.PROPERTY_URI_READABLE);
 
-            Node requestedNode = getNode(getCurrentItemURI(), VOS.Detail.max, 0);
-
-            // if it gets to here without throwing an error, check the writable property
-            // If it's there AND it's true, return the read & write group property values
-            // If it's there AND it's false, return a 403
-            // if it's not there, return a 403
-
-            // Node properties are in a known order, as in StorageItemCSVWriter.java
-            final String writeGroupStr = requestedNode.getPropertyValue(VOS.PROPERTY_URI_WRITABLE);
-            final String readGroupStr = requestedNode.getPropertyValue(VOS.PROPERTY_URI_READABLE);
-
-            // needs to check if the current user owns this item.
-            // there may be a write group and the person isn't in it.
-            // TODO: I don't think this is right...
-            // Should this just be passed back and the UI can check it?
-            if (writeGroupStr == null)
-            {
-                throw new ResourceException(new AccessControlException("User can't write to node."));
-            }
-            else
-            {
-                writeResponse(Status.SUCCESS_OK,
-                        new JSONRepresentation()
-                        {
-                            @Override
-                            public void write(final JSONWriter jsonWriter)
-                                    throws JSONException
-                            {
-                                jsonWriter.object().key("writeGroup").value(writeGroupStr).key("readGroup").value(readGroupStr)
-                                        .endObject();
-                            }
-                        });
-
-            }
-
-//        }
-//        catch (ResourceException re)
-//        {
-//            if (re.getCause() instanceof AccessControlException)
-//            {
-//
-//            }
-//            else
-//            {
-//                throw new ResourceException(re);
-//            }
-//
-//////        catch (Exception e)
-////        {
-////            throw new IllegalAccessException(re.getMessage());
-//        }
-
+        if (writeGroupStr == null)
+        {
+            throw new ResourceException(new AccessControlException("User can't write to node."));
+        }
+        else
+        {
+            writeResponse(Status.SUCCESS_OK,
+                new JSONRepresentation()
+                {
+                    @Override
+                    public void write(final JSONWriter jsonWriter)
+                            throws JSONException
+                    {
+                        jsonWriter.object().key("writeGroup").value(writeGroupStr).key("readGroup").value(readGroupStr)
+                                .endObject();
+                    }
+                });
+        }
     }
 
 }

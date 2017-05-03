@@ -62,10 +62,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         // Verify no edit icons are present
         verifyFalse(userStoragePage.isRowItemPermissionsEditable(1));
 
-        // enter search(filter) value
-        // check that rows of table are shorted correctly
-        // verify entry is correct
-
         userStoragePage.enterSearch(testFolderName);
         int rowCount = userStoragePage.getTableRowCount();
         verifyTrue(rowCount < 3);
@@ -144,7 +140,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Return to auto test folder
         userStoragePage = userStoragePage.clickFolder(autoTestFolder);
-
 
         // Create a context group, and run tests in there
         userStoragePage = userStoragePage.createNewFolder(workingDirectoryName);

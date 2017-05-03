@@ -129,17 +129,16 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var expandedFolder;
   var makeEditIcon = function(path, elementAttributes)
   {
-    return '<span class="glyphicon glyphicon-pencil"><a href="' +
-    path +
-    'update" title="Edit permissions." ' +
-    'readable="' + elementAttributes[6] +
-    '" writable="' + elementAttributes[13] +
-    '" path="' + elementAttributes[9] +
-    '" uri="' + elementAttributes[10] +
-    '" readGroup="' + elementAttributes[5] +
-    '" writeGroup="' + elementAttributes[4] +
-    '" itemName="' + elementAttributes[1] +
-    '" ></a></span>';
+    return "<span class=\"glyphicon glyphicon-pencil\"><a href=\"" +
+        path + "update\" title=\"Edit permissions.\" " +
+        "data-readable=\"" + elementAttributes[6] +
+        "\" data-writable=\"" + elementAttributes[13] +
+        "\" data-path=\"" + elementAttributes[9] +
+        "\" data-uri=\"" + elementAttributes[10] +
+        "\" data-readgroup=\"" + elementAttributes[5] +
+        "\" data-writegroup=\"" + elementAttributes[4] +
+        "\" data-itemname=\"" + elementAttributes[1] +
+        "\" ></a></span>";
   };
 
 
@@ -1098,7 +1097,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     $(selectedItems).each(function (index, item)
                           {
-                            selectedPaths.push($(item).attr("path"));
+                            selectedPaths.push($(item).data("path"));
                           });
 
     return (selectedPaths.length > 0) ? selectedPaths.join(",") : "";

@@ -734,8 +734,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         WebElement editIcon = find(xpath("//span[contains(@class, 'glyphicon-pencil')]/a"));
 
         return new PermissionsFormData(editIcon.getAttribute("readGroup"),
-                editIcon.getAttribute("writeGroup"),
-                editIcon.getAttribute("publicPermissions"));
+                editIcon.getAttribute("writeGroup"));
     }
 
     boolean isLoggedIn() throws Exception
@@ -1034,13 +1033,11 @@ final class PermissionsFormData
 {
     private String readGroup;
     private String writeGroup;
-    private String publicPermissions;
 
-    public PermissionsFormData(String readGroup, String writeGroup, String publicPerms)
+    public PermissionsFormData(String readGroup, String writeGroup)
     {
         this.readGroup = readGroup;
         this.writeGroup = writeGroup;
-        this.publicPermissions = publicPerms;
     }
 
     public String getReadGroup()
@@ -1048,29 +1045,8 @@ final class PermissionsFormData
         return readGroup;
     }
 
-    public void setReadGroup(String readGroup)
-    {
-        this.readGroup = readGroup;
-    }
-
-
     public String getWriteGroup()
     {
         return writeGroup;
-    }
-
-    public void setWriteGroup(String writeGroup)
-    {
-        this.writeGroup = writeGroup;
-    }
-
-    public String getPublicPermissions()
-    {
-        return publicPermissions;
-    }
-
-    public void setPublicPermissions(String publicPermissions)
-    {
-        this.publicPermissions = publicPermissions;
     }
 }
