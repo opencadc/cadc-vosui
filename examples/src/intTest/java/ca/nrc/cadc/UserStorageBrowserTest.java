@@ -98,9 +98,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         System.out.println("Rowcount: " + rowCount);
         verifyTrue(rowCount > 2);
 
-        // Check access to page: should be write accessible
-        verifyFalse(userStoragePage.isReadAccess());
-
         // Test navigation buttons
         // Test state is currently in a subfolder: Start at Root
         System.out.println("navigating to root...");

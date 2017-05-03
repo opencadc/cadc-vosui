@@ -51,14 +51,6 @@ directory for that user actually exists -->
   <#assign homeURL = '${contextPath}list/${username}'>
 </#if>
 
-<#assign folderWritable = false>
-<#if (folder.writable)!true >
-    <#assign folderWritable = false>
-<#else>
-    <#if folder.writable == true>
-        <#assign folderWritable = true>
-    </#if>
-</#if>
 
 
 
@@ -146,7 +138,7 @@ directory for that user actually exists -->
                                   // a moving barber pole progress.
                                   fileManager(rows, $("#beacon"),
                                               "<#if startURI??>${startURI}</#if>",
-                                              "${folder.path}", ${folder.writable!true?c},
+                                              "${folder.path}", ${folderWritable?c},
                                               100 , json, "${contextPath}", true);
                                 })
                           .fail(function (request, textStatus, errorThrown)
