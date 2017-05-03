@@ -423,7 +423,17 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         click(firstRowBy);
     }
 
-    protected UserStorageBrowserPage setGroup(final String idToFind, final String newGroup, final boolean isModifyNode)
+    protected UserStorageBrowserPage setReadGroup(final String newGroup, final boolean isModifyNode) throws Exception
+    {
+        return setGroup(READ_GROUP_INPUT, newGroup, isModifyNode);
+    }
+
+    protected UserStorageBrowserPage setWriteGroup(final String newGroup, final boolean isModifyNode) throws Exception
+    {
+        return setGroup(WRITE_GROUP_INPUT, newGroup, isModifyNode);
+    }
+
+    UserStorageBrowserPage setGroup(final String idToFind, final String newGroup, final boolean isModifyNode)
             throws Exception
     {
         final String currentHeaderText = getHeaderText();
@@ -436,6 +446,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         // Click on it to enable the save button
         click(idToFindBy);
+
         // Send group name
         sendKeys(find(idToFindBy), newGroup);
 
@@ -457,7 +468,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
      * @param message
      * @throws Exception
      */
-    public UserStorageBrowserPage confirmJqiMsg(String message) throws Exception
+    protected UserStorageBrowserPage confirmJqiMsg(String message) throws Exception
     {
         confirmJQIMessageText(message);
         return clickButton(OK);
@@ -723,8 +734,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         WebElement editIcon = find(xpath("//span[contains(@class, 'glyphicon-pencil')]/a"));
 
         return new PermissionsFormData(editIcon.getAttribute("readGroup"),
-                                       editIcon.getAttribute("writeGroup"),
-                                       editIcon.getAttribute("publicPermissions"));
+                editIcon.getAttribute("writeGroup"),
+                editIcon.getAttribute("publicPermissions"));
     }
 
     boolean isLoggedIn() throws Exception

@@ -139,21 +139,18 @@ public class StorageItemServerResource extends SecureServerResource
     {
         super.doInit();
         final Context context = getContext();
-        initialize(((VOSpaceClient) context.getAttributes().get(
-                VOSpaceApplication.VOSPACE_CLIENT_KEY)));
+        initialize(((VOSpaceClient) context.getAttributes().get(VOSpaceApplication.VOSPACE_CLIENT_KEY)));
     }
 
-    private void initialize(
-            final VOSpaceClient voSpaceClient)
+    private void initialize(final VOSpaceClient voSpaceClient)
     {
         try
         {
-            this.storageItemFactory =
-                    new StorageItemFactory(URI_EXTRACTOR, getRegistryClient(),
-                                           (getServletContext() == null)
-                                           ? VOSpaceApplication.DEFAULT_CONTEXT_PATH
-                                           : getServletContext()
-                                                   .getContextPath());
+            this.storageItemFactory = new StorageItemFactory(URI_EXTRACTOR, getRegistryClient(),
+                                                             (getServletContext() == null)
+                                                             ? VOSpaceApplication.DEFAULT_CONTEXT_PATH
+                                                             : getServletContext()
+                                                                     .getContextPath());
         }
         catch (MalformedURLException e)
         {
@@ -544,7 +541,6 @@ public class StorageItemServerResource extends SecureServerResource
                 setNodeProperty(nodeProperties, VOS.PROPERTY_URI_ISPUBLIC, parameterValue);
             }
         }
-
 
         if (keySet.contains("readGroup"))
         {

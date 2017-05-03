@@ -108,6 +108,7 @@ public class FolderItemServerResource extends StorageItemServerResource
         super(voSpaceClient);
     }
 
+
     @Put
     public void create() throws Exception
     {
@@ -169,8 +170,7 @@ public class FolderItemServerResource extends StorageItemServerResource
             // iterate over each srcNode & call clientTransfer
             for (final String srcNode : srcNodes)
             {
-                final VOSURI srcURI = new VOSURI(
-                        URI.create(VOSPACE_NODE_URI_PREFIX + srcNode));
+                final VOSURI srcURI = new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + srcNode));
                 move(srcURI, currentNode.getUri());
             }
 
@@ -180,11 +180,10 @@ public class FolderItemServerResource extends StorageItemServerResource
 
     Transfer getTransfer(VOSURI source, VOSURI destination)
     {
-        return new Transfer(source.getURI(),
-                            destination.getURI(), false);
+        return new Transfer(source.getURI(), destination.getURI(), false);
     }
 
-    private ClientTransfer move(VOSURI source, VOSURI destination)
+    private void move(final VOSURI source, final VOSURI destination)
             throws IOException, InterruptedException, AccessControlException
     {
         // According to ivoa.net VOSpace 2.1 spec, a move is handled using
@@ -193,21 +192,21 @@ public class FolderItemServerResource extends StorageItemServerResource
 
         try
         {
-            return Subject.doAs(generateVOSpaceUser(),
-                                new PrivilegedExceptionAction<ClientTransfer>()
-                                {
-                                    @Override
-                                    public ClientTransfer run() throws Exception
-                                    {
-                                        final ClientTransfer clientTransfer =
-                                                voSpaceClient.createTransfer(
-                                                        transfer);
-                                        clientTransfer.setMonitor(false);
-                                        clientTransfer.runTransfer();
+            Subject.doAs(generateVOSpaceUser(),
+                         new PrivilegedExceptionAction<Void>()
+                         {
+                             @Override
+                             public Void run() throws Exception
+                             {
+                                 final ClientTransfer clientTransfer =
+                                         voSpaceClient.createTransfer(
+                                                 transfer);
+                                 clientTransfer.setMonitor(false);
+                                 clientTransfer.runTransfer();
 
-                                        return clientTransfer;
-                                    }
-                                });
+                                 return null;
+                             }
+                         });
         }
         catch (PrivilegedActionException e)
         {

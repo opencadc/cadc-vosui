@@ -13,7 +13,10 @@ repositories {
 }
 
 dependencies {
-    compile 'org.opencadc:cadc-vosui:[1.0.23, )'
+    compile 'org.opencadc:cadc-vosui:[1.0.24, )'
+//    testCompile 'junit:junit:4.+'
+//    testCompile 'ca.nrc.cadc:web-test:1.+'
+//    testCompile 'org.seleniumhq.selenium:selenium-java:2.53.1'
 }
 
 sourceCompatibility = '1.7'
@@ -28,7 +31,7 @@ clean {
     doFirst {
         exec {
             executable 'rm'
-            args('-rf', './docker')
+            args = ['-rf', './docker']
         }
     }
 }

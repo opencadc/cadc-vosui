@@ -178,6 +178,7 @@ public class MainPageServerResource extends StorageItemServerResource
 
         dataModel.put("initialRows", initialRows);
 
+
         // Explicitly set whether folder is writable or not, handling null situation as equal to false
         if (folderItem.isWritable() == null || !folderItem.isWritable())
         {
