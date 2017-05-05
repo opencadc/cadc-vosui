@@ -206,6 +206,9 @@ public class VOSpaceApplication extends Application
         final TemplateRoute listRoute =
                 router.attach(contextPath + "list/{path}",
                               MainPageServerResource.class);
+        final TemplateRoute nodeRoute =
+                router.attach(contextPath + "access/{path}",
+                            NodeServerResource.class);
         final TemplateRoute rawRoute =
                 router.attach(contextPath + "raw/{path}",
                               MainPageServerResource.class);

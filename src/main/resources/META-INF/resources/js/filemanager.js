@@ -130,13 +130,15 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var makeEditIcon = function(path, elementAttributes)
   {
     return "<span class=\"glyphicon glyphicon-pencil\"><a href=\"" +
-    path + "update\" title=\"Edit permissions.\" " +
-    "data-readable=\"" + elementAttributes[6] +
-    "\" data-path=\"" + elementAttributes[9] +
-    "\" data-readgroup=\"" + elementAttributes[5] +
-    "\" data-writegroup=\"" + elementAttributes[4] +
-    "\" data-itemname=\"" + elementAttributes[1] +
-    "\" ></a></span>";
+        path + "update\" title=\"Edit permissions.\" " +
+        "data-readable=\"" + elementAttributes[6] +
+        "\" data-writable=\"" + elementAttributes[13] +
+        "\" data-path=\"" + elementAttributes[9] +
+        "\" data-uri=\"" + elementAttributes[10] +
+        "\" data-readgroup=\"" + elementAttributes[5] +
+        "\" data-writegroup=\"" + elementAttributes[4] +
+        "\" data-itemname=\"" + elementAttributes[1] +
+        "\" ></a></span>";
   };
 
 
@@ -238,7 +240,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             var renderedValue = "";
 
             // if isWritable bit is true, provide edit icon
-            if (full[13] === "true")
+            // need to check if person is logged in for second parameter
+            // to be pertinent.
+            if (full[13] === "true" ||
+                  (($("#loginForm").size() == 0) && full[13] === "null"))
             {
               renderedValue += makeEditIcon(contextPath, full);
             }
@@ -256,7 +261,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             var renderedValue = "";
 
             // if isWritable bit is true, provide edit icon
-            if (full[13] === "true")
+            if (full[13] === "true" ||
+                (($("#loginForm").size() == 0) && full[13] === "null"))
             {
               renderedValue += makeEditIcon(contextPath, full);
             }
@@ -651,6 +657,14 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
                               return false;
                             });
+  }
+
+  /**
+   * Check for specific element to determine if user is logged in
+   */
+
+  var isLoggedIn = function() {
+    return $("a.access-actions");
   }
 
   /**
@@ -1492,13 +1506,48 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     // will be referenced for seeing if form values have changed
     $iconAnchor.addClass("editing");
 
-    var checkboxState = "";
+    // Check to see if a call to server is necessary to confirm access to this node
+    // Everything below would go into another function that will fire
+    // if the ajax call returns the correct value.
 
-    if ($iconAnchor.data("readable") === true)
-    {
-      checkboxState = "checked=\"checked\"";
+    if ($iconAnchor.data("writable") === "null")
+    { // verify authorization for editing this node
+      // authenticate, pass in URI
+      // url: contextPath + "ac/authenticate" + "?uri=" + iconAnchor.getAttribute("uri"),
+      $.ajax(
+          {
+            url: contextPath + "access" + $iconAnchor.data("path"),
+            method: "GET",
+            statusCode: {
+              200: function ()
+              {
+                loadEditPermPrompt($iconAnchor);
+              },
+              401: function ()
+              {
+                $.prompt(lg.authorization_required);
+              },
+              500: function ()
+              {
+                $.prompt(lg.server_error);
+              }
+            }
+          });
     }
+    else
+    {
+        loadEditPermPrompt($iconAnchor);
+    }
+  });
 
+
+  var loadEditPermPrompt = function (promptData)
+  {
+    var checkboxState = "";
+    if (promptData.data("readable") === true)
+    {
+      checkboxState = "checked";
+    }
     var msg =
       '<div class="form-group fm-prompt">' +
       '<label for="publicPermission" class="control-label col-sm-4">' +
@@ -1537,7 +1586,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       '<div class="col-sm-7 prompt-link">' +
       '<a href="http://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
       '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' +
-      $iconAnchor.data("path") + '">' +
+      promptData.data("path") + '">' +
       '</div>' +
       '</div>';
 
@@ -1563,7 +1612,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     var states = {
       state0: {
-        title: "<h3 class=\"prompt-h3\">" + $iconAnchor.data("itemName") + "</h3>",
+        title: '<h3 class="prompt-h3">' + promptData.data("itemname") +
+               '</h3>',
         html: msg,
         buttons: btns,
         submit: handleEditPermissions
@@ -1601,8 +1651,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         );
 
         // Set initial form state
-        $("#readGroup").val($iconAnchor.data("readgroup"));
-        $("#writeGroup").val($iconAnchor.data("writegroup"));
+        $("#readGroup").val(promptData.data("readgroup"));
+        $("#writeGroup").val(promptData.data("writegroup"));
         var listenerHook = $(".listener-hook");
         listenerHook.addClass("disabled");
 
@@ -1614,7 +1664,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       }
     }); // end prompt declaration
 
-  });
+  };
 
 
   /*---------------------------------------------------------

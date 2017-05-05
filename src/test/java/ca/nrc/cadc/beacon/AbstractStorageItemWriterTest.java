@@ -89,7 +89,7 @@ public abstract class AbstractStorageItemWriterTest<T extends StorageItemWriter>
                                                 final VOSURI uri,
                                                 final String linkURI,
                                                 final boolean isReadable,
-                                                final boolean isWritable,
+                                                final Boolean isWritable,
                                                 final String owner)
             throws Exception
     {

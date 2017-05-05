@@ -142,7 +142,9 @@ public class StorageItemCSVWriter implements StorageItemWriter
         row.add(Boolean.toString(storageItem.isReadable()));
 
         // Writable flag.  [13]
-        row.add(Boolean.toString(storageItem.isWritable()));
+        Boolean isWritable = storageItem.isWritable();
+        String writableFlag = isWritable == null ? "null" : Boolean.toString(isWritable);
+        row.add(writableFlag);
 
         // Owner: distinguished name [14]
         // TODO: change this to human readable name when issue

@@ -183,6 +183,7 @@ public class MainPageServerResourceTest
             }
         };
 
+        expect(mockFolderItem.isWritable()).andReturn(true).anyTimes();
         replay(mockFolderItem);
 
         final Representation representation =

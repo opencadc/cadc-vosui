@@ -96,7 +96,7 @@ public abstract class StorageItem
     private final URI[] readGroupURIs;
     private final String owner;
     private final boolean readableFlag;
-    private final boolean writableFlag;
+    private final Boolean writableFlag;
     private final String targetURL;
 
     final VOSURI uri;
@@ -108,7 +108,7 @@ public abstract class StorageItem
                 boolean publicFlag, boolean lockedFlag,
                 URI[] writeGroupURIs, URI[] readGroupURIs,
                 final String owner, boolean readableFlag,
-                boolean writableFlag,
+                Boolean writableFlag,
                 String targetURL)
     {
         this.uri = uri;
@@ -161,7 +161,7 @@ public abstract class StorageItem
         return (uri.isRoot() || uri.getParentURI().isRoot() || readableFlag);
     }
 
-    public boolean isWritable()
+    public Boolean isWritable()
     {
         return writableFlag;
     }

@@ -90,10 +90,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.AccessControlContext;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
+import java.security.*;
 import java.util.List;
 import java.util.Set;
 
@@ -184,26 +181,49 @@ public class StorageItemServerResource extends SecureServerResource
         return getNode(getCurrentItemURI(), detail);
     }
 
-    <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail) throws ResourceException
+    final <T extends Node> T getCurrentNode(final VOS.Detail detail, final int limit)
+            throws NodeNotFoundException, IOException
     {
-        final int pageSize;
+        return getNode(getCurrentItemURI(), detail, limit);
+    }
 
-        if (detail == null)
+    /**
+     * @param uri URI to look up.
+     * @param <T> Type to translate to.
+     * @return Translated Node to StorageItem.
+     * @throws IOException For any problems.
+     */
+    @SuppressWarnings("unchecked")
+    final <T extends StorageItem> T getStorageItem(final URI uri)
+            throws IOException
+    {
+        try
         {
-            pageSize = -1;
+            return (T) storageItemFactory.translate(getNode(new VOSURI(uri),
+                                                            VOS.Detail.max));
         }
-        else if ((detail == VOS.Detail.max) || (detail == VOS.Detail.raw))
+        catch (ResourceException re)
         {
-            pageSize = DEFAULT_DISPLAY_PAGE_SIZE;
-        }
-        else
-        {
-            pageSize = 0;
+            if (re.getCause() instanceof NodeNotFoundException)
+            {
+                throw new FileNotFoundException(re.getMessage());
+            }
+            else
+            {
+                throw new ResourceException(re);
+            }
+
         }
 
-        final String query = "limit=" + pageSize + ((detail == null)
-                                                    ? ""
-                                                    : "&detail=" + detail.name());
+    }
+
+    <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail, final int limit)
+            throws ResourceException
+    {
+        final String query = "limit=" + limit + ((detail == null)
+                ? ""
+                : "&detail="
+                + detail.name());
 
         try
         {
@@ -235,7 +255,27 @@ public class StorageItemServerResource extends SecureServerResource
         {
             throw new ResourceException(e);
         }
+    }
 
+    <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail)
+            throws ResourceException
+    {
+        final int pageSize;
+
+        if (detail == null)
+        {
+            pageSize = -1;
+        }
+        else if ((detail == VOS.Detail.max) || (detail == VOS.Detail.raw))
+        {
+            pageSize = DEFAULT_DISPLAY_PAGE_SIZE;
+        }
+        else
+        {
+            pageSize = 0;
+        }
+
+        return getNode(folderURI, detail, pageSize);
     }
 
     VOSURI toURI(final String path)

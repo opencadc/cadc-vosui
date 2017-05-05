@@ -52,6 +52,8 @@ directory for that user actually exists -->
 </#if>
 
 
+
+
 <#include "_top_nav.ftl">
 
 <div class="container-fluid">
@@ -112,7 +114,7 @@ directory for that user actually exists -->
                                      +
                                      '<tr><td>Last used</td><td class="info">${folder.lastModifiedHumanReadable}</td></tr>'
                                      +
-                                     '<tr><td colspan="2">Is <#if !folder.writable><span class="text-danger">not </span></#if>writable by you.</td></tr>'
+                                     '<tr><td colspan="2">Is <#if !folderWritable><span class="text-danger">not </span></#if>writable by you.</td></tr>'
                                      + '</tbody></table>';
                             }
                           });
@@ -136,7 +138,7 @@ directory for that user actually exists -->
                                   // a moving barber pole progress.
                                   fileManager(rows, $("#beacon"),
                                               "<#if startURI??>${startURI}</#if>",
-                                              "${folder.path}", ${folder.writable?c},
+                                              "${folder.path}", ${folderWritable?c},
                                               100 , json, "${contextPath}", true);
                                 })
                           .fail(function (request, textStatus, errorThrown)

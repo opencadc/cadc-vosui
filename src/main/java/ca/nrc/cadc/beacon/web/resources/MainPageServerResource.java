@@ -177,6 +177,17 @@ public class MainPageServerResource extends StorageItemServerResource
                 getContextAttribute(VOSpaceApplication.ACCESS_CONTROL_CLIENT_KEY);
 
         dataModel.put("initialRows", initialRows);
+
+
+        // Explicitly set whether folder is writable or not, handling null situation as equal to false
+        if (folderItem.isWritable() == null || !folderItem.isWritable())
+        {
+            dataModel.put("folderWritable", false);
+        }
+        else
+        {
+            dataModel.put("folderWritable", true);
+        }
         dataModel.put("folder", folderItem);
 
         if (startNextPageURI != null)
