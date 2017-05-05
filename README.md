@@ -1,13 +1,16 @@
 ---
 ---
 
-#### User Storage User Interface 0.10 (Build 1010)
+#### User Storage User Interface 0.11 (Build 1010)
 
 By default, this uses the CANFAR (CADC) VOSpace located at:
 
 <a rel="external" href="http://www.canfar.phys.uvic.ca/vospace">http://www.canfar.phys.uvic.ca/vospace</a>
 
-<a href="https://travis-ci.org/opencadc/vosui"><img src="https://travis-ci.org/opencadc/vosui.svg?branch=master" /></a>
+A fully functional UI is deployed at:
+<a rel="external" href="http://apps.canfar.net/storage/list">http://apps.canfar.net/storage/list</a>
+
+<a href="https://travis-ci.org/opencadc/cadc-vosui"><img src="https://travis-ci.org/opencadc/cadc-vosui.svg?branch=master" /></a>
 
 
 ### Building
@@ -16,7 +19,7 @@ Running:
 
 `gradle clean build`
 
-Will produce a `war` file in the `build/libs` directory that can be deployed into a Java container such as Tomcat or Jetty.
+Will produce a `jar` file in the `build/libs` directory that can be used to run a local Java container using the `gradle run` command.
 
 
 ### Running
@@ -56,7 +59,7 @@ To specify the Service ID for each service, add the appropriate System property 
 `... -Dorg.opencadc.vospace.service_id=ivo://<your domain>/<vospace service name> -Dorg.opencadc.gms.service_id=ivo://<your domain>/<gms service name> ...`
 
 
-Or deploy the `war` file in `build/libs` into a Java container such as Tomcat.
+Or, from the `examples` directory, deploy the `war` file in `build/libs` into a Java container such as Tomcat.
 
 Then, in your browser, look at <a href="http://localhost:8080/storage/list">http://localhost:8080/storage/list</a>.
 
