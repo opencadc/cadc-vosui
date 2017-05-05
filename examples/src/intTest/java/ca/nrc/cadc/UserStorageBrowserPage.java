@@ -125,11 +125,14 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     // at the same endpoint: /storage/list
     private static final By ERROR_DISPLAY = By.id("errorDisplayDiv");
 
-
     public static final String READ_GROUP_DIV = "readGroupDiv";
     public static final String WRITE_GROUP_DIV = "writeGroupDiv";
     public static final String READ_GROUP_INPUT = "readGroup";
     public static final String WRITE_GROUP_INPUT = "writeGroup";
+    // Put a row number inbetween these two strings and feed to a 'By'
+    // statement to find the first permissions icon in a row
+    private static final String EDIT_ICON_BY_FIRST_PART = "//*[@id='beacon']/tbody/tr[";
+    private static final String EDIT_ICON_BY_SECOND_PART = "]/td[5]/span[contains(@class, 'glyphicon-pencil')]";
 
     // Elements always on the page
     @FindBy(id = "beacon_filter")
@@ -412,16 +415,13 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         return new UserStorageBrowserPage(driver, currentHeaderText);
     }
 
-
     // Permissions functions
     public void clickEditIconForFirstRow() throws Exception
     {
-        final By firstRowBy = xpath("//span[contains(@class, 'glyphicon-pencil')]");
-
-        waitForElementVisible(firstRowBy);
-
+        final By firstRowBy = xpath(EDIT_ICON_BY_FIRST_PART + "1" + EDIT_ICON_BY_SECOND_PART);
         click(firstRowBy);
     }
+
 
     protected UserStorageBrowserPage setReadGroup(final String newGroup, final boolean isModifyNode) throws Exception
     {
@@ -518,6 +518,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     protected UserStorageBrowserPage togglePublicAttributeForRow() throws Exception
     {
         clickEditIconForFirstRow();
+
         final WebElement permissionCheckbox = waitUntil(ExpectedConditions.elementToBeClickable(
                 By.id("publicPermission")));
 
@@ -580,9 +581,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
             try
             {
                 beaconTable.findElement(
-                        xpath("//*[@id='beacon']/tbody/tr[" + rowNum
-                              + "]/td[2]/span[contains(@class, 'glyphicon-pencil']"));
-
+                        xpath(EDIT_ICON_BY_FIRST_PART + rowNum
+                              + EDIT_ICON_BY_SECOND_PART));
             }
             catch (Exception e)
             {
@@ -731,10 +731,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     // Permissions Data
     public PermissionsFormData getValuesFromEditIcon() throws Exception
     {
-        WebElement editIcon = find(xpath("//span[contains(@class, 'glyphicon-pencil')]/a"));
+        WebElement editIcon = find(xpath(EDIT_ICON_BY_FIRST_PART + "1" + EDIT_ICON_BY_SECOND_PART + "/a"));
 
-        return new PermissionsFormData(editIcon.getAttribute("readGroup"),
-                editIcon.getAttribute("writeGroup"));
+        return new PermissionsFormData(editIcon.getAttribute("data-readgroup"),
+                editIcon.getAttribute("data-writegroup"));
     }
 
     boolean isLoggedIn() throws Exception
@@ -950,8 +950,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     }
 
     public boolean isRowItemPermissionsEditable(int rowNum) throws Exception {
-        WebElement pencilIcon = find(xpath("//*[@id=\"beacon\"]/tbody/tr[1]/td[5]/span[contains(@class,\"glyphicon-pencil\")]"));
-
+        WebElement pencilIcon = find(xpath(EDIT_ICON_BY_FIRST_PART + "1" + EDIT_ICON_BY_SECOND_PART));
         if (pencilIcon == null)
         {
             return false;
@@ -960,7 +959,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         {
             return true;
         }
-
     }
 
 

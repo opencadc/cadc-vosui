@@ -1516,12 +1516,12 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       // url: contextPath + "ac/authenticate" + "?uri=" + iconAnchor.getAttribute("uri"),
       $.ajax(
           {
-            url: contextPath + "access" + iconAnchor.getAttribute("path"),
+            url: contextPath + "access" + $iconAnchor.data("path"),
             method: "GET",
             statusCode: {
               200: function ()
               {
-                loadEditPermPrompt(iconAnchor);
+                loadEditPermPrompt($iconAnchor);
               },
               401: function ()
               {
@@ -1536,7 +1536,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
     }
     else
     {
-        loadEditPermPrompt(iconAnchor);
+        loadEditPermPrompt($iconAnchor);
     }
   });
 
@@ -1544,9 +1544,9 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
   var loadEditPermPrompt = function (promptData)
   {
     var checkboxState = "";
-    if ($promptData.data("readable") === "true")
+    if (promptData.data("readable") === true)
     {
-      checkboxState = "checked=\"checked\"";
+      checkboxState = "checked";
     }
     var msg =
       '<div class="form-group fm-prompt">' +
@@ -1586,7 +1586,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
       '<div class="col-sm-7 prompt-link">' +
       '<a href="http://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
       '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' +
-      $promptData.data("path") + '">' +
+      promptData.data("path") + '">' +
       '</div>' +
       '</div>';
 
@@ -1612,7 +1612,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 
     var states = {
       state0: {
-        title: '<h3 class="prompt-h3">' + $promptData.data("itemName") +
+        title: '<h3 class="prompt-h3">' + promptData.data("itemname") +
                '</h3>',
         html: msg,
         buttons: btns,
@@ -1651,8 +1651,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
         );
 
         // Set initial form state
-        $("#readGroup").val($promptData.data("readGroup"));
-        $("#writeGroup").val($promptData.data("writeGroup"));
+        $("#readGroup").val(promptData.data("readgroup"));
+        $("#writeGroup").val(promptData.data("writegroup"));
         var listenerHook = $(".listener-hook");
         listenerHook.addClass("disabled");
 
