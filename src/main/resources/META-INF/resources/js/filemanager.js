@@ -3151,12 +3151,14 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                    // Create prompt window: path is a hidden
                                    // element in a form embedded in the New
                                    // menu dropdown.
-                                   var msg = '<div id="dropzone-container"><h2>' +
-                                             lg.current_folder +
-                                             $('#currentFolderName').val() +
-                                             '</h2><div id="multiple-uploads" class="dropzone"></div>';
-                                   msg +=
-                                     '<div id="total-progress"><div data-dz-uploadprogress="" style="width:0;" class="progress-bar"></div></div>';
+                                   var msg =  '<div id="dropzone-container"><h2>' +
+                                              lg.current_folder +
+                                              $('#currentFolderName').val() +
+                                              '</h2><div class="dz-scrollContainer">' +
+                                              '<div id="multiple-uploads" class="dropzone table table-striped files dz-clickable">' +
+                                              '</div></div>';
+                                   // msg +=
+                                   //   '<div id="total-progress"><div data-dz-uploadprogress="" style="width:0;" class="progress-bar"></div></div>';
                                    msg += '<div class="prompt-info">' +
                                           lg.dz_dictMaxFilesExceeded.replace('%s', config.upload.number) +
                                           lg.file_size_limit +
@@ -3174,21 +3176,38 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                      buttons: btns
                                    });
 
-                                   var $progressBar = $("#total-progress").find(".progress-bar");
+                                   // var $progressBar = $("#total-progress").find(".progress-bar");
                                    var $uploadResponse = $("#uploadresponse");
 
-                                   $("div#multiple-uploads").dropzone({
+                                   var previewItemTemplate =
+                                     "<div class=\"file-row\" >" +
+                                       "<div>" +
+                                          "<p class=\"name\" data-dz-name></p>" +
+                                          "<strong class=\"error text-danger\" data-dz-errormessage></strong>" +
+                                       "</div>" +
+                                       "<div>" +
+                                           "<p class=\"size\" data-dz-size></p>" +
+                                       "</div>" +
+                                           "<div class=\"dropzone-progressbar\">" +
+                                              "<div class=\"progress progress-striped active\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"0\">" +
+                                              "<div class=\"progress-bar progress-bar-success\" data-dz-uploadprogress></div>" +
+                                           "</div>" +
+                                       "</div>" +
+                                     "</div>";
+
+                                     $("div#multiple-uploads").dropzone({
                                                                         paramName: "upload",
+                                                                        previewTemplate : previewItemTemplate,
                                                                         url: contextPath +
                                                                              config.options.fileConnector + path,
                                                                         method: "PUT",
                                                                         maxFilesize: config.upload.fileSizeLimit,  // 10GB max.
-                                                                        maxFiles: config.upload.number,
+                                                                        // maxFiles: config.upload.number,
                                                                         addRemoveLinks: true,
                                                                         parallelUploads: config.upload.number,
                                                                         dictCancelUpload: lg.cancel,
                                                                         dictRemoveFile: lg.del,
-                                                                        dictMaxFilesExceeded: lg.dz_dictMaxFilesExceeded.replace("%s", config.upload.number),
+                                                                        // dictMaxFilesExceeded: lg.dz_dictMaxFilesExceeded.replace("%s", config.upload.number),
                                                                         dictDefaultMessage: lg.dz_dictDefaultMessage,
                                                                         acceptedFiles: null,
                                                                         autoProcessQueue: false,
@@ -3206,10 +3225,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                                                                                        dropzone.processQueue();
                                                                                                      });
                                                                         },
-                                                                        totaluploadprogress: function (progress)
-                                                                        {
-                                                                          $progressBar.css('width', progress + "%");
-                                                                        },
+                                                                        // totaluploadprogress: function (progress)
+                                                                        // {
+                                                                        //   // $progressBar.css('width', progress + "%");
+                                                                        // },
                                                                         sending: function (file, xhr, formData)
                                                                         {
                                                                           formData.append("mode", "add");
