@@ -103,12 +103,8 @@ public class PageServerResource extends StorageItemServerResource
             public void write(final Writer writer) throws IOException
             {
                 final CSVStorageItemProducer csvNodeProducer =
-                        new CSVStorageItemProducer(pageSize,
-                                                   getCurrentItemURI(),
-                                                   startURI,
-                                                   new StorageItemCSVWriter(writer),
-                                                   currentSubject,
-                                                   storageItemFactory,
+                        new CSVStorageItemProducer(pageSize, getCurrentItemURI(), startURI,
+                                                   new StorageItemCSVWriter(writer), currentSubject, storageItemFactory,
                                                    voSpaceClient);
 
                 try

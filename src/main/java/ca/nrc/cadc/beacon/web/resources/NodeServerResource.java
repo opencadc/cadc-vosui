@@ -70,20 +70,16 @@ package ca.nrc.cadc.beacon.web.resources;
 
 
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
-import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
 import ca.nrc.cadc.vos.Node;
-import ca.nrc.cadc.vos.NodeNotFoundException;
 import ca.nrc.cadc.vos.VOS;
-import ca.nrc.cadc.vos.VOSURI;
-import ca.nrc.cadc.vos.client.VOSpaceClient;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.restlet.data.Status;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 
-import java.io.FileNotFoundException;
 import java.security.AccessControlException;
+
 
 public class NodeServerResource extends StorageItemServerResource
 {
@@ -91,7 +87,8 @@ public class NodeServerResource extends StorageItemServerResource
     @Get("json")
     public void checkItemAccess() throws ResourceException
     {
-        Node requestedNode = getNode(getCurrentItemURI(), VOS.Detail.max, 0);
+        final Node requestedNode = getNode(getCurrentItemURI(), VOS.Detail.max, 0);
+
         // Node properties are in a known order, as in StorageItemCSVWriter.java
         final String writeGroupStr = requestedNode.getPropertyValue(VOS.PROPERTY_URI_WRITABLE);
         final String readGroupStr = requestedNode.getPropertyValue(VOS.PROPERTY_URI_READABLE);
@@ -106,8 +103,7 @@ public class NodeServerResource extends StorageItemServerResource
                 new JSONRepresentation()
                 {
                     @Override
-                    public void write(final JSONWriter jsonWriter)
-                            throws JSONException
+                    public void write(final JSONWriter jsonWriter) throws JSONException
                     {
                         jsonWriter.object().key("writeGroup").value(writeGroupStr).key("readGroup").value(readGroupStr)
                                 .endObject();

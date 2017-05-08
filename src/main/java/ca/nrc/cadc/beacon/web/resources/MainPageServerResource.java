@@ -81,7 +81,6 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 
-import javax.security.auth.Subject;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
@@ -152,12 +151,8 @@ public class MainPageServerResource extends StorageItemServerResource
             }
         };
 
-        final VOSURI startNextPageURI =
-                childNodes.isEmpty() ? null :
-                childNodes.get(childNodes.size() - 1).getUri();
-
-        final FolderItem folderItem =
-                storageItemFactory.getFolderItemView(containerNode);
+        final VOSURI startNextPageURI = childNodes.isEmpty() ? null : childNodes.get(childNodes.size() - 1).getUri();
+        final FolderItem folderItem = storageItemFactory.getFolderItemView(containerNode);
 
         return representFolderItem(folderItem, initialRows, startNextPageURI);
     }
@@ -167,8 +162,7 @@ public class MainPageServerResource extends StorageItemServerResource
         return getContextAttribute(VOSpaceApplication.FREEMARKER_CONFIG_KEY);
     }
 
-    Representation representFolderItem(final FolderItem folderItem,
-                                       final Iterator<String> initialRows,
+    Representation representFolderItem(final FolderItem folderItem, final Iterator<String> initialRows,
                                        final VOSURI startNextPageURI)
             throws Exception
     {
@@ -180,14 +174,7 @@ public class MainPageServerResource extends StorageItemServerResource
 
 
         // Explicitly set whether folder is writable or not, handling null situation as equal to false
-        if (folderItem.isWritable() == null || !folderItem.isWritable())
-        {
-            dataModel.put("folderWritable", false);
-        }
-        else
-        {
-            dataModel.put("folderWritable", true);
-        }
+        dataModel.put("folderWritable", folderItem.isWritable());
         dataModel.put("folder", folderItem);
 
         if (startNextPageURI != null)

@@ -57,7 +57,7 @@
     "destination_folder": "destination folder",
     "dimensions": "Dimensions", 
     "download": "Download", 
-    "dz_dictDefaultMessage": "Drop files here to upload",
+    "dz_dictDefaultMessage": "Click or drop files here to upload",
     "dz_dictFallbackMessage": "Your browser does not support drag'n'drop file uploads.",
     "dz_dictMaxFilesExceeded": "Only %s simultaneous uploads are allowed.",
     "dz_dictInvalidFileType": "You can't upload files of this type.",

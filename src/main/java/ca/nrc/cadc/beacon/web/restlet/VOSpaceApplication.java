@@ -71,22 +71,28 @@ package ca.nrc.cadc.beacon.web.restlet;
 import ca.nrc.cadc.ac.client.GMSClient;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
 
+import ca.nrc.cadc.auth.PrincipalExtractor;
 import ca.nrc.cadc.beacon.web.resources.*;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
+import ca.nrc.cadc.web.RestletPrincipalExtractor;
+import ca.nrc.cadc.web.SubjectGenerator;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.SystemConfiguration;
 import org.restlet.*;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.resource.Directory;
+import org.restlet.resource.ResourceException;
 import org.restlet.routing.Router;
 import org.restlet.routing.TemplateRoute;
 import org.restlet.routing.Variable;
 
+import javax.security.auth.Subject;
 import javax.servlet.ServletContext;
 import java.net.URI;
+import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -295,21 +301,48 @@ public class VOSpaceApplication extends Application
             {
                 final Context context = getContext();
                 final Router router = (Router) super.createInboundRoot();
-                final String[] staticDirs = {"js", "css", "scripts", "fonts",
-                                             "themes"};
+                final String[] staticDirs = {"js", "css", "scripts", "fonts", "themes"};
 
                 router.attachDefault(MainPageServerResource.class);
 
                 for (final String dir : staticDirs)
                 {
-                    final Reference dirReference =
-                            new Reference(URI.create(
-                                    "clap://class/META-INF/resources/" + dir));
-                    router.attach(DEFAULT_CONTEXT_PATH + dir + "/",
-                                  new Directory(context, dirReference));
+                    final Reference dirReference = new Reference(URI.create("clap://class/META-INF/resources/" + dir));
+                    router.attach(DEFAULT_CONTEXT_PATH + dir + "/", new Directory(context, dirReference));
                 }
 
                 return router;
+            }
+
+            void handleInParent(final Request request, final Response response)
+            {
+                super.handle(request, response);
+            }
+
+            @Override
+            public void handle(final Request request, final Response response)
+            {
+                final SubjectGenerator subjectGenerator = new SubjectGenerator();
+                final PrincipalExtractor principalExtractor = new RestletPrincipalExtractor(request);
+
+                try
+                {
+                    final Subject subject = subjectGenerator.generate(principalExtractor);
+
+                    Subject.doAs(subject, new PrivilegedExceptionAction<Object>()
+                    {
+                        @Override
+                        public Object run() throws Exception
+                        {
+                            handleInParent(request, response);
+                            return null;
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    throw new ResourceException(e);
+                }
             }
         };
 

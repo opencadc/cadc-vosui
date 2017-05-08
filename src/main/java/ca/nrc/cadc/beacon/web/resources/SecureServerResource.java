@@ -69,7 +69,6 @@
 package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.auth.AuthenticationUtil;
-import ca.nrc.cadc.auth.SSOCookieCredential;
 import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.web.RestletPrincipalExtractor;
@@ -85,7 +84,6 @@ import javax.security.auth.Subject;
 import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
 
 
 class SecureServerResource extends ServerResource
@@ -120,54 +118,27 @@ class SecureServerResource extends ServerResource
         this.subjectGenerator = subjectGenerator;
     }
 
+
     Subject getCurrentUser()
     {
         final Request request = getRequest();
-        return AuthenticationUtil.getSubject(
-                new RestletPrincipalExtractor(request));
+        return AuthenticationUtil.getSubject(new RestletPrincipalExtractor(request));
     }
 
     RegistryClient getRegistryClient()
     {
-        return (RegistryClient) getContext().getAttributes().get(
-                VOSpaceApplication.REGISTRY_CLIENT_KEY);
+        return (RegistryClient) getContext().getAttributes().get(VOSpaceApplication.REGISTRY_CLIENT_KEY);
     }
 
     Subject generateVOSpaceUser() throws IOException
     {
-        return subjectGenerator.generate(
-                new RestletPrincipalExtractor(getRequest()));
-    }
-
-    SSOCookieCredential getCurrentSSOCookie()
-    {
-        final Subject subject = getCurrentUser();
-
-        if (subject == null)
-        {
-            return null;
-        }
-        else
-        {
-            final Set<SSOCookieCredential> cookieCredentials =
-                    subject.getPublicCredentials(
-                            SSOCookieCredential.class);
-
-            return cookieCredentials.isEmpty()
-                   ? null
-                   : cookieCredentials.toArray(
-                    new SSOCookieCredential[
-                            cookieCredentials.size()])[0];
-        }
+        return subjectGenerator.generate(new RestletPrincipalExtractor(getRequest()));
     }
 
     ServletContext getServletContext()
     {
-        final Map<String, Object> attributes =
-                getApplication().getContext().getAttributes();
-
-        return (ServletContext) attributes.get(
-                VOSpaceApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
+        final Map<String, Object> attributes = getApplication().getContext().getAttributes();
+        return (ServletContext) attributes.get(VOSpaceApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
     }
 
     /**
@@ -179,8 +150,7 @@ class SecureServerResource extends ServerResource
     String getContextPath()
     {
         return (getServletContext() == null)
-               ? VOSpaceApplication.DEFAULT_CONTEXT_PATH
-               : getServletContext().getContextPath();
+               ? VOSpaceApplication.DEFAULT_CONTEXT_PATH : getServletContext().getContextPath();
     }
 
     protected String getPath()
@@ -188,6 +158,11 @@ class SecureServerResource extends ServerResource
         return getRequest().getResourceRef().getPath();
     }
 
+    /**
+     * Write out the given status and representation body to the response.
+     * @param status                The Status to set.
+     * @param representation        The representation used for the body of the response.
+     */
     void writeResponse(final Status status, final Representation representation)
     {
         final Response response = getResponse();
