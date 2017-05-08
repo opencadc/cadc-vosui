@@ -314,10 +314,14 @@ div.itemTree {
 div.dz-scrollContainer {
   height: 250px;
   overflow: auto;
+
 }
 
 div.table {
-  display: table;
+  display: inline-block;
+  height: 250px;
+  overflow: auto;
+  margin: 0px;
 }
 
 div.table .file-row {
@@ -344,10 +348,4 @@ div.dropzone-progressbar > div.progress {
 
 div.dropzone  a {
   margin: 20px;
-}
-
-
-/* Override filemanager.css value for background */
-#totalProgress {
-  background-color: #F4F1ED;
 }

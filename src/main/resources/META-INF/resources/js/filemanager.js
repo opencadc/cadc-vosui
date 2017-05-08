@@ -3162,8 +3162,8 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                               '</h2><div class="dz-scrollContainer">' +
                                               '<div id="multiple-uploads" class="dropzone table table-striped files dz-clickable">' +
                                               '</div></div>';
-                                   msg +=
-                                     '<div id="total-progress"><div data-dz-uploadprogress="" style="width:0;" class="progress-bar"></div></div>';
+                                   // msg +=
+                                   //   '<div id="total-progress"><div data-dz-uploadprogress="" style="width:0;" class="progress-bar"></div></div>';
                                    msg += '<div class="prompt-info">' +
                                           lg.dz_dictMaxFilesExceeded.replace('%s', config.upload.number) +
                                           lg.file_size_limit +
@@ -3181,7 +3181,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                      buttons: btns
                                    });
 
-                                   var $progressBar = $("#total-progress").find(".progress-bar");
+                                   // var $progressBar = $("#total-progress").find(".progress-bar");
                                    var $uploadResponse = $("#uploadresponse");
 
                                    var previewItemTemplate =
@@ -3230,10 +3230,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                                                                                        dropzone.processQueue();
                                                                                                      });
                                                                         },
-                                                                        totaluploadprogress: function (progress)
-                                                                        {
-                                                                          $progressBar.css('width', progress + "%");
-                                                                        },
+                                                                        // totaluploadprogress: function (progress)
+                                                                        // {
+                                                                        //   // $progressBar.css('width', progress + "%");
+                                                                        // },
                                                                         sending: function (file, xhr, formData)
                                                                         {
                                                                           formData.append("mode", "add");
