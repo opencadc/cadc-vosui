@@ -419,6 +419,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     public void clickEditIconForFirstRow() throws Exception
     {
         final By firstRowBy = xpath(EDIT_ICON_BY_FIRST_PART + "1" + EDIT_ICON_BY_SECOND_PART);
+        waitForElementVisible(firstRowBy);
         click(firstRowBy);
     }
 
