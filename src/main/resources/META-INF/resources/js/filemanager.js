@@ -3162,13 +3162,13 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                               '</h2><div class="dz-scrollContainer">' +
                                               '<div id="multiple-uploads" class="dropzone table table-striped files dz-clickable">' +
                                               '</div></div>';
-                                   // msg +=
-                                   //   '<div id="total-progress"><div data-dz-uploadprogress="" style="width:0;" class="progress-bar"></div></div>';
+
+                                   msg +=
+                                       '<div id="total-progress"><div data-dz-uploadprogress="" style="width:0;" class="progress-bar"></div></div>';
+
                                    msg += '<div class="prompt-info">' +
-                                          lg.dz_dictMaxFilesExceeded.replace('%s', config.upload.number) +
-                                          lg.file_size_limit +
-                                          config.upload.fileSizeLimit + " " +
-                                          lg.mb + ".</div>";
+                                          '<a href="http://www.canfar.net/en/resources/docs/storage/">'+ lg.alternative_large_file_count_msg +'</a></div>';
+
                                    msg += '<button id="process-upload">' +
                                           lg.upload + '</button></div>';
 
@@ -3181,7 +3181,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                      buttons: btns
                                    });
 
-                                   // var $progressBar = $("#total-progress").find(".progress-bar");
+
+
+                                   var $progressBar = $("#total-progress").find(".progress-bar");
+
                                    var $uploadResponse = $("#uploadresponse");
 
                                    var previewItemTemplate =
@@ -3206,13 +3209,11 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                                                         url: contextPath +
                                                                              config.options.fileConnector + path,
                                                                         method: "PUT",
-                                                                        maxFilesize: config.upload.fileSizeLimit,  // 10GB max.
-                                                                        // maxFiles: config.upload.number,
+                                                                        maxFiles: null,
                                                                         addRemoveLinks: true,
                                                                         parallelUploads: config.upload.number,
                                                                         dictCancelUpload: lg.cancel,
                                                                         dictRemoveFile: lg.del,
-                                                                        // dictMaxFilesExceeded: lg.dz_dictMaxFilesExceeded.replace("%s", config.upload.number),
                                                                         dictDefaultMessage: lg.dz_dictDefaultMessage,
                                                                         acceptedFiles: null,
                                                                         autoProcessQueue: false,
@@ -3230,10 +3231,10 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                                                                                        dropzone.processQueue();
                                                                                                      });
                                                                         },
-                                                                        // totaluploadprogress: function (progress)
-                                                                        // {
-                                                                        //   // $progressBar.css('width', progress + "%");
-                                                                        // },
+                                                                         totaluploadprogress: function (progress)
+                                                                         {
+                                                                           $progressBar.css('width', progress + "%");
+                                                                         },
                                                                         sending: function (file, xhr, formData)
                                                                         {
                                                                           formData.append("mode", "add");
@@ -3241,8 +3242,23 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                                                         },
                                                                         error: function (file, response)
                                                                         {
-                                                                          var message = (typeof response === "string")
-                                                                              ? response : response.message;
+                                                                          var message = "";
+                                                                          if (typeof response === "string")
+                                                                          {
+                                                                            message = response;
+                                                                          }
+                                                                          else if (response.hasOwnProperty("error"))
+                                                                          {
+                                                                            message = response.error;
+                                                                          }
+                                                                          else if (response.hasOwnProperty("message"))
+                                                                          {
+                                                                            message = response.message;
+                                                                          }
+                                                                          else
+                                                                          {
+                                                                            message = lg.unknown_error;
+                                                                          }
 
                                                                           // Decorate the individual files.
                                                                           file.previewElement.classList.add("dz-error");
@@ -3263,19 +3279,23 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                                                           $uploadResponse.empty().text(jsonResponse);
 
                                                                           this.removeFile(file);
-
-                                                                          $.prompt(lg.successful_added_file, {
-                                                                            submit: function ()
-                                                                            {
-                                                                              refreshPage();
-                                                                            }
-                                                                          });
+                                                                           if (this.files.length === 0)
+                                                                           {
+                                                                             $.prompt(lg.successful_added_file, {
+                                                                               submit: function () {
+                                                                                 refreshPage();
+                                                                               }
+                                                                             });
+                                                                           }
+                                                                           else
+                                                                           {
+                                                                             // Grab the next file in the queue
+                                                                             this.processQueue();
+                                                                           }
                                                                         }
                                                                       });
 
                                  });
-
-        // Simple Upload
       }
       else
       {

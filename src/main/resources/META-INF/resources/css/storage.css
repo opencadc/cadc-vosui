@@ -314,11 +314,10 @@ div.itemTree {
 div.dz-scrollContainer {
   height: 250px;
   overflow: auto;
-
 }
 
 div.table {
-  display: inline-block;
+  display: table;
   height: 250px;
   overflow: auto;
   margin: 0px;
@@ -348,4 +347,8 @@ div.dropzone-progressbar > div.progress {
 
 div.dropzone  a {
   margin: 20px;
+}
+
+#total-progress {
+  margin-top: 10px;
 }
