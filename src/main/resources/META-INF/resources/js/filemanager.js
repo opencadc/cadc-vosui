@@ -3156,12 +3156,12 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                    // Create prompt window: path is a hidden
                                    // element in a form embedded in the New
                                    // menu dropdown.
-                                   var msg = '<div id="dropzone-container"><h2>' +
-                                             lg.current_folder +
-                                             $('#currentFolderName').val() +
-                                             // '</h2><div id="multiple-uploads" class="dropzone">' +
-                                       '</h2><div id="multiple-uploads" class="dropzone table table-striped files dz-clickable">' +
-                                              '</div>';
+                                   var msg =  '<div id="dropzone-container"><h2>' +
+                                              lg.current_folder +
+                                              $('#currentFolderName').val() +
+                                              '</h2><div class="dz-scrollContainer">' +
+                                              '<div id="multiple-uploads" class="dropzone table table-striped files dz-clickable">' +
+                                              '</div></div>';
                                    msg +=
                                      '<div id="total-progress"><div data-dz-uploadprogress="" style="width:0;" class="progress-bar"></div></div>';
                                    msg += '<div class="prompt-info">' +
@@ -3198,9 +3198,6 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                               "<div class=\"progress-bar progress-bar-success\" data-dz-uploadprogress></div>" +
                                            "</div>" +
                                        "</div>" +
-                                     "<div>" +
-                                     "<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>Delete</a>" +
-                                     "</div>" +
                                      "</div>";
 
                                      $("div#multiple-uploads").dropzone({

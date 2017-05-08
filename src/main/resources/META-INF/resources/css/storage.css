@@ -309,13 +309,21 @@ div.itemTree {
 }
 
 /* CSS for Dropzone */
+/* display: table;  */
+
+div.dz-scrollContainer {
+  height: 250px;
+  overflow: auto;
+}
 
 div.table {
   display: table;
 }
+
 div.table .file-row {
   display: table-row;
 }
+
 div.table .file-row > div {
   display: table-cell;
   vertical-align: top;
@@ -336,4 +344,10 @@ div.dropzone-progressbar > div.progress {
 
 div.dropzone  a {
   margin: 20px;
+}
+
+
+/* Override filemanager.css value for background */
+#totalProgress {
+  background-color: #F4F1ED;
 }
