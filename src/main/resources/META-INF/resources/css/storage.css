@@ -307,3 +307,33 @@ div.itemTree {
 .layerItemName {
     cursor:pointer;
 }
+
+/* CSS for Dropzone */
+
+div.table {
+  display: table;
+}
+div.table .file-row {
+  display: table-row;
+}
+div.table .file-row > div {
+  display: table-cell;
+  vertical-align: top;
+  border-bottom: 1px solid #ddd;
+
+}
+div.table .file-row:nth-child(odd) {
+  background: #f9f9f9;
+}
+
+.dropzone-progressbar {
+  width: 100px;
+}
+
+div.dropzone-progressbar > div.progress {
+  margin: 10px;
+}
+
+div.dropzone  a {
+  margin: 20px;
+}
