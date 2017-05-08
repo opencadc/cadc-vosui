@@ -71,22 +71,28 @@ package ca.nrc.cadc.beacon.web.restlet;
 import ca.nrc.cadc.ac.client.GMSClient;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
 
+import ca.nrc.cadc.auth.PrincipalExtractor;
 import ca.nrc.cadc.beacon.web.resources.*;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
+import ca.nrc.cadc.web.RestletPrincipalExtractor;
+import ca.nrc.cadc.web.SubjectGenerator;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.SystemConfiguration;
 import org.restlet.*;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.resource.Directory;
+import org.restlet.resource.ResourceException;
 import org.restlet.routing.Router;
 import org.restlet.routing.TemplateRoute;
 import org.restlet.routing.Variable;
 
+import javax.security.auth.Subject;
 import javax.servlet.ServletContext;
 import java.net.URI;
+import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -94,30 +100,16 @@ import java.util.Map;
 public class VOSpaceApplication extends Application
 {
     // Public properties are made available in the Context.
-    public static final String VOSPACE_CLIENT_KEY =
-            "org.opencadc.vospace.client";
-    public static final String REGISTRY_CLIENT_KEY =
-            "org.opencadc.registry.client";
-    public static final String ACCESS_CONTROL_CLIENT_KEY =
-            "org.opencadc.ac.client";
-    public static final String VOSPACE_SERVICE_ID_KEY =
-            "org.opencadc.vospace.service_id";
-    public static final String FREEMARKER_CONFIG_KEY =
-            "org.opencadc.vospace.freemarker-config";
-
-    public static final String SERVLET_CONTEXT_ATTRIBUTE_KEY =
-            "org.restlet.ext.servlet.ServletContext";
-
+    public static final String VOSPACE_CLIENT_KEY = "org.opencadc.vospace.client";
+    public static final String REGISTRY_CLIENT_KEY = "org.opencadc.registry.client";
+    public static final String ACCESS_CONTROL_CLIENT_KEY = "org.opencadc.ac.client";
+    public static final String VOSPACE_SERVICE_ID_KEY = "org.opencadc.vospace.service_id";
+    public static final String FREEMARKER_CONFIG_KEY = "org.opencadc.vospace.freemarker-config";
+    public static final String SERVLET_CONTEXT_ATTRIBUTE_KEY = "org.restlet.ext.servlet.ServletContext";
     public static final String DEFAULT_CONTEXT_PATH = "/storage/";
-
-    private static final String DEFAULT_SERVICE_ID =
-            "ivo://cadc.nrc.ca/vospace";
-
-    private static final String DEFAULT_GMS_SERVICE_ID =
-            "ivo://cadc.nrc.ca/gms";
-
-    public static final String GMS_SERVICE_PROPERTY_KEY =
-            "org.opencadc.gms.service_id";
+    private static final String DEFAULT_SERVICE_ID = "ivo://cadc.nrc.ca/vospace";
+    private static final String DEFAULT_GMS_SERVICE_ID = "ivo://cadc.nrc.ca/gms";
+    public static final String GMS_SERVICE_PROPERTY_KEY = "org.opencadc.gms.service_id";
 
 
     private final Configuration configuration = new SystemConfiguration();
@@ -152,66 +144,44 @@ public class VOSpaceApplication extends Application
         final Context context = getContext();
 
         context.getAttributes().put(VOSPACE_CLIENT_KEY, createVOSpaceClient());
-        context.getAttributes().put(REGISTRY_CLIENT_KEY,
-                                    createRegistryClient());
-        context.getAttributes().put(ACCESS_CONTROL_CLIENT_KEY,
-                                    createAccessControlClient());
-        context.getAttributes().put(GMS_SERVICE_PROPERTY_KEY,
-                                    createGMSClient());
-        context.getAttributes().put(VOSPACE_SERVICE_ID_KEY,
-                                    URI.create(configuration.getString(
-                                            VOSPACE_SERVICE_ID_KEY,
-                                            DEFAULT_SERVICE_ID)));
-        context.getAttributes().put(FREEMARKER_CONFIG_KEY,
-                                    createFreemarkerConfig());
+        context.getAttributes().put(REGISTRY_CLIENT_KEY, createRegistryClient());
+        context.getAttributes().put(ACCESS_CONTROL_CLIENT_KEY, createAccessControlClient());
+        context.getAttributes().put(GMS_SERVICE_PROPERTY_KEY, createGMSClient());
+        context.getAttributes().put(VOSPACE_SERVICE_ID_KEY, URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY,
+                                                                                               DEFAULT_SERVICE_ID)));
+        context.getAttributes().put(FREEMARKER_CONFIG_KEY, createFreemarkerConfig());
 
         final ServletContext servletContext = getServletContext();
-
-        final String contextPath = (servletContext == null)
-                                   ? DEFAULT_CONTEXT_PATH : "/";
-
+        final String contextPath = (servletContext == null) ? DEFAULT_CONTEXT_PATH : "/";
         final Router router = new Router(context);
 
-        router.attach(contextPath + "ac/authenticate",
-                      AccessControlServerResource.class);
+        router.attach(contextPath + "ac/authenticate", AccessControlServerResource.class);
 
-        router.attach(contextPath + "groups",
-                      GroupNameServerResource.class);
+        router.attach(contextPath + "groups", GroupNameServerResource.class);
 
-        router.attach(contextPath + "page",
-                      PageServerResource.class);
-        final TemplateRoute pageRoute =
-                router.attach(contextPath + "page/{path}",
-                              PageServerResource.class);
+        router.attach(contextPath + "page", PageServerResource.class);
+        final TemplateRoute pageRoute = router.attach(contextPath + "page/{path}",
+                                                      PageServerResource.class);
 
         // Allow for an empty path to be the root.
-        router.attach(contextPath + "list",
-                      MainPageServerResource.class);
-        router.attach(contextPath + "list/",
-                      MainPageServerResource.class);
+        router.attach(contextPath + "list", MainPageServerResource.class);
+        router.attach(contextPath + "list/", MainPageServerResource.class);
 
         // Generic endpoint for files, folders, or links.
-        final TemplateRoute itemRoute =
-                router.attach(contextPath + "item/{path}",
-                              StorageItemServerResource.class);
-        final TemplateRoute folderRoute =
-                router.attach(contextPath + "folder/{path}",
-                              FolderItemServerResource.class);
-        final TemplateRoute fileRoute =
-                router.attach(contextPath + "file/{path}",
-                              FileItemServerResource.class);
-        final TemplateRoute linkRoute =
-                router.attach(contextPath + "link/{path}",
-                              LinkItemServerResource.class);
-        final TemplateRoute listRoute =
-                router.attach(contextPath + "list/{path}",
-                              MainPageServerResource.class);
-        final TemplateRoute nodeRoute =
-                router.attach(contextPath + "access/{path}",
-                            NodeServerResource.class);
-        final TemplateRoute rawRoute =
-                router.attach(contextPath + "raw/{path}",
-                              MainPageServerResource.class);
+        final TemplateRoute itemRoute = router.attach(contextPath + "item/{path}",
+                                                      StorageItemServerResource.class);
+        final TemplateRoute folderRoute = router.attach(contextPath + "folder/{path}",
+                                                        FolderItemServerResource.class);
+        final TemplateRoute fileRoute = router.attach(contextPath + "file/{path}",
+                                                      FileItemServerResource.class);
+        final TemplateRoute linkRoute = router.attach(contextPath + "link/{path}",
+                                                      LinkItemServerResource.class);
+        final TemplateRoute listRoute = router.attach(contextPath + "list/{path}",
+                                                      MainPageServerResource.class);
+        final TemplateRoute nodeRoute = router.attach(contextPath + "access/{path}",
+                                                      NodeServerResource.class);
+        final TemplateRoute rawRoute = router.attach(contextPath + "raw/{path}",
+                                                     MainPageServerResource.class);
 
         final Map<String, Variable> routeVariables = new HashMap<>();
         routeVariables.put("path", new Variable(Variable.TYPE_URI_PATH));
@@ -223,6 +193,7 @@ public class VOSpaceApplication extends Application
         fileRoute.getTemplate().getVariables().putAll(routeVariables);
         listRoute.getTemplate().getVariables().putAll(routeVariables);
         rawRoute.getTemplate().getVariables().putAll(routeVariables);
+        nodeRoute.getTemplate().getVariables().putAll(routeVariables);
 
         router.setContext(getContext());
         return router;
@@ -230,9 +201,7 @@ public class VOSpaceApplication extends Application
 
     private VOSpaceClient createVOSpaceClient()
     {
-        return new VOSpaceClient(URI.create(
-                configuration.getString(VOSPACE_SERVICE_ID_KEY,
-                                        DEFAULT_SERVICE_ID)));
+        return new VOSpaceClient(URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY, DEFAULT_SERVICE_ID)));
     }
 
     private RegistryClient createRegistryClient()
@@ -242,34 +211,29 @@ public class VOSpaceApplication extends Application
 
     private AccessControlClient createAccessControlClient()
     {
-        return new AccessControlClient(URI.create(
-                configuration.getString(
-                        VOSpaceApplication.GMS_SERVICE_PROPERTY_KEY,
-                        VOSpaceApplication.DEFAULT_GMS_SERVICE_ID)));
+        return new AccessControlClient(URI.create(configuration.getString(VOSpaceApplication.GMS_SERVICE_PROPERTY_KEY,
+                                                                          VOSpaceApplication.DEFAULT_GMS_SERVICE_ID)));
     }
 
     private GMSClient createGMSClient()
     {
-        return new GMSClient(URI.create(
-                configuration.getString(
-                        VOSpaceApplication.GMS_SERVICE_PROPERTY_KEY,
-                        VOSpaceApplication.DEFAULT_GMS_SERVICE_ID)));
+        return new GMSClient(URI.create(configuration.getString(VOSpaceApplication.GMS_SERVICE_PROPERTY_KEY,
+                                                                VOSpaceApplication.DEFAULT_GMS_SERVICE_ID)));
     }
 
     private ServletContext getServletContext()
     {
-        return (ServletContext) getContext().getAttributes().get(
-                VOSpaceApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
+        return (ServletContext) getContext().getAttributes().get(VOSpaceApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
     }
 
     /**
      * Override this to set a custom FreeMarkerConfiguration.
-     * @return          FreeMarkerConfiguration instance.
+     *
+     * @return FreeMarkerConfiguration instance.
      */
     protected FreeMarkerConfiguration createFreemarkerConfig()
     {
-        final FreeMarkerConfiguration freeMarkerConfiguration =
-                new FreeMarkerConfiguration();
+        final FreeMarkerConfiguration freeMarkerConfiguration = new FreeMarkerConfiguration();
         freeMarkerConfiguration.addDefault(getServletContext());
 
         return freeMarkerConfiguration;
@@ -279,8 +243,7 @@ public class VOSpaceApplication extends Application
     public static void main(final String[] args) throws Exception
     {
         final Component component = new Component();
-        final Application application = new VOSpaceApplication(
-                component.getContext().createChildContext())
+        final Application application = new VOSpaceApplication(component.getContext().createChildContext())
         {
             /**
              * Creates a inbound root Restlet that will receive all incoming calls. In
@@ -295,21 +258,48 @@ public class VOSpaceApplication extends Application
             {
                 final Context context = getContext();
                 final Router router = (Router) super.createInboundRoot();
-                final String[] staticDirs = {"js", "css", "scripts", "fonts",
-                                             "themes"};
+                final String[] staticDirs = {"js", "css", "scripts", "fonts", "themes"};
 
                 router.attachDefault(MainPageServerResource.class);
 
                 for (final String dir : staticDirs)
                 {
-                    final Reference dirReference =
-                            new Reference(URI.create(
-                                    "clap://class/META-INF/resources/" + dir));
-                    router.attach(DEFAULT_CONTEXT_PATH + dir + "/",
-                                  new Directory(context, dirReference));
+                    final Reference dirReference = new Reference(URI.create("clap://class/META-INF/resources/" + dir));
+                    router.attach(DEFAULT_CONTEXT_PATH + dir + "/", new Directory(context, dirReference));
                 }
 
                 return router;
+            }
+
+            void handleInParent(final Request request, final Response response)
+            {
+                super.handle(request, response);
+            }
+
+            @Override
+            public void handle(final Request request, final Response response)
+            {
+                final SubjectGenerator subjectGenerator = new SubjectGenerator();
+                final PrincipalExtractor principalExtractor = new RestletPrincipalExtractor(request);
+
+                try
+                {
+                    final Subject subject = subjectGenerator.generate(principalExtractor);
+
+                    Subject.doAs(subject, new PrivilegedExceptionAction<Object>()
+                    {
+                        @Override
+                        public Object run() throws Exception
+                        {
+                            handleInParent(request, response);
+                            return null;
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    throw new ResourceException(e);
+                }
             }
         };
 

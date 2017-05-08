@@ -77,12 +77,9 @@ directory for that user actually exists -->
         src="${contextPath}js/jquery.csv-0.71.min.js"></script>
 <script type="text/javascript" src="${contextPath}js/jquery-browser.js"></script>
 <script type="text/javascript" src="${contextPath}js/jquery.form-3.24.js"></script>
-<script type="text/javascript"
-        src="${contextPath}js/jquery.contextmenu/jquery.contextMenu-1.01.js"></script>
-<script type="text/javascript"
-        src="${contextPath}js/jquery.tablesorter-2.7.2.min.js"></script>
-<script type="text/javascript"
-        src="${contextPath}js/jquery-impromptu.min.js"></script>
+<script type="text/javascript" src="${contextPath}js/jquery.contextmenu/jquery.contextMenu-1.01.js"></script>
+<script type="text/javascript" src="${contextPath}js/jquery.tablesorter-2.7.2.min.js"></script>
+<script type="text/javascript" src="${contextPath}js/jquery-impromptu.min.js"></script>
 <script type="text/javascript" src="${contextPath}js/jquery-ui.min.js"></script>
 <script type="text/javascript" src="${contextPath}js/CollapsibleLists.compressed.js"></script>
 <script type="text/javascript" src="${contextPath}js/filemanager.js"></script>
@@ -102,27 +99,23 @@ directory for that user actually exists -->
                     <#-- Intercept the JavaScript here for the Folder Details button. -->
                     <#if !isRoot>
                       // Activate the Details button.
-                      $('[data-toggle="popover"]').popover(
+                      $("[data-toggle=\"popover\"]").popover(
                           {
                             html: true,
                             title: "<strong>${folder.name}</strong>",
                             content: function ()
                             {
-                              return '<table class="table table-condensed table-bordered">'
-                                     +
-                                     '<tbody><tr><td>Owned by</td><td class="info"><strong>${folder.ownerCN}</strong></td></tr>'
-                                     +
-                                     '<tr><td>Last used</td><td class="info">${folder.lastModifiedHumanReadable}</td></tr>'
-                                     +
-                                     '<tr><td colspan="2">Is <#if !folderWritable><span class="text-danger">not </span></#if>writable by you.</td></tr>'
-                                     + '</tbody></table>';
+                              return "<table class=\"table table-condensed table-bordered\">"
+                                     + "<tbody><tr><td>Owned by</td><td class=\"info\"><strong>${folder.ownerCN}</strong></td></tr>"
+                                     + "<tr><td>Last used</td><td class=\"info\">${folder.lastModifiedHumanReadable}</td></tr>"
+                                     + "<tr><td colspan=\"2\">Is <#if !folderWritable><span class=\"text-danger\">not </span></#if>writable by you.</td></tr>"
+                                     + "</tbody></table>";
                             }
                           });
                     </#if>
 
                       // Override CSS for search filter field.
-                      $.fn.DataTable.ext.oStdClasses.sFilter =
-                          "dataTables_filter";
+                      $.fn.DataTable.ext.oStdClasses.sFilter = "dataTables_filter";
 
                       // For quick pre-load.
                       var rows = [];
@@ -130,29 +123,23 @@ directory for that user actually exists -->
                       rows.push([${row}]);
                     </#list>
 
-                      $.getJSON('${contextPath}scripts/languages/' +
-                                $("html").attr("lang") + '.json')
+                      $.getJSON("${contextPath}scripts/languages/" + $("html").attr("lang") + ".json")
                           .done(function (json)
                                 {
-                                  // Row count is 100 by default to just show
-                                  // a moving barber pole progress.
-                                  fileManager(rows, $("#beacon"),
-                                              "<#if startURI??>${startURI}</#if>",
-                                              "${folder.path}", ${folderWritable?c},
-                                              100 , json, "${contextPath}", true);
+                                  // Initial row count is 100 by default to just show a moving barber pole progress.
+                                  fileManager(rows, $("#beacon"), "<#if startURI??>${startURI}</#if>", "${folder.path}",
+                                              ${folderWritable?c}, 100 , json, "${contextPath}", true);
                                 })
                           .fail(function (request, textStatus, errorThrown)
                                 {
-                                  console.log("Error (" + request.status + "): "
-                                              + textStatus + "\n" +
-                                              errorThrown);
+                                  console.log("Error (" + request.status + "): " + textStatus + "\n" + errorThrown);
                                 });
 
                       $(document).on("click", "a#logout", function ()
                       {
                         $.ajax({
-                                 url: '${contextPath}ac/authenticate',
-                                 method: 'DELETE'
+                                 url: "${contextPath}ac/authenticate",
+                                 method: "DELETE"
                                })
                             .done(function ()
                                   {

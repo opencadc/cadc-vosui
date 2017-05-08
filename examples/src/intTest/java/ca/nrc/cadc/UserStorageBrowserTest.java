@@ -184,7 +184,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.CANCEL);
 
         PermissionsFormData formData = userStoragePage.getValuesFromEditIcon();
-        Boolean isModifyNode = true;
+        boolean isModifyNode = true;
 
         // Set read group to blank (owner access only)
         // Depending on whether the permissions on automated_test parent folder have been changed,

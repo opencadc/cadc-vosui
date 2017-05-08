@@ -82,7 +82,7 @@ public class FolderItem extends StorageItem
     public FolderItem(VOSURI uri, long sizeInBytes, Date lastModified,
                       boolean publicFlag, boolean lockedFlag,
                       URI[] writeGroupURIs, URI[] readGroupURIs, String owner,
-                      boolean readableFlag, final Boolean writableFlag,
+                      boolean readableFlag, final boolean writableFlag,
                       final int childCount, String targetURL)
     {
         super(uri, sizeInBytes, lastModified, publicFlag, lockedFlag,

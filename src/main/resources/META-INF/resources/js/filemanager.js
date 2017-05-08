@@ -16,8 +16,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
 // function to retrieve GET params
   $.urlParam = function (name)
   {
-    var results = new RegExp('[\\?&]' + name +
-                             '=([^&#]*)').exec(window.location.href);
+    var results = new RegExp("[\\?&]" + name + "=([^&#]*)").exec(window.location.href);
     return results ? results[1] : 0;
   };
 
@@ -240,10 +239,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             var renderedValue = "";
 
             // if isWritable bit is true, provide edit icon
-            // need to check if person is logged in for second parameter
-            // to be pertinent.
-            if (full[13] === "true" ||
-                  (($("#loginForm").size() == 0) && full[13] === "null"))
+            if (full[13] === "true")
             {
               renderedValue += makeEditIcon(contextPath, full);
             }
@@ -261,8 +257,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
             var renderedValue = "";
 
             // if isWritable bit is true, provide edit icon
-            if (full[13] === "true" ||
-                (($("#loginForm").size() == 0) && full[13] === "null"))
+            if (full[13] === "true")
             {
               renderedValue += makeEditIcon(contextPath, full);
             }

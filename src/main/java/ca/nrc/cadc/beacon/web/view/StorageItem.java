@@ -83,8 +83,7 @@ import java.util.Date;
 
 public abstract class StorageItem
 {
-    private static final FileSizeRepresentation FILE_SIZE_REPRESENTATION =
-            new FileSizeRepresentation();
+    private static final FileSizeRepresentation FILE_SIZE_REPRESENTATION = new FileSizeRepresentation();
     private static final DateFormat DATE_FORMAT =
             DateUtil.getDateFormat("yyyy-MM-dd ' - ' HH:mm:ss", DateUtil.UTC);
     static final String NO_SIZE_DISPLAY = "--";
@@ -96,7 +95,9 @@ public abstract class StorageItem
     private final URI[] readGroupURIs;
     private final String owner;
     private final boolean readableFlag;
-    private final Boolean writableFlag;
+
+    // This is NOT guaranteed writable for the ROOT page, only on subsequent pages.
+    private final boolean writableFlag;
     private final String targetURL;
 
     final VOSURI uri;
@@ -104,12 +105,10 @@ public abstract class StorageItem
     private final boolean publicFlag;
     private final boolean lockedFlag;
 
-    StorageItem(VOSURI uri, long sizeInBytes, Date lastModified,
-                boolean publicFlag, boolean lockedFlag,
-                URI[] writeGroupURIs, URI[] readGroupURIs,
-                final String owner, boolean readableFlag,
-                Boolean writableFlag,
-                String targetURL)
+
+    StorageItem(VOSURI uri, long sizeInBytes, Date lastModified, boolean publicFlag, boolean lockedFlag,
+                URI[] writeGroupURIs, URI[] readGroupURIs, final String owner, boolean readableFlag,
+                boolean writableFlag, String targetURL)
     {
         this.uri = uri;
         this.name = getURI().getName();
@@ -161,7 +160,7 @@ public abstract class StorageItem
         return (uri.isRoot() || uri.getParentURI().isRoot() || readableFlag);
     }
 
-    public Boolean isWritable()
+    public boolean isWritable()
     {
         return writableFlag;
     }
@@ -205,15 +204,12 @@ public abstract class StorageItem
         else
         {
             final X500Name xName = new X500Name(owner);
+            final RDN[] cnList = xName.getRDNs(BCStyle.CN);
 
-            RDN[] cnList = xName.getRDNs(BCStyle.CN);
             if (cnList.length > 0)
             {
                 // Parse out any part of the cn that is before a '_'
-                String[] cnStringParts = IETFUtils
-                        .valueToString(cnList[0].getFirst().getValue())
-                        .split("_");
-                return cnStringParts[0];
+                return IETFUtils.valueToString(cnList[0].getFirst().getValue()).split("_")[0];
             }
             else
             {
