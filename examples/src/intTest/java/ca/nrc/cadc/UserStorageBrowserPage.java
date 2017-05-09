@@ -76,6 +76,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import ca.nrc.cadc.web.selenium.AbstractTestWebPage;
 
 import ca.nrc.cadc.util.StringUtil;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.Arrays;
 import java.util.List;
@@ -103,8 +104,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
 
     // Web Element locators
-    private static final By NAVBAR_ELEMENTS_BY =
-            xpath("//*[@id=\"navbar-functions\"]/ul");
+    private static final By NAVBAR_ELEMENTS_BY = xpath("//*[@id=\"navbar-functions\"]/ul");
     private static final By NEW_FOLDER_BY = By.id("newfolder");
     private static final By NEW_VOSPACE_LINK_BY = By.id("new_vospace_link");
     private static final By ACCESS_ACTIONS_DROPDOWN_BY = By.cssSelector("a.access-actions");
@@ -129,10 +129,14 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     public static final String WRITE_GROUP_DIV = "writeGroupDiv";
     public static final String READ_GROUP_INPUT = "readGroup";
     public static final String WRITE_GROUP_INPUT = "writeGroup";
+
+    static final By PUBLIC_CHECKBOX_BY = By.id("publicPermission");
+    static final By RECURSIVE_CHECKBOX_BY = By.id("recursive");
+
     // Put a row number inbetween these two strings and feed to a 'By'
     // statement to find the first permissions icon in a row
-    private static final String EDIT_ICON_BY_FIRST_PART = "//*[@id='beacon']/tbody/tr[";
-    private static final String EDIT_ICON_BY_SECOND_PART = "]/td[5]/span[contains(@class, 'glyphicon-pencil')]";
+    private static final String EDIT_ICON_BY_TEMPLATE =
+            "//*[@id='beacon']/tbody/tr[%s]/td[5]/span[contains(@class, 'glyphicon-pencil')]";
 
     // Elements always on the page
     @FindBy(id = "beacon_filter")
@@ -279,7 +283,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         waitForElementClickable(folderBy);
 
         final WebElement folder = find(folderBy);
-        System.out.println("Folder to be clicked: " + folder.getText());
 
         click(folder);
 
@@ -306,6 +309,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         return new UserStorageBrowserPage(driver, getHeaderText());
     }
 
+    protected <V> V waitUntil(final ExpectedCondition<V> expectedCondition, final int timeoutInSeconds)
+            throws Exception
+    {
+        final WebDriverWait webDriverWait = new WebDriverWait(driver, timeoutInSeconds);
+        return webDriverWait.until(expectedCondition);
+    }
 
     protected void openNewMenu() throws Exception
     {
@@ -314,20 +323,24 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         click(NEW_PULLDOWN_MENU_BY);
 
+        try
+        {
+            waitUntil(ExpectedConditions.visibilityOfElementLocated(NEW_FOLDER_BY), 2);
+        }
+        catch (Exception e)
+        {
+            // Try again  This fails some times, I don't know why.
+            click(NEW_PULLDOWN_MENU_BY);
+        }
+
         if (newdropdownButton.getAttribute("class").contains("disabled"))
         {
             try
             {
                 final WebElement logout = find(By.id("logout"));
-                if (logout == null)
-                {
-                    throw new RuntimeException("You are not logged in.");
-                }
-                else
-                {
-                    throw new RuntimeException("You are logged in, but something else is keeping this functionality "
-                                               + "disabled.");
-                }
+                throw new RuntimeException((logout == null) ? "You are not logged in."
+                                                            : "You are logged in, but something else is keeping "
+                                                              + "this functionality disabled.");
             }
             catch (Exception e)
             {
@@ -337,20 +350,21 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         }
         else
         {
-            System.out.println("Everything is kosher > "
-                               + newdropdownButton.getAttribute("class"));
+            System.out.println("Everything is kosher > " + newdropdownButton.getAttribute("class"));
         }
-
     }
 
-    public void selectFolderFromTree(String foldername) throws Exception
+    public void selectFolderFromTree(final String folderName) throws Exception
     {
         // locate the folder with the name/path provided
-        WebElement folderEl = waitUntil(ExpectedConditions.elementToBeClickable(
-                xpath("//*[@class='layerItemName' and contains(text(),'" + foldername + "')]")));
+        final By nextFolderSelectBy = By.xpath(String.format("//*[@class='layerItemName' and contains(text(),'%s')]",
+                                                             folderName));
+
+        waitForElementPresent(nextFolderSelectBy);
+        waitForElementVisible(nextFolderSelectBy);
 
         // click on it
-        click(folderEl);
+        click(nextFolderSelectBy);
     }
 
 
@@ -418,9 +432,15 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     // Permissions functions
     public void clickEditIconForFirstRow() throws Exception
     {
-        final By firstRowBy = xpath(EDIT_ICON_BY_FIRST_PART + "1" + EDIT_ICON_BY_SECOND_PART);
+        final By firstRowBy = xpath(String.format(EDIT_ICON_BY_TEMPLATE, "1"));
+        waitForElementPresent(firstRowBy);
         waitForElementVisible(firstRowBy);
         click(firstRowBy);
+
+        final By editModalTitleBy =
+                By.cssSelector("body > div.jqibox > div.jqi > form > div.jqistates > div > div.lead.jqititle");
+        waitForElementPresent(editModalTitleBy);
+        waitForElementVisible(editModalTitleBy);
     }
 
 
@@ -443,7 +463,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         waitForElementPresent(idToFindBy);
         waitForElementVisible(idToFindBy);
-        waitForElementClickable(idToFindBy);
 
         // Click on it to enable the save button
         click(idToFindBy);
@@ -471,6 +490,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
      */
     protected UserStorageBrowserPage confirmJqiMsg(String message) throws Exception
     {
+        System.out.println(String.format("Confirming '%s'", message));
         confirmJQIMessageText(message);
         return clickButton(OK);
     }
@@ -478,13 +498,11 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     protected UserStorageBrowserPage setGroupOnly(final String idToFind, final String newGroup, final boolean confirm)
             throws Exception
     {
-        final By publicPermissionBy = By.id("publicPermission");
+        waitForElementPresent(PUBLIC_CHECKBOX_BY);
+        waitForElementVisible(PUBLIC_CHECKBOX_BY);
+        waitForElementClickable(PUBLIC_CHECKBOX_BY);
 
-        waitForElementPresent(publicPermissionBy);
-        waitForElementVisible(publicPermissionBy);
-        waitForElementClickable(publicPermissionBy);
-
-        final WebElement permissionCheckbox = find(publicPermissionBy);
+        final WebElement permissionCheckbox = find(PUBLIC_CHECKBOX_BY);
         final WebElement groupInput = find(By.id(idToFind));
         final String currentPermission = permissionCheckbox.getAttribute("checked");
 
@@ -520,10 +538,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     {
         clickEditIconForFirstRow();
 
-        final WebElement permissionCheckbox = waitUntil(ExpectedConditions.elementToBeClickable(
-                By.id("publicPermission")));
+        waitForElementPresent(PUBLIC_CHECKBOX_BY);
+        waitForElementVisible(PUBLIC_CHECKBOX_BY);
 
-        click(permissionCheckbox);
+        click(PUBLIC_CHECKBOX_BY);
 
         waitForAjaxFinished();
 
@@ -537,14 +555,14 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     protected UserStorageBrowserPage applyRecursivePermissions(final String idToFind, final String newGroup)
             throws Exception
     {
-
+        final String headerText = getHeaderText();
         clickEditIconForFirstRow();
-        final WebElement recursiveCheckbox = waitUntil(
-                ExpectedConditions.elementToBeClickable(
-                        By.id("recursive")));
+        waitForElementPresent(RECURSIVE_CHECKBOX_BY);
+        waitForElementVisible(RECURSIVE_CHECKBOX_BY);
+
         final WebElement groupInput = find(By.id(idToFind));
 
-        click(recursiveCheckbox);
+        click(RECURSIVE_CHECKBOX_BY);
 
         // click on the box first - if a blank is sent in the test
         // could be that the save button is not activated otherwise
@@ -558,42 +576,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         localPage = confirmJqiMsg(SUBMITTED);
         localPage = waitForStorageLoad();
 
-        return localPage;
-    }
-
-    /**
-     * Gets row number for next row that has an edit icon after the row passed in.
-     * Using this kind of function instead of a specific row tends to leave the
-     * functions working even when the underlying data changes.
-     *
-     * @param startRow
-     * @return int: row of first edit icon
-     * @throws Exception
-     */
-    public int getNextAvailableEditIconRow(int startRow) throws Exception
-    {
-        //   not all folders have editable data for currently logged in user
-        boolean found = false;
-        int rowNum = startRow;
-
-        while (!found)
-        {
-            // This method throws an exception if the element is not found
-            try
-            {
-                beaconTable.findElement(
-                        xpath(EDIT_ICON_BY_FIRST_PART + rowNum
-                              + EDIT_ICON_BY_SECOND_PART));
-            }
-            catch (Exception e)
-            {
-                rowNum++;
-                continue;
-            }
-            found = true;
-        }
-
-        return rowNum;
+        return new UserStorageBrowserPage(driver, headerText);
     }
 
     // Row Checkbox related
@@ -646,6 +629,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         }
 
         waitForElementPresent(LEVEL_UP_BY);
+        waitForElementVisible(LEVEL_UP_BY);
         click(LEVEL_UP_BY);
 
         return new UserStorageBrowserPage(driver, expectedHeaderText);
@@ -708,7 +692,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
     public void waitForHeaderText(final String headerText) throws Exception
     {
+        System.out.println("Waiting to see " + headerText + " in the header.");
         waitForTextPresent(FOLDER_NAME_HEADER_BY, headerText);
+        System.out.println("Saw " + headerText + " in the header.");
     }
 
     public String getValueForRowCol(int rowNum, int colNum)
@@ -732,10 +718,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     // Permissions Data
     public PermissionsFormData getValuesFromEditIcon() throws Exception
     {
-        WebElement editIcon = find(xpath(EDIT_ICON_BY_FIRST_PART + "1" + EDIT_ICON_BY_SECOND_PART + "/a"));
+        WebElement editIcon = find(xpath(String.format(EDIT_ICON_BY_TEMPLATE, "1")));
 
         return new PermissionsFormData(editIcon.getAttribute("data-readgroup"),
-                editIcon.getAttribute("data-writegroup"));
+                                       editIcon.getAttribute("data-writegroup"));
     }
 
     boolean isLoggedIn() throws Exception
@@ -745,9 +731,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
             waitForElementPresent(ACCESS_ACTIONS_DROPDOWN_BY);
             final WebElement pullDown = find(ACCESS_ACTIONS_DROPDOWN_BY);
 
-            return (pullDown.getAttribute("class")
-                    .contains("user-actions")) &&
-                   homeDirButton.isDisplayed();
+            return (pullDown.getAttribute("class").contains("user-actions")) && homeDirButton.isDisplayed();
         }
         catch (NoSuchElementException e)
         {
@@ -858,6 +842,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     {
         final By messageBy = By.className("jqimessage");
 
+        waitForElementPresent(messageBy);
         waitForElementVisible(messageBy);
 
         try
@@ -866,8 +851,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         }
         catch (Exception e)
         {
-            System.err.println("Waited for \"" + message + "\" in jqimessage, but saw " + "\""
-                               + find(messageBy).getText() + "\"");
+            System.err.println(String.format("Waited for '%s' in jqimessage, but saw '" + ((find(messageBy) == null)
+                                                                                           ? "" : find(messageBy)
+                                                                                                          .getText() + "'"),
+                                             message));
 
             throw e;
         }
@@ -950,16 +937,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         return isDisplayed;
     }
 
-    public boolean isRowItemPermissionsEditable(int rowNum) throws Exception {
-        WebElement pencilIcon = find(xpath(EDIT_ICON_BY_FIRST_PART + "1" + EDIT_ICON_BY_SECOND_PART));
-        if (pencilIcon == null)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+    public boolean isRowItemPermissionsEditable(int rowNum) throws Exception
+    {
+        return (find(xpath(String.format(EDIT_ICON_BY_TEMPLATE, rowNum + ""))) != null);
     }
 
 
@@ -1030,22 +1010,22 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
 final class PermissionsFormData
 {
-    private String readGroup;
-    private String writeGroup;
+    String readGroup;
+    String writeGroup;
 
-    public PermissionsFormData(String readGroup, String writeGroup)
+    PermissionsFormData(String readGroup, String writeGroup)
     {
         this.readGroup = readGroup;
         this.writeGroup = writeGroup;
     }
 
-    public String getReadGroup()
+    boolean hasReadGroup()
     {
-        return readGroup;
+        return StringUtil.hasText(readGroup);
     }
 
-    public String getWriteGroup()
+    boolean hasWriteGroup()
     {
-        return writeGroup;
+        return StringUtil.hasText(writeGroup);
     }
 }

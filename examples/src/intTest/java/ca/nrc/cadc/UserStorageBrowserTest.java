@@ -183,34 +183,36 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.SAVE);
         userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.CANCEL);
 
-        PermissionsFormData formData = userStoragePage.getValuesFromEditIcon();
-        boolean isModifyNode = true;
+//        PermissionsFormData formData = userStoragePage.getValuesFromEditIcon();
+//        boolean isModifyNode = true;
 
         // Set read group to blank (owner access only)
         // Depending on whether the permissions on automated_test parent folder have been changed,
         // the readGroup may not be set initially.
         // Read group may be displayed as 'public', where the read group itself may not be that.
-        // The element grabbd here is not visible, but is a reflection of the input to the
+        // The element grabbed here is not visible, but is a reflection of the input to the
         // permissions editing form - attached to the edit icon (the glyphicon-pencil)
-        if (formData.getReadGroup().equals(""))
-        {
-            isModifyNode = false;
-        }
-        userStoragePage = userStoragePage.setReadGroup("", isModifyNode);
+//        if (!formData.hasReadGroup())
+//        {
+//            isModifyNode = false;
+//        }
+
+        userStoragePage = userStoragePage.setReadGroup("", true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, parentWriteGroup, "", false));
         userStoragePage.waitForPromptFinish();
 
-        isModifyNode = true;
+//        isModifyNode = true;
         // Set read group to selected group
         userStoragePage = userStoragePage.setReadGroup(readGroupName, true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, parentWriteGroup, readGroupName, false));
 
         // Set write group to blank
-        if (formData.getWriteGroup().equals(""))
-        {
-            isModifyNode = false;
-        }
-        userStoragePage = userStoragePage.setWriteGroup("", isModifyNode);
+//        if (!formData.hasWriteGroup())
+//        {
+//            isModifyNode = false;
+//        }
+
+        userStoragePage = userStoragePage.setWriteGroup("", true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, "", readGroupName, false));
         userStoragePage = userStoragePage.setWriteGroup(writeGroupName, true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, writeGroupName, readGroupName, false));
@@ -260,7 +262,8 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         userStoragePage = userStoragePage.navUpLevel();
 
-        userStoragePage.applyRecursivePermissions(UserStorageBrowserPage.WRITE_GROUP_INPUT, "cadcsw");
+        userStoragePage = userStoragePage.applyRecursivePermissions(UserStorageBrowserPage.WRITE_GROUP_INPUT,
+                                                                    "cadcsw");
         verifyTrue(userStoragePage.isPermissionDataForRow(1, "cadcsw", readGroupName, false));
 
         userStoragePage = userStoragePage.clickFolder(tempTestFolder);
