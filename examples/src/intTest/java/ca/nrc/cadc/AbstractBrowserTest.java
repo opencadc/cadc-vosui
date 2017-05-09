@@ -66,6 +66,11 @@ public class AbstractBrowserTest extends AbstractWebApplicationIntegrationTest
         SEED_CHARS = chars.toString().toCharArray();
     }
 
+    public AbstractBrowserTest() throws Exception
+    {
+        super();
+    }
+
 
     /**
      * Generate an ASCII string, replacing the '\' and '+' characters with

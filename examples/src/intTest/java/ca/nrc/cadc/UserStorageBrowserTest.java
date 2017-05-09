@@ -42,6 +42,12 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
     private static final String STORAGE_ENDPOINT = "/storage/list";
 
 
+    public UserStorageBrowserTest() throws Exception
+    {
+        super();
+    }
+
+
     @Test
     public void browseUserStorage() throws Exception
     {
