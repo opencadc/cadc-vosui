@@ -69,7 +69,7 @@ sourceSets {
         }
         dependencies {
             intTestCompile 'junit:junit:4.+'
-            intTestCompile 'ca.nrc.cadc:web-test:[1.0.2, )'
+            intTestCompile 'org.opencadc:cadc-web-test:[1.0.2, )'
             intTestCompile 'org.seleniumhq.selenium:selenium-java:2.53.1'
 //            intTestCompile 'org.seleniumhq.selenium:selenium-java:3.+'
         }
