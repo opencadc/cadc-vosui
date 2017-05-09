@@ -471,7 +471,12 @@ html[data-useragent*='MSIE 11.0'] #newfile {
 	height: 23px;
 }
 
-#dropzone-container {min-width:860px;}
+#dropzone-container {
+	min-width: 500px;
+	max-width: 600px;
+	min-height: 300px;
+	max-height: 580px;
+}
 .dropzone {min-height:200px ! important;margin-top:1em;}
 .dropzone .dz-default.dz-message {background:none ! important;color:#999;font-size:1.3em;}
 .dropzone .dz-default.dz-message span {display:block ! important;}

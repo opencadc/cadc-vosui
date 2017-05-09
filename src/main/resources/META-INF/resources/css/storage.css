@@ -60,7 +60,7 @@
 }
 
 .navbar.navbar-default {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 .navbar-default .navbar-collapse, .navbar-default .navbar-form {
@@ -312,15 +312,16 @@ div.itemTree {
 /* display: table;  */
 
 div.dz-scrollContainer {
-  height: 250px;
-  overflow: auto;
+  min-height: 250px;
+  max-height: 520px;
+  overflow-y: auto;
 }
 
 div.table {
   display: table;
   height: 250px;
   overflow: auto;
-  margin: 0px;
+  margin: 0;
 }
 
 div.table .file-row {
@@ -331,8 +332,18 @@ div.table .file-row > div {
   display: table-cell;
   vertical-align: top;
   border-bottom: 1px solid #ddd;
-
 }
+
+div.table .file-row > div:first-child {
+  width: 25%;
+  max-width: 25%;
+}
+
+div.table .file-row > div:nth-child(2) {
+  width: 65px;
+  max-width: 65px;
+}
+
 div.table .file-row:nth-child(odd) {
   background: #f9f9f9;
 }
