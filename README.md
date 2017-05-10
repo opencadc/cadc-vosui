@@ -1,7 +1,7 @@
 ---
 ---
 
-#### User Storage User Interface 0.11 (Build 1010)
+#### User Storage User Interface
 
 By default, this uses the CANFAR (CADC) VOSpace located at:
 
@@ -81,7 +81,7 @@ Then, in your browser, look at <a href="http://localhost:8080/storage/list">http
 
 ##### Running with Docker for your environment
 
-To run in your environment, create your own Dockerfile:
+To run in your environment, switch to the examples directory and create your own Dockerfile:
 
 ```
 # This is the Docker hub location for the User Storage User Interface (Project Beacon)
@@ -91,7 +91,7 @@ FROM opencadc/storage
 ENV JAVA_OPTS "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5555 -Djava.security.egd=file:/dev/./urandom -Djsse.enableSNIExtension=false -Dca.nrc.cadc.reg.client.RegistryClient.host=<your host for IVOA Registry lookup>"
 ```
 
-Then run:
+Also in the examples directory, run:
 
 `docker build -t user_storage_ui .`
 
