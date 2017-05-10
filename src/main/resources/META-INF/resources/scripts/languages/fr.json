@@ -51,7 +51,7 @@
     "deleting_message": "Suppression des %d article(s)&nbsp;&nbsp;<span class='glyphicon glyphicon-repeat fast-right-spinner'></span>",
     "dimensions": "Dimensions", 
     "download": "Télécharger", 
-    "dz_dictDefaultMessage": "Déposer vos fichiers ici pour les télécharger", 
+    "dz_dictDefaultMessage": "Déposer vos fichiers ici pour les télécharger (Certains systèmes permet le glisser-déposer)",
     "dz_dictFallbackMessage": "Votre navigateur ne supporte pas le téléchargement 'glisser-déposer'.", 
     "dz_dictInvalidFileType": "Ce type de fichier n'est pas autorisé.",
     "edit": "Editer le fichier", 
