@@ -943,7 +943,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     }
 
 
-    public boolean isPromptOpen()
+    public boolean isPromptOpen() throws Exception
     {
         return (find(xpath("//div[@class='jqistate']")) != null);
     }

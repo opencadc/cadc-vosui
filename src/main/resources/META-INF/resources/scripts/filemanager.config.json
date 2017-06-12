@@ -97,7 +97,7 @@
         "number": 5,
         "overwrite": false,
         "imagesOnly": false,
-        "fileSizeLimit": 10240
+        "fileSizeLimit": 10240000
     },
     "exclude": {
         "unallowed_files": [],
