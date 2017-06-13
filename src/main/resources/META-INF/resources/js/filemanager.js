@@ -3162,7 +3162,7 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                        '<div id="total-progress"><div data-dz-uploadprogress="" style="width:0;" class="progress-bar"></div></div>';
 
                                    msg += '<div class="prompt-info">' +
-                                          '<a href="http://www.canfar.net/en/resources/docs/storage/">'+ lg.alternative_large_file_count_msg +'</a></div>';
+                                          '<a href="http://www.canfar.net/en/docs/storage/">'+ lg.alternative_large_file_count_msg +'</a></div>';
 
                                    msg += '<button id="process-upload">' +
                                           lg.upload + '</button></div>';

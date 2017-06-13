@@ -1,5 +1,8 @@
 plugins {
     id 'war'
+
+    // IntelliJ IDEA plugin here to allow integration tests to appear properly in IDEs.
+    id 'idea'
 }
 
 repositories {
@@ -13,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.opencadc:cadc-vosui:[1.0.26, )'
+    compile 'org.opencadc:cadc-vosui:[1.0.29, )'
 
     testCompile 'junit:junit:4.+'
     testCompile 'org.opencadc:cadc-web-test:[1.0.2, )'
@@ -62,6 +65,19 @@ ext {
 
 sourceSets {
     intTest
+}
+
+configurations {
+    intTestCompile
+    intTestCompile.extendsFrom(testCompile)
+}
+
+idea {
+    module {
+        //and some extra test source dirs
+        testSourceDirs += file('src/intTest/java')
+        scopes.TEST.plus += [ configurations.intTestCompile ]
+    }
 }
 
 ['firefox', 'chrome'].each { driver ->
