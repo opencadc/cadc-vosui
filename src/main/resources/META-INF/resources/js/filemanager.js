@@ -3173,10 +3173,16 @@ function fileManager(_initialData, _$beaconTable, _startURI, _folderPath,
                                    var btns = {};
                                    btns[lg.close] = false;
                                    $.prompt(msg, {
-                                     buttons: btns
+                                     buttons: btns,
+                                       persisent: true,
+                                       loaded: function () {
+                                           // rt 74147: block closing multiple upload popup
+                                           // through clicking on background.
+                                           $(".jqifade").off().click( function(event) {
+                                               event.preventDefault();
+                                           });
+                                       }
                                    });
-
-
 
                                    var $progressBar = $("#total-progress").find(".progress-bar");
 
