@@ -3,12 +3,12 @@ plugins {
     id 'java'
     id 'application'
     id 'maven-publish'
-    id 'com.jfrog.bintray' version '1.7.3'
+    id 'com.jfrog.bintray' version '1.8.0'
 }
 
 repositories {
-    jcenter()
     mavenLocal()
+    jcenter()
 }
 
 dependencies {
@@ -36,7 +36,7 @@ dependencies {
 
 sourceCompatibility = '1.7'
 group = 'org.opencadc'
-version = '1.1.30'
+version = '1.1.31'
 mainClassName = "ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication"
 
 run {

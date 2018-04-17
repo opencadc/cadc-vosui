@@ -10,7 +10,9 @@ import org.restlet.util.Series;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -71,7 +73,7 @@ public class RestletPrincipalExtractor implements PrincipalExtractor
                     try
                     {
                         cookiePrincipal = ssoCookieManager.parse(
-                                ssoCookie.getValue());
+                                ssoCookie.getValue()).getUser();
                         cookieCredential = new
                                 SSOCookieCredential(ssoCookie.getValue(),
                                                     NetUtil.getDomainName(
@@ -171,10 +173,14 @@ public class RestletPrincipalExtractor implements PrincipalExtractor
         return request;
     }
 
+    /**
+     * Create and return a SSOCookieCredential from the request
+     *
+     * @return
+     */
     @Override
-    public SSOCookieCredential getSSOCookieCredential()
-    {
+    public List<SSOCookieCredential> getSSOCookieCredentials() {
         init();
-        return cookieCredential;
+        return Collections.singletonList(cookieCredential);
     }
 }
