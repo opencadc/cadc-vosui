@@ -1,7 +1,7 @@
-version: '2.0'
+version: '3.2'
 services:
   selenium-firefox:
-    image: selenium/standalone-firefox:2.53.1
+    image: selenium/standalone-firefox:3
     ports:
       - '4444:4444'
     networks:
@@ -15,7 +15,7 @@ services:
     depends_on:
       - 'selenium-firefox'
     environment:
-      - CATALINA_OPTS=-DSSO_SERVERS="apps.canfar.net www.canfar.phys.uvic.ca"
+      CATALINA_OPTS: -DSSO_SERVERS="apps.canfar.net www.canfar.phys.uvic.ca"
+
 networks:
   selenium:
-    driver: 'bridge'
