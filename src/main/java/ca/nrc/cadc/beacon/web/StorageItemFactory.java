@@ -79,6 +79,7 @@ import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 
+import ca.nrc.cadc.web.RestletPrincipalExtractor;
 import javax.security.auth.Subject;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -88,10 +89,13 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.log4j.Logger;
 
 
 public class StorageItemFactory
 {
+    private static final Logger log = Logger.getLogger(StorageItemFactory.class);
+
     private final URIExtractor uriExtractor;
     private final RegistryClient registryClient;
     private final String contextPath;
@@ -163,8 +167,7 @@ public class StorageItemFactory
      * @param node  The VOSpace Node instance.
      * @return      StorageItem instance, never null.
      */
-    public StorageItem translate(final Node node)
-    {
+    public StorageItem translate(final Node node) {
         final StorageItem nextItem;
         final VOSURI nodeURI = node.getUri();
         final boolean isRoot = nodeURI.isRoot();
@@ -173,10 +176,22 @@ public class StorageItemFactory
         final boolean publicFlag = Boolean.parseBoolean(node.getPropertyValue(VOS.PROPERTY_URI_ISPUBLIC));
         final String lockedFlagValue = node.getPropertyValue(VOS.PROPERTY_URI_ISLOCKED);
         final boolean lockedFlag = StringUtil.hasText(lockedFlagValue) && Boolean.parseBoolean(lockedFlagValue);
+
         final String writeGroupValues = node.getPropertyValue(VOS.PROPERTY_URI_GROUPWRITE);
-        final GroupURI[] writeGroupURIs = uriExtractor.extract(writeGroupValues);
+        GroupURI[] writeGroupURIs = null;
+        try {
+            writeGroupURIs = uriExtractor.extract(writeGroupValues);
+        } catch (Exception iae) {
+            log.warn("Unable to extract group, skipping...: " + writeGroupValues, iae);
+        }
+
         final String readGroupValues = node.getPropertyValue(VOS.PROPERTY_URI_GROUPREAD);
-        final GroupURI[] readGroupURIs = uriExtractor.extract(readGroupValues);
+        GroupURI[] readGroupURIs = null;
+        try {
+            readGroupURIs = uriExtractor.extract(readGroupValues);
+        } catch (Exception iae) {
+            log.warn("Unable to extract group, skipping...: " + readGroupValues, iae);
+        }
 
         final String readableFlagValue = node.getPropertyValue(VOS.PROPERTY_URI_READABLE);
         final boolean readableFlag = StringUtil.hasLength(readableFlagValue) && Boolean.parseBoolean(readableFlagValue);
