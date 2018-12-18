@@ -68,6 +68,7 @@
 
 package ca.nrc.cadc.beacon.web.view;
 
+import ca.nrc.cadc.ac.GroupURI;
 import ca.nrc.cadc.vos.VOSURI;
 
 import java.net.URI;
@@ -81,7 +82,7 @@ public class FolderItem extends StorageItem
 
     public FolderItem(VOSURI uri, long sizeInBytes, Date lastModified,
                       boolean publicFlag, boolean lockedFlag,
-                      URI[] writeGroupURIs, URI[] readGroupURIs, String owner,
+                      GroupURI[] writeGroupURIs, GroupURI[] readGroupURIs, String owner,
                       boolean readableFlag, final boolean writableFlag,
                       final int childCount, String targetURL)
     {

@@ -68,6 +68,7 @@
 
 package ca.nrc.cadc.beacon.web;
 
+import ca.nrc.cadc.ac.GroupURI;
 import ca.nrc.cadc.auth.AuthMethod;
 import ca.nrc.cadc.auth.AuthenticationUtil;
 import ca.nrc.cadc.beacon.web.view.*;
@@ -173,9 +174,9 @@ public class StorageItemFactory
         final String lockedFlagValue = node.getPropertyValue(VOS.PROPERTY_URI_ISLOCKED);
         final boolean lockedFlag = StringUtil.hasText(lockedFlagValue) && Boolean.parseBoolean(lockedFlagValue);
         final String writeGroupValues = node.getPropertyValue(VOS.PROPERTY_URI_GROUPWRITE);
-        final URI[] writeGroupURIs = uriExtractor.extract(writeGroupValues);
+        final GroupURI[] writeGroupURIs = uriExtractor.extract(writeGroupValues);
         final String readGroupValues = node.getPropertyValue(VOS.PROPERTY_URI_GROUPREAD);
-        final URI[] readGroupURIs = uriExtractor.extract(readGroupValues);
+        final GroupURI[] readGroupURIs = uriExtractor.extract(readGroupValues);
 
         final String readableFlagValue = node.getPropertyValue(VOS.PROPERTY_URI_READABLE);
         final boolean readableFlag = StringUtil.hasLength(readableFlagValue) && Boolean.parseBoolean(readableFlagValue);
