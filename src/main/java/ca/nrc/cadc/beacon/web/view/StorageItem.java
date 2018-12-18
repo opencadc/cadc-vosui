@@ -230,7 +230,6 @@ public abstract class StorageItem
             }
             namesString =  uriNames.toString().trim();
         }
-
         return namesString;
     }
 
