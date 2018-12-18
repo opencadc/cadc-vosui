@@ -68,30 +68,31 @@
 
 package ca.nrc.cadc.beacon.web;
 
+import ca.nrc.cadc.ac.GroupURI;
 import ca.nrc.cadc.util.StringUtil;
 
 import java.net.URI;
 
 public class URIExtractor
 {
-    public URI[] extract(final String groupPropertyValue)
+    public GroupURI[] extract(final String groupPropertyValue)
     {
-        final URI[] uris;
+        final GroupURI[] uris;
 
         if (StringUtil.hasText(groupPropertyValue))
         {
             final String[] uriValues = extractAsStrings(groupPropertyValue);
             final int len = uriValues.length;
-            uris = new URI[len];
+            uris = new GroupURI[len];
 
             for (int i = 0; i < len; i++)
             {
-                uris[i] = URI.create(uriValues[i]);
+                uris[i] = new GroupURI(uriValues[i]);
             }
         }
         else
         {
-            uris = new URI[0];
+            uris = new GroupURI[0];
         }
 
         return uris;

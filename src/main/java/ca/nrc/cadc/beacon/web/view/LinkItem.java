@@ -1,5 +1,6 @@
 package ca.nrc.cadc.beacon.web.view;
 
+import ca.nrc.cadc.ac.GroupURI;
 import ca.nrc.cadc.vos.VOSURI;
 
 import java.net.URI;
@@ -13,7 +14,7 @@ public class LinkItem extends StorageItem
 {
     public LinkItem(VOSURI uri, long sizeInBytes, Date lastModified,
                     boolean publicFlag, boolean lockedFlag,
-                    URI[] writeGroupURIs, URI[] readGroupURIs,
+                    GroupURI[] writeGroupURIs, GroupURI[] readGroupURIs,
                     String owner, boolean readableFlag, boolean writableFlag, String targetURL)
     {
         super(uri, sizeInBytes, lastModified, publicFlag, lockedFlag,

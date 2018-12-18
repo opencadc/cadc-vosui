@@ -68,6 +68,7 @@
 
 package ca.nrc.cadc.beacon.web.view;
 
+import ca.nrc.cadc.ac.GroupURI;
 import ca.nrc.cadc.beacon.FileSizeRepresentation;
 import ca.nrc.cadc.date.DateUtil;
 import ca.nrc.cadc.vos.VOSURI;
@@ -91,8 +92,8 @@ public abstract class StorageItem
     private final String name;
     private final long sizeInBytes;
     private final Date lastModified;
-    private final URI[] writeGroupURIs;
-    private final URI[] readGroupURIs;
+    private final GroupURI[] writeGroupURIs;
+    private final GroupURI[] readGroupURIs;
     private final String owner;
     private final boolean readableFlag;
 
@@ -107,7 +108,7 @@ public abstract class StorageItem
 
 
     StorageItem(VOSURI uri, long sizeInBytes, Date lastModified, boolean publicFlag, boolean lockedFlag,
-                URI[] writeGroupURIs, URI[] readGroupURIs, final String owner, boolean readableFlag,
+                GroupURI[] writeGroupURIs, GroupURI[] readGroupURIs, final String owner, boolean readableFlag,
                 boolean writableFlag, String targetURL)
     {
         this.uri = uri;
@@ -218,13 +219,13 @@ public abstract class StorageItem
         }
     }
 
-    private String getURINames(final URI[] uris)
+    private String getURINames(final GroupURI[] uris)
     {
         final StringBuilder uriNames = new StringBuilder();
 
-        for (final URI uri : uris)
+        for (final GroupURI uri : uris)
         {
-            uriNames.append(uri.getFragment()).append(" ");
+            uriNames.append(uri.getName()).append(" ");
         }
 
         return uriNames.toString().trim();
