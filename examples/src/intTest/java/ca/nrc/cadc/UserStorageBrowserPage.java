@@ -261,7 +261,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         return new UserStorageBrowserPage(driver);
     }
 
-    public UserStorageBrowserPage doLogout() throws Exception
+    public doLogout() throws Exception
     {
         waitForElementClickable(USER_ACTIONS_LINK_BY);
         click(USER_ACTIONS_LINK_BY);
@@ -269,7 +269,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         waitForElementClickable(LOGOUT_LINK_BY);
         click(LOGOUT_LINK_BY);
 
-        return new UserStorageBrowserPage(driver);
+        return;
     }
 
     // Folder Related Transition functions

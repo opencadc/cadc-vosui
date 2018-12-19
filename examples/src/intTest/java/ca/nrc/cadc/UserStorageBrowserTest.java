@@ -342,8 +342,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         // Scenario 5: logout
         System.out.println("Test logout");
         userStoragePage = userStoragePage.navToRoot();
-        userStoragePage = userStoragePage.doLogout();
-        verifyFalse(userStoragePage.isLoggedIn());
+        userStoragePage.doLogout();
 
         System.out.println("UserStorageBrowserTest completed");
     }
