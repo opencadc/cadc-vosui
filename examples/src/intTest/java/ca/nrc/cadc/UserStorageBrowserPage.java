@@ -261,7 +261,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         return new UserStorageBrowserPage(driver);
     }
 
-    public doLogout() throws Exception
+    public void doLogout() throws Exception
     {
         waitForElementClickable(USER_ACTIONS_LINK_BY);
         click(USER_ACTIONS_LINK_BY);
