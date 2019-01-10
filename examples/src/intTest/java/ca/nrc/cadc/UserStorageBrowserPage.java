@@ -120,6 +120,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     private static final By NEW_PULLDOWN_MENU_BY = By.id("newdropdown");
     private static final By LOGIN_FORM_BY = By.id("loginForm");
     private static final By MOVE_TO_BUTTON_BY = By.cssSelector("button.jqibutton:nth-child(1)");
+    private static final By PROGRESS_BAR_BY = By.className("beacon-progress");
 
     // Error Page: is generated using a different template
     // at the same endpoint: /storage/list
@@ -198,8 +199,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
     {
         super(driver);
 
-        waitUntil(ExpectedConditions
-                          .attributeContains(By.className("beacon-progress"), "class", "progress-bar-success"));
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
         waitForElementVisible(FOLDER_NAME_HEADER_BY);
@@ -208,6 +207,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         {
             waitForHeaderText(headerText);
         }
+
+        waitForElementPresent(PROGRESS_BAR_BY);
+        waitForElementVisible(PROGRESS_BAR_BY);
+        waitUntil(ExpectedConditions.attributeContains(PROGRESS_BAR_BY, "class", "progress-bar-success"));
 
         PageFactory.initElements(driver, this);
     }
@@ -306,6 +309,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         click(createFolderButton);
 
         confirmJqiMsg("success");
+        waitForPromptFinish();
+        waitForStorageLoad();
+
         return new UserStorageBrowserPage(driver, getHeaderText());
     }
 
@@ -477,6 +483,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         final String confirmationBoxMsg = isModifyNode ? MODIFIED : NOT_MODIFIED;
 
         confirmJqiMsg(confirmationBoxMsg);
+        waitForPromptFinish();
+        waitForStorageLoad();
+
         return new UserStorageBrowserPage(driver, currentHeaderText);
 
     }
@@ -524,7 +533,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
         // show up if an invalid group has been sent in.
         if (confirm)
         {
-            localPage = confirmJqiMsg(MODIFIED);
+            confirmJqiMsg(MODIFIED);
+            waitForPromptFinish();
+            waitForStorageLoad();
         }
 
         localPage = waitForStorageLoad();
@@ -536,6 +547,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
     protected UserStorageBrowserPage togglePublicAttributeForRow() throws Exception
     {
+        final String currHeaderText = getHeaderText();
         clickEditIconForFirstRow();
 
         waitForElementPresent(PUBLIC_CHECKBOX_BY);
@@ -547,8 +559,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         clickButton(SAVE);
         confirmJqiMsg(SUCCESSFUL);
+        waitForPromptFinish();
+        waitForStorageLoad();
 
-        return new UserStorageBrowserPage(driver, getHeaderText());
+        return new UserStorageBrowserPage(driver, currHeaderText);
     }
 
 
@@ -573,8 +587,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage
 
         UserStorageBrowserPage localPage = clickButton(SAVE);
 
-        localPage = confirmJqiMsg(SUBMITTED);
-        localPage = waitForStorageLoad();
+        confirmJqiMsg(SUBMITTED);
+        waitForPromptFinish();
+        waitForStorageLoad();
 
         return new UserStorageBrowserPage(driver, headerText);
     }
