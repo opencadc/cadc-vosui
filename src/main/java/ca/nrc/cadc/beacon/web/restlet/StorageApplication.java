@@ -97,8 +97,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class VOSpaceApplication extends Application
-{
+public class StorageApplication extends Application {
     // Public properties are made available in the Context.
     public static final String VOSPACE_CLIENT_KEY = "org.opencadc.vospace.client";
     public static final String REGISTRY_CLIENT_KEY = "org.opencadc.registry.client";
@@ -110,6 +109,13 @@ public class VOSpaceApplication extends Application
     private static final String DEFAULT_SERVICE_ID = "ivo://cadc.nrc.ca/vospace";
     private static final String DEFAULT_GMS_SERVICE_ID = "ivo://cadc.nrc.ca/gms";
     public static final String GMS_SERVICE_PROPERTY_KEY = "org.opencadc.gms.service_id";
+
+    // For those wishing to make use of the meta files service for a more readable download link on files.
+    public static final String FILES_META_SERVICE_SERVICE_ID_KEY = "org.opencadc.vospace.files_meta_service_id";
+    public static final String FILES_META_SERVICE_STANDARD_ID_KEY = "org.opencadc.vospace.files_meta_standard_id";
+    public static final String DEFAULT_FILES_META_SERVICE_SERVICE_ID = "ivo://cadc.nrc.ca/files";
+    public static final String DEFAULT_FILES_META_SERVICE_STANDARD_ID =
+        "vos://cadc.nrc.ca~vospace/CADC/std/archive#file-1.0";
 
 
     private final Configuration configuration = new SystemConfiguration();
@@ -123,8 +129,7 @@ public class VOSpaceApplication extends Application
      *                {@link Context#createChildContext()} method to ensure a proper
      *                isolation with the other applications.
      */
-    public VOSpaceApplication(Context context)
-    {
+    public StorageApplication(Context context) {
         super(context);
         setStatusService(new VOSpaceStatusService());
     }
@@ -139,8 +144,7 @@ public class VOSpaceApplication extends Application
      * @return The inbound root Restlet.
      */
     @Override
-    public Restlet createInboundRoot()
-    {
+    public Restlet createInboundRoot() {
         final Context context = getContext();
 
         context.getAttributes().put(VOSPACE_CLIENT_KEY, createVOSpaceClient());
@@ -150,6 +154,12 @@ public class VOSpaceApplication extends Application
         context.getAttributes().put(VOSPACE_SERVICE_ID_KEY, URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY,
                                                                                                DEFAULT_SERVICE_ID)));
         context.getAttributes().put(FREEMARKER_CONFIG_KEY, createFreemarkerConfig());
+        context.getAttributes().put(FILES_META_SERVICE_SERVICE_ID_KEY,
+                                    URI.create(configuration.getString(FILES_META_SERVICE_SERVICE_ID_KEY,
+                                                                       DEFAULT_FILES_META_SERVICE_SERVICE_ID)));
+        context.getAttributes().put(FILES_META_SERVICE_STANDARD_ID_KEY,
+                                    URI.create(configuration.getString(FILES_META_SERVICE_STANDARD_ID_KEY,
+                                                                       DEFAULT_FILES_META_SERVICE_STANDARD_ID)));
 
         final ServletContext servletContext = getServletContext();
         final String contextPath = (servletContext == null) ? DEFAULT_CONTEXT_PATH : "/";
@@ -199,31 +209,26 @@ public class VOSpaceApplication extends Application
         return router;
     }
 
-    private VOSpaceClient createVOSpaceClient()
-    {
+    private VOSpaceClient createVOSpaceClient() {
         return new VOSpaceClient(URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY, DEFAULT_SERVICE_ID)));
     }
 
-    private RegistryClient createRegistryClient()
-    {
+    private RegistryClient createRegistryClient() {
         return new RegistryClient();
     }
 
-    private AccessControlClient createAccessControlClient()
-    {
-        return new AccessControlClient(URI.create(configuration.getString(VOSpaceApplication.GMS_SERVICE_PROPERTY_KEY,
-                                                                          VOSpaceApplication.DEFAULT_GMS_SERVICE_ID)));
+    private AccessControlClient createAccessControlClient() {
+        return new AccessControlClient(URI.create(configuration.getString(StorageApplication.GMS_SERVICE_PROPERTY_KEY,
+                                                                          StorageApplication.DEFAULT_GMS_SERVICE_ID)));
     }
 
-    private GMSClient createGMSClient()
-    {
-        return new GMSClient(URI.create(configuration.getString(VOSpaceApplication.GMS_SERVICE_PROPERTY_KEY,
-                                                                VOSpaceApplication.DEFAULT_GMS_SERVICE_ID)));
+    private GMSClient createGMSClient() {
+        return new GMSClient(URI.create(configuration.getString(StorageApplication.GMS_SERVICE_PROPERTY_KEY,
+                                                                StorageApplication.DEFAULT_GMS_SERVICE_ID)));
     }
 
-    private ServletContext getServletContext()
-    {
-        return (ServletContext) getContext().getAttributes().get(VOSpaceApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
+    private ServletContext getServletContext() {
+        return (ServletContext) getContext().getAttributes().get(StorageApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
     }
 
     /**
@@ -231,8 +236,7 @@ public class VOSpaceApplication extends Application
      *
      * @return FreeMarkerConfiguration instance.
      */
-    protected FreeMarkerConfiguration createFreemarkerConfig()
-    {
+    private FreeMarkerConfiguration createFreemarkerConfig() {
         final FreeMarkerConfiguration freeMarkerConfiguration = new FreeMarkerConfiguration();
         freeMarkerConfiguration.addDefault(getServletContext());
 
@@ -240,11 +244,9 @@ public class VOSpaceApplication extends Application
     }
 
 
-    public static void main(final String[] args) throws Exception
-    {
+    public static void main(final String[] args) throws Exception {
         final Component component = new Component();
-        final Application application = new VOSpaceApplication(component.getContext().createChildContext())
-        {
+        final Application application = new StorageApplication(component.getContext().createChildContext()) {
             /**
              * Creates a inbound root Restlet that will receive all incoming calls. In
              * general, instances of Router, Filter or Finder classes will be used as
@@ -254,16 +256,14 @@ public class VOSpaceApplication extends Application
              * @return The inbound root Restlet.
              */
             @Override
-            public Restlet createInboundRoot()
-            {
+            public Restlet createInboundRoot() {
                 final Context context = getContext();
                 final Router router = (Router) super.createInboundRoot();
                 final String[] staticDirs = {"js", "css", "scripts", "fonts", "themes"};
 
                 router.attachDefault(MainPageServerResource.class);
 
-                for (final String dir : staticDirs)
-                {
+                for (final String dir : staticDirs) {
                     final Reference dirReference = new Reference(URI.create("clap://class/META-INF/resources/" + dir));
                     router.attach(DEFAULT_CONTEXT_PATH + dir + "/", new Directory(context, dirReference));
                 }
@@ -271,33 +271,26 @@ public class VOSpaceApplication extends Application
                 return router;
             }
 
-            void handleInParent(final Request request, final Response response)
-            {
+            void handleInParent(final Request request, final Response response) {
                 super.handle(request, response);
             }
 
             @Override
-            public void handle(final Request request, final Response response)
-            {
+            public void handle(final Request request, final Response response) {
                 final SubjectGenerator subjectGenerator = new SubjectGenerator();
                 final PrincipalExtractor principalExtractor = new RestletPrincipalExtractor(request);
 
-                try
-                {
+                try {
                     final Subject subject = subjectGenerator.generate(principalExtractor);
 
-                    Subject.doAs(subject, new PrivilegedExceptionAction<Object>()
-                    {
+                    Subject.doAs(subject, new PrivilegedExceptionAction<Object>() {
                         @Override
-                        public Object run() throws Exception
-                        {
+                        public Object run() {
                             handleInParent(request, response);
                             return null;
                         }
                     });
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     throw new ResourceException(e);
                 }
             }

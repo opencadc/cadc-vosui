@@ -656,17 +656,17 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     }
 
     public String getValueForRowCol(int rowNum, int colNum) {
-        String val;
+        final WebElement webElement = getElementForRowCol(rowNum, colNum);
+        return (webElement == null) ? "" : webElement.getText();
+    }
 
+    public WebElement getElementForRowCol(int rowNum, int colNum) {
         try {
-            final WebElement el = find(xpath("//*[@id='beacon']/tbody/tr[" + rowNum + "]/td[" + colNum + "]"));
-            val = el.getText();
+            return find(xpath("//*[@id='beacon']/tbody/tr[" + rowNum + "]/td[" + colNum + "]"));
         } catch (Exception e) {
             // element not found, return empty string
-            val = "";
+            return null;
         }
-
-        return val;
     }
 
     // Permissions Data

@@ -70,7 +70,7 @@ package ca.nrc.cadc.beacon.web.resources;
 
 
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
-import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
+import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
 import ca.nrc.cadc.beacon.web.view.FolderItem;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.vos.*;
@@ -134,7 +134,7 @@ public class MainPageServerResourceTest
                 createMock(FreeMarkerConfiguration.class);
 
         mockContextAttributes
-                .put(VOSpaceApplication.ACCESS_CONTROL_CLIENT_KEY,
+                .put(StorageApplication.ACCESS_CONTROL_CLIENT_KEY,
                      mockAccessControlClient);
 
         expect(mockContext.getAttributes()).andReturn(mockContextAttributes).anyTimes();

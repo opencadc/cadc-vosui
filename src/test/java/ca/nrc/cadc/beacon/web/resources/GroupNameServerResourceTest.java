@@ -68,7 +68,7 @@
 package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
-import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
+import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import org.json.JSONArray;
 import org.json.JSONWriter;
@@ -108,7 +108,7 @@ public class GroupNameServerResourceTest
         final Map<String, Object> attributes = new HashMap<>();
         final Context context = new Context();
 
-        attributes.put(VOSpaceApplication.GMS_SERVICE_PROPERTY_KEY, mockGMSClient);
+        attributes.put(StorageApplication.GMS_SERVICE_PROPERTY_KEY, mockGMSClient);
         context.setAttributes(attributes);
 
 

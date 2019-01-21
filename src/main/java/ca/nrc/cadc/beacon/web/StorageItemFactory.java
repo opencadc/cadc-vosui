@@ -79,56 +79,69 @@ import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 
-import ca.nrc.cadc.web.RestletPrincipalExtractor;
+
 import javax.security.auth.Subject;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 
-public class StorageItemFactory
-{
+public class StorageItemFactory {
     private static final Logger log = Logger.getLogger(StorageItemFactory.class);
+    private static final String DEFAULT_SERVICE_NAME = "vospace";
 
     private final URIExtractor uriExtractor;
     private final RegistryClient registryClient;
     private final String contextPath;
+    private final URI filesMetaServiceID;
+    private final URI filesMetaServiceStandardID;
 
 
     public StorageItemFactory(final URIExtractor uriExtractor, final RegistryClient registryClient,
-                              final String contextPath) throws MalformedURLException
-    {
+                              final String contextPath, final URI filesMetaServiceID,
+                              final URI filesMetaServiceStandardID) {
         this.uriExtractor = uriExtractor;
         this.registryClient = registryClient;
         this.contextPath = contextPath;
+        this.filesMetaServiceID = filesMetaServiceID;
+        this.filesMetaServiceStandardID = filesMetaServiceStandardID;
     }
 
 
-    private String getTarget(final DataNode dataNode)
-    {
+    private String getTarget(final DataNode dataNode) {
         final VOSURI dataNodeURI = dataNode.getUri();
 
-        final URL downloadServiceURL = registryClient.getServiceURL(dataNodeURI.getServiceURI(),
-                                                                    Standards.VOSPACE_SYNC_21, AuthMethod.ANON);
-        final String query = "?target=" + NetUtil.encode(dataNodeURI.toString())
-                             + "&direction=" + Direction.pullFromVoSpaceValue
-                             + "&protocol=" + NetUtil.encode(VOS.PROTOCOL_HTTP_GET);
-        return (downloadServiceURL.toExternalForm() + query);
+        return String.format("%s/%s%s", lookupMetaServiceURLString(dataNodeURI), DEFAULT_SERVICE_NAME,
+                             dataNodeURI.getPath());
     }
 
-    private String getTarget(final ContainerNode containerNode)
-    {
+    private String lookupMetaServiceURLString(final VOSURI nodeURI) {
+
+        try {
+            return registryClient.getServiceURL(filesMetaServiceID, filesMetaServiceStandardID,
+                                                AuthMethod.COOKIE).toExternalForm();
+        } catch (IllegalArgumentException iae) {
+            // Revert back to old Service URL if the new meta service is not supported.
+            //
+            final String query = "?target=" + NetUtil.encode(nodeURI.toString())
+                + "&direction=" + Direction.pullFromVoSpaceValue
+                + "&protocol=" + NetUtil.encode(VOS.PROTOCOL_HTTP_GET);
+
+            return (registryClient.getServiceURL(nodeURI.getServiceURI(), Standards.VOSPACE_SYNC_21,
+                                                 AuthMethod.ANON).toExternalForm() + query);
+        }
+    }
+
+    private String getTarget(final ContainerNode containerNode) {
         return contextPath + (contextPath.endsWith("/") ? "" : "/") + "list" + containerNode.getUri().getPath();
     }
 
-    private String getTarget(final LinkNode linkNode)
-    {
+    private String getTarget(final LinkNode linkNode) {
         return contextPath + (contextPath.endsWith("/") ? "" : "/") + "link" + linkNode.getUri().getPath();
     }
 
@@ -138,22 +151,15 @@ public class StorageItemFactory
      * @param node The Node whose date to parse.
      * @return The Date parsed, or null if it cannot be parsed.
      */
-    private Date parseDate(final Node node)
-    {
+    private Date parseDate(final Node node) {
         final String dateProperty = node.getPropertyValue(VOS.PROPERTY_URI_DATE);
 
-        if (dateProperty == null)
-        {
+        if (dateProperty == null) {
             return null;
-        }
-        else
-        {
-            try
-            {
+        } else {
+            try {
                 return DateUtil.getDateFormat(DateUtil.IVOA_DATE_FORMAT, DateUtil.UTC).parse(dateProperty);
-            }
-            catch (ParseException e)
-            {
+            } catch (ParseException e) {
                 // Date cannot be parsed for some reason.
                 return null;
             }
@@ -164,8 +170,8 @@ public class StorageItemFactory
     /**
      * Translate the given node into a view object (StorageItem) instance.
      *
-     * @param node  The VOSpace Node instance.
-     * @return      StorageItem instance, never null.
+     * @param node The VOSpace Node instance.
+     * @return StorageItem instance, never null.
      */
     public StorageItem translate(final Node node) {
         final StorageItem nextItem;
@@ -198,16 +204,13 @@ public class StorageItemFactory
 
         final Subject currentAuthenticatedUser = AuthenticationUtil.getCurrentSubject();
         final Set<Principal> principals = (currentAuthenticatedUser == null)
-                                          ? new HashSet<Principal>() : currentAuthenticatedUser.getPrincipals();
+            ? new HashSet<Principal>() : currentAuthenticatedUser.getPrincipals();
         final boolean writableFlag;
         final VOSURI parentURI = node.getUri().getParentURI();
 
-        if (((parentURI != null) && parentURI.isRoot()) && (!principals.isEmpty()))
-        {
+        if (((parentURI != null) && parentURI.isRoot()) && (!principals.isEmpty())) {
             writableFlag = true;
-        }
-        else
-        {
+        } else {
             final String writableFlagValue = node.getPropertyValue(VOS.PROPERTY_URI_WRITABLE);
             writableFlag = StringUtil.hasLength(writableFlagValue) && Boolean.parseBoolean(writableFlagValue);
         }
@@ -216,24 +219,19 @@ public class StorageItemFactory
 
         final String totalChildCountValue = node.getPropertyValue("ivo://ivoa.net/vospace/core#childCount");
         final int totalChildCount = StringUtil.hasLength(totalChildCountValue) ? Integer.parseInt(totalChildCountValue)
-                                                                               : -1;
+            : -1;
 
-        if (node instanceof ContainerNode)
-        {
+        if (node instanceof ContainerNode) {
             final ContainerNode containerNode = (ContainerNode) node;
-        	final String sizeInString = containerNode.getPropertyValue(VOS.PROPERTY_URI_CONTENTLENGTH);
-        	final long sizeInBytes = sizeInString == null ? -1L : Long.parseLong(sizeInString);
+            final String sizeInString = containerNode.getPropertyValue(VOS.PROPERTY_URI_CONTENTLENGTH);
+            final long sizeInBytes = sizeInString == null ? -1L : Long.parseLong(sizeInString);
             nextItem = new FolderItem(nodeURI, sizeInBytes, lastModifiedDate, publicFlag, lockedFlag, writeGroupURIs,
                                       readGroupURIs, owner, readableFlag, writableFlag, totalChildCount,
                                       getTarget(containerNode));
-        }
-        else if (node instanceof LinkNode)
-        {
+        } else if (node instanceof LinkNode) {
             nextItem = new LinkItem(nodeURI, -1L, lastModifiedDate, publicFlag, lockedFlag, writeGroupURIs,
                                     readGroupURIs, owner, readableFlag, writableFlag, getTarget((LinkNode) node));
-        }
-        else
-        {
+        } else {
             final long sizeInBytes = Long.parseLong(node.getPropertyValue(VOS.PROPERTY_URI_CONTENTLENGTH));
 
             nextItem = new FileItem(nodeURI, sizeInBytes, lastModifiedDate, publicFlag, lockedFlag, writeGroupURIs,
@@ -243,8 +241,7 @@ public class StorageItemFactory
         return nextItem;
     }
 
-    public FolderItem getFolderItemView(final ContainerNode containerNode) throws Exception
-    {
+    public FolderItem getFolderItemView(final ContainerNode containerNode) {
         return (FolderItem) translate(containerNode);
     }
 }

@@ -69,10 +69,11 @@
 package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.auth.AuthenticationUtil;
-import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
+import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.web.RestletPrincipalExtractor;
 import ca.nrc.cadc.web.SubjectGenerator;
+import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Status;
@@ -86,85 +87,73 @@ import java.io.IOException;
 import java.util.Map;
 
 
-class SecureServerResource extends ServerResource
-{
+class SecureServerResource extends ServerResource {
     private final SubjectGenerator subjectGenerator;
 
     @Override
-    protected void doInit() throws ResourceException
-    {
+    protected void doInit() throws ResourceException {
 
     }
 
     @SuppressWarnings("unchecked")
-    <T> T getRequestAttribute(final String attributeName)
-    {
+    <T> T getRequestAttribute(final String attributeName) {
         return (T) getRequestAttributes().get(attributeName);
     }
 
     @SuppressWarnings("unchecked")
-    <T> T getContextAttribute(final String attributeName)
-    {
+    <T> T getContextAttribute(final String attributeName) {
         return (T) getContext().getAttributes().get(attributeName);
     }
 
-    SecureServerResource()
-    {
+    SecureServerResource() {
         this(new SubjectGenerator());
     }
 
-    SecureServerResource(final SubjectGenerator subjectGenerator)
-    {
+    SecureServerResource(final SubjectGenerator subjectGenerator) {
         this.subjectGenerator = subjectGenerator;
     }
 
 
-    Subject getCurrentUser()
-    {
+    Subject getCurrentUser() {
         final Request request = getRequest();
         return AuthenticationUtil.getSubject(new RestletPrincipalExtractor(request));
     }
 
-    RegistryClient getRegistryClient()
-    {
-        return (RegistryClient) getContext().getAttributes().get(VOSpaceApplication.REGISTRY_CLIENT_KEY);
+    RegistryClient getRegistryClient() {
+        return (RegistryClient) getContext().getAttributes().get(StorageApplication.REGISTRY_CLIENT_KEY);
     }
 
-    Subject generateVOSpaceUser() throws IOException
-    {
+    Subject generateVOSpaceUser() throws IOException {
         return subjectGenerator.generate(new RestletPrincipalExtractor(getRequest()));
     }
 
-    ServletContext getServletContext()
-    {
+    ServletContext getServletContext() {
         final Map<String, Object> attributes = getApplication().getContext().getAttributes();
-        return (ServletContext) attributes.get(VOSpaceApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
+        return (ServletContext) attributes.get(StorageApplication.SERVLET_CONTEXT_ATTRIBUTE_KEY);
     }
 
     /**
      * Set a default context path when this is not running in a servlet
      * container.
      *
-     * @return      String path.
+     * @return String path.
      */
-    String getContextPath()
-    {
+    String getContextPath() {
         return (getServletContext() == null)
-               ? VOSpaceApplication.DEFAULT_CONTEXT_PATH : getServletContext().getContextPath();
+            ? StorageApplication.DEFAULT_CONTEXT_PATH : getServletContext().getContextPath();
     }
 
-    protected String getPath()
-    {
+    protected String getPath() {
         return getRequest().getResourceRef().getPath();
     }
 
     /**
      * Write out the given status and representation body to the response.
-     * @param status                The Status to set.
-     * @param representation        The representation used for the body of the response.
+     *
+     * @param status         The Status to set.
+     * @param representation The representation used for the body of the response.
      */
-    void writeResponse(final Status status, final Representation representation)
-    {
+    void writeResponse(final Status status, final Representation representation) {
         final Response response = getResponse();
 
         response.setStatus(status);

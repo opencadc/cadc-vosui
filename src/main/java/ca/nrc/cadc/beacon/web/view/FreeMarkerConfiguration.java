@@ -68,7 +68,7 @@
 
 package ca.nrc.cadc.beacon.web.view;
 
-import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
+import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
@@ -101,7 +101,7 @@ public class FreeMarkerConfiguration extends Configuration
             if (servletContext == null)
             {
                 setSharedVariable("contextPath",
-                                  VOSpaceApplication.DEFAULT_CONTEXT_PATH);
+                                  StorageApplication.DEFAULT_CONTEXT_PATH);
                 addTemplateLoader(
                         new ClassTemplateLoader(getClass().getClassLoader(),
                                                 "/META-INF/resources"));

@@ -31,33 +31,32 @@
  ****  C A N A D I A N   A S T R O N O M Y   D A T A   C E N T R E  *****
  ************************************************************************
  */
+
 package ca.nrc.cadc;
 
 
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 
-public class UserStorageBrowserTest extends AbstractBrowserTest
-{
+public class UserStorageBrowserTest extends AbstractBrowserTest {
     private static final String STORAGE_ENDPOINT = "/storage/list";
 
 
-    public UserStorageBrowserTest() throws Exception
-    {
+    public UserStorageBrowserTest() throws Exception {
         super();
     }
 
 
     @Test
-    public void browseUserStorage() throws Exception
-    {
+    public void browseUserStorage() throws Exception {
         System.out.println("Visiting: " + getWebURL() + STORAGE_ENDPOINT);
 
         final String workingDirectoryName = UserStorageBrowserTest.class.getSimpleName() + "_" + generateAlphaNumeric();
         UserStorageBrowserPage userStoragePage = goTo(STORAGE_ENDPOINT, null, UserStorageBrowserPage.class);
 
-        if (userStoragePage.isMainPage())
-        {
+        if (userStoragePage.isMainPage()) {
             userStoragePage = userStoragePage.waitForStorageLoad();
         }
 
@@ -122,15 +121,16 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Assert: home directory for CADCtest user is CADCtest
         // navigate to automated test folder
-        String autoTestFolder = "automated_test";
+        final String autoTestFolder = "automated_test";
+
+        final String fileDataTestFolder = "file_data_do_not_delete";
 
         // Get Write and Read group permissions for this folder
         userStoragePage.enterSearch(autoTestFolder);
 
         // For whatever reason the automated test folder has been deleted.
         // Recreate it.
-        if (userStoragePage.isTableEmpty())
-        {
+        if (userStoragePage.isTableEmpty()) {
             userStoragePage = userStoragePage.createNewFolder(autoTestFolder);
             userStoragePage.enterSearch(autoTestFolder);
         }
@@ -138,6 +138,14 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         String parentWriteGroup = userStoragePage.getValueForRowCol(1, 5);
         String parentReadGroup = userStoragePage.getValueForRowCol(1, 6);
         userStoragePage = userStoragePage.clickFolder(autoTestFolder);
+
+        userStoragePage = userStoragePage.clickFolder(fileDataTestFolder);
+        final WebElement fileItem = userStoragePage.getElementForRowCol(1, 2);
+        final String linkTarget = fileItem.findElement(By.tagName("a")).getAttribute("href");
+
+        System.out.println("Checking link target " + linkTarget);
+        verifyTrue(linkTarget.startsWith("/files") || linkTarget.contains("/synctrans"));
+        userStoragePage = userStoragePage.navUpLevel();
 
         // Test 'nav up one level' - last nav button to test explicitly
         userStoragePage = userStoragePage.navUpLevel();
@@ -175,8 +183,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Clearly only works for English test suite. :/
         // Toggle the Public attribute to get the underlying read group (if any)
-        if (currentReadGroup.equals("Public"))
-        {
+        if (currentReadGroup.equals("Public")) {
             userStoragePage = userStoragePage.togglePublicAttributeForRow();
         }
 
@@ -347,8 +354,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         System.out.println("UserStorageBrowserTest completed");
     }
 
-    private UserStorageBrowserPage loginTest(final UserStorageBrowserPage userPage) throws Exception
-    {
+    private UserStorageBrowserPage loginTest(final UserStorageBrowserPage userPage) throws Exception {
         // Scenario 2: Login test - credentials should be in the gradle build file.
         final UserStorageBrowserPage authPage = userPage.doLogin(getUsername(), getPassword());
         verifyTrue(authPage.isLoggedIn());

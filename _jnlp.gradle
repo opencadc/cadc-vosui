@@ -142,7 +142,7 @@ task dockerize(type: Exec, dependsOn: [initDockerize, copyWAR]) {
     commandLine 'docker', 'build', '-t', docker_image_name, '-f', './docker/Dockerfile', './docker/'
 }
 
-mainClassName = 'ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication'
+mainClassName = 'ca.nrc.cadc.beacon.web.restlet.StorageApplication'
 
 ext {
     // Change this value to test other locations, such as Production or RC.

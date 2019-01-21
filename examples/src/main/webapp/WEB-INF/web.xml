@@ -26,7 +26,7 @@
 
     <init-param>
       <param-name>org.restlet.application</param-name>
-      <param-value>ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication</param-value>
+      <param-value>ca.nrc.cadc.beacon.web.restlet.StorageApplication</param-value>
     </init-param>
 
     <init-param>

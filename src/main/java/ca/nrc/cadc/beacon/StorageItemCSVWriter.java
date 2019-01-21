@@ -79,25 +79,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class StorageItemCSVWriter implements StorageItemWriter
-{
+public class StorageItemCSVWriter implements StorageItemWriter {
     private final CSVWriter csvWriter;
 
 
-    public StorageItemCSVWriter(final Writer writer)
-    {
+    public StorageItemCSVWriter(final Writer writer) {
         this(new CSVWriter(writer));
     }
 
-    public StorageItemCSVWriter(CSVWriter csvWriter)
-    {
+    public StorageItemCSVWriter(CSVWriter csvWriter) {
         this.csvWriter = csvWriter;
     }
 
 
     @Override
-    public void write(final StorageItem storageItem) throws IOException
-    {
+    public void write(final StorageItem storageItem) {
         final List<String> row = new ArrayList<>();
 
         // Checkbox column [0]
@@ -149,6 +145,6 @@ public class StorageItemCSVWriter implements StorageItemWriter
         // of authentication for /ac/users/{userid}?typeId=http  is solved for this app
         row.add(storageItem.getOwnerCN());
 
-        csvWriter.writeNext(row.toArray(new String[row.size()]));
+        csvWriter.writeNext(row.toArray(new String[0]));
     }
 }

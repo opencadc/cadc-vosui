@@ -71,7 +71,7 @@ package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.ac.client.GMSClient;
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
-import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
+import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.restlet.representation.Representation;
@@ -92,7 +92,7 @@ public class GroupNameServerResource extends SecureServerResource
     {
         final GMSClient gmsClient =
                 (GMSClient) getContext().getAttributes().get(
-                        VOSpaceApplication.GMS_SERVICE_PROPERTY_KEY);
+                    StorageApplication.GMS_SERVICE_PROPERTY_KEY);
 
         final Subject voSpaceUser = generateVOSpaceUser();
 
