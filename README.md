@@ -8,7 +8,7 @@ By default, this uses the CANFAR (CADC) VOSpace located at:
 <a rel="external" href="http://www.canfar.phys.uvic.ca/vospace">http://www.canfar.phys.uvic.ca/vospace</a>
 
 A fully functional UI is deployed at:
-<a rel="external" href="http://apps.canfar.net/storage/list">http://apps.canfar.net/storage/list</a>
+<a rel="external" href="http://www.canfar.net/storage/list">http://www.canfar.net/storage/list</a>
 
 <a href="https://travis-ci.org/opencadc/cadc-vosui"><img src="https://travis-ci.org/opencadc/cadc-vosui.svg?branch=master" /></a>
 
