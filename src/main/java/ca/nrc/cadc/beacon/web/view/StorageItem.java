@@ -222,13 +222,15 @@ public abstract class StorageItem
     private String getURINames(final GroupURI[] uris)
     {
         final StringBuilder uriNames = new StringBuilder();
+        String namesString = "";
 
-        for (final GroupURI uri : uris)
-        {
-            uriNames.append(uri.getName()).append(" ");
+        if (uris != null) {
+            for (final GroupURI uri : uris) {
+                uriNames.append(uri.getName()).append(" ");
+            }
+            namesString =  uriNames.toString().trim();
         }
-
-        return uriNames.toString().trim();
+        return namesString;
     }
 
     public abstract String getItemIconCSS();

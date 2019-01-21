@@ -10,12 +10,13 @@ services:
     image: opencadc/storage
     ports:
       - '8080:8080'
+      - '5555:5555'
     networks:
       - 'selenium'
     depends_on:
       - 'selenium-firefox'
     environment:
-      CATALINA_OPTS: -DSSO_SERVERS="apps.canfar.net www.canfar.phys.uvic.ca"
+      CATALINA_OPTS: -DSSO_SERVERS="www.canfar.net www.canfar.phys.uvic.ca"
 
 networks:
   selenium:
