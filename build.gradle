@@ -31,6 +31,7 @@ dependencies {
     compile 'org.opencadc:cadc-vos:1.+'
 
     testCompile 'junit:junit:4.+'
+    testCompile 'org.opencadc:cadc-web-test:[1.0.2, )'
     testCompile 'org.easymock:easymock:3.+'
 }
 
