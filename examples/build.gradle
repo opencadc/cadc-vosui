@@ -20,7 +20,7 @@ dependencies {
 
     testCompile 'junit:junit:4.+'
     testCompile 'org.opencadc:cadc-web-test:[1.0.2, )'
-    testCompile 'org.seleniumhq.selenium:selenium-java:2.53.1'
+    testCompile 'org.seleniumhq.selenium:selenium-java:3.+'
 }
 
 sourceCompatibility = '1.7'
@@ -90,8 +90,7 @@ idea {
         dependencies {
             intTestCompile 'junit:junit:4.+'
             intTestCompile 'org.opencadc:cadc-web-test:[1.0.2, )'
-            intTestCompile 'org.seleniumhq.selenium:selenium-java:2.53.1'
-//            intTestCompile 'org.seleniumhq.selenium:selenium-java:3.+'
+            intTestCompile 'org.seleniumhq.selenium:selenium-java:3.+'
         }
 
         systemProperty "driver", "${driver}"
