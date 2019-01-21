@@ -26,8 +26,7 @@ after_success:
 - if [ "$(. ./can-deploy.sh)" != "DEPLOY" ]; then echo "Not deploying."; fi
 addons:
   hosts:
-  - firefox.cadc.dao.nrc.ca
-  - application.cadc.dao.nrc.ca
+  - storage.canfar.net
 notifications:
   slack:
     secure: Q72t3hVqvqnHkndTLaeERkrGTDdSV4wVxL1oPqVCMWyGnYG4DCzbdjMX9b5O9A5xYB9hHUyN6NK/9ym2u83gr4M7piZVXIbP1Q196IH7hwsyibX1ciiUta+mV/oVZ5MS3eP93pU0g8XkeYYlF5dRrwMfvcLpTy4yDHwK9AaljEYxpX68hRs7aZnqMmBnXigMYZEQIQaXmqCBKmNyVex0vErweTsqyVWKtEIUBDarimbNoM1I5LIMUV7GR8vNZ+yn9f5HY5opO2hFuQNX01zjx3oM3lxds3AQ3qc0kH9/SqdCtSaW9406Lr6/Y0UJoizgD0AI6qz3DAngFC4SBPGfe3/2NEe3DnIXH52rPyJxJ4JGORGL99Px1Y/Rj5zHHMFNTE/oX+ZVpq0MjmPiwmSi6Pr3WvUOXZNnuvZtdQNj7s2zfi+UZ3+2uT1SXiqJ/1tAGN7lgIzryGQ6STMxNK5QB5bmjjEGlThvzg2yJMANW0MDb4yMnjjEfR4lqdcH5HeXsFTYZqnF4f/REv2+e64UO9p8ZCDeAX+0YRikxxcAPWDMo7IIX6RHMSe66F1PlgHQFDZI7FKJXEpOg1C2Mrc1o2y7r2vk6hVwDFaqQ6T8T7AF3FEPzff7StIE5gl2gqe1v6CuYhoVa5dgvUns9h2RcVxj0nAOU/pOKf5ts2rWp88=
