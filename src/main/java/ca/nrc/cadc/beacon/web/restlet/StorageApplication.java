@@ -236,7 +236,7 @@ public class StorageApplication extends Application {
      *
      * @return FreeMarkerConfiguration instance.
      */
-    private FreeMarkerConfiguration createFreemarkerConfig() {
+    public FreeMarkerConfiguration createFreemarkerConfig() {
         final FreeMarkerConfiguration freeMarkerConfiguration = new FreeMarkerConfiguration();
         freeMarkerConfiguration.addDefault(getServletContext());
 

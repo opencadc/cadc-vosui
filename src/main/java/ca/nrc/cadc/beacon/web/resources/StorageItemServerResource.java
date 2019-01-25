@@ -139,7 +139,7 @@ public class StorageItemServerResource extends SecureServerResource {
     private void initialize(final VOSpaceClient voSpaceClient) {
         final URI filesMetaServiceID = getContextAttribute(StorageApplication.FILES_META_SERVICE_SERVICE_ID_KEY);
         final URI filesMetaServiceStandardID =
-            getContextAttribute(StorageApplication.FILES_META_SERVICE_SERVICE_ID_KEY);
+            getContextAttribute(StorageApplication.FILES_META_SERVICE_STANDARD_ID_KEY);
         this.storageItemFactory = new StorageItemFactory(URI_EXTRACTOR, getRegistryClient(),
                                                          (getServletContext() == null)
                                                              ? StorageApplication.DEFAULT_CONTEXT_PATH
