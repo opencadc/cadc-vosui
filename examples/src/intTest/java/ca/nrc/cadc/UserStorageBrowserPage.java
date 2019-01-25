@@ -149,9 +149,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     @FindBy(id = "beacon_info")
     private WebElement statusMessage;
 
-    @FindBy(className = "beacon-progress")
-    private WebElement progressBar;
-
     // header displaying name of current folder
     @FindBy(xpath = "//h2[@property='name']")
     private WebElement folderNameHeader;
@@ -606,13 +603,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         click(HOME_DIR_BY);
 
         return new UserStorageBrowserPage(driver);
-    }
-
-
-    // Inspection functions
-    public WebElement getProgressBar() throws Exception {
-        System.out.println(progressBar.getText());
-        return progressBar;
     }
 
     int getTableRowCount() throws Exception {
