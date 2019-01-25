@@ -93,7 +93,10 @@ import org.apache.log4j.Logger;
 
 public class StorageItemFactory {
     private static final Logger log = Logger.getLogger(StorageItemFactory.class);
-    private static final String DEFAULT_SERVICE_NAME = "vospace";
+
+    // TODO: Make this configurable.
+    // TODO: jenkinsd 2019.01.25
+    private static final String DEFAULT_SERVICE_NAME = "vault";
 
     private final URIExtractor uriExtractor;
     private final RegistryClient registryClient;
