@@ -159,11 +159,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     @FindBy(xpath = "//*[@id=\"beacon\"]/tbody/tr[1]")
     private WebElement firstTableRow;
 
-    // Elements present once user has navigated away from ROOT folder
-    // Toobar buttons
-    @FindBy(id = "homeDir")
-    private WebElement homeDirButton;
-
     @FindBy(id = "level-up")
     private WebElement levelUpButton;
 
@@ -672,7 +667,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
             waitForElementPresent(ACCESS_ACTIONS_DROPDOWN_BY);
             final WebElement pullDown = find(ACCESS_ACTIONS_DROPDOWN_BY);
 
-            return (pullDown.getAttribute("class").contains("user-actions")) && homeDirButton.isDisplayed();
+            return (pullDown.getAttribute("class").contains("user-actions")) && isHomeDirButtonDisplayed();
         } catch (NoSuchElementException e) {
             return false;
         }
@@ -704,7 +699,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
 
         if (isLoggedIn()) {
-            baseTest = baseTest && homeDirButton.isDisplayed();
+            baseTest = baseTest && isHomeDirButtonDisplayed();
         }
 
         return baseTest;
@@ -718,12 +713,17 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         if (isLoggedIn()) {
             return getHeaderText().contains(ROOT_FOLDER_NAME)
-                && homeDirButton.isDisplayed()
+                && isHomeDirButtonDisplayed()
                 && navbarButtonList.findElements(xpath("//*[@id=\"navbar-functions\"]/ul/li")).size() == 2;
         } else {
             return getHeaderText().contains(ROOT_FOLDER_NAME)
                 && navbarButtonList.findElements(xpath("//*[@id=\"navbar-functions\"]/ul/li")).size() == 1;
         }
+    }
+
+    public boolean isHomeDirButtonDisplayed() throws Exception {
+        final WebElement homeDirButton = find(HOME_DIR_BY);
+        return (homeDirButton != null) && homeDirButton.isDisplayed();
     }
 
     public boolean isFileSelectedMode(int rowNumber) throws Exception {

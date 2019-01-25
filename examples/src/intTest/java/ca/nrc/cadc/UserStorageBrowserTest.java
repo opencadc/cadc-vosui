@@ -129,7 +129,8 @@ public class UserStorageBrowserTest extends AbstractBrowserTest {
         userStoragePage.enterSearch(autoTestFolder);
 
         // For whatever reason the automated test folder has been deleted.
-        // Recreate it.
+        // Recreate it, but wait 3 seconds to make sure the search filter is finished.
+        waitFor(3);
         if (userStoragePage.isTableEmpty()) {
             userStoragePage = userStoragePage.createNewFolder(autoTestFolder);
             userStoragePage.enterSearch(autoTestFolder);
