@@ -144,7 +144,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest {
         final String linkTarget = fileItem.findElement(By.tagName("a")).getAttribute("href");
 
         System.out.println("Checking link target " + linkTarget);
-        verifyTrue(linkTarget.startsWith("/files") || linkTarget.contains("/synctrans"));
+        verifyTrue(linkTarget.contains("/files") || linkTarget.contains("/synctrans"));
         userStoragePage = userStoragePage.navUpLevel();
 
         // Test 'nav up one level' - last nav button to test explicitly

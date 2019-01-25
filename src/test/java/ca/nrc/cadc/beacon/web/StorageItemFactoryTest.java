@@ -116,7 +116,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
 
         final StorageItem storageItemResult = testSubject.translate(mockDataNode);
         Assert.assertEquals("Wrong target URL.",
-                            "https://www.site.com/myservice/vospace/myroot/path/file.txt",
+                            "https://www.site.com/myservice/vault/myroot/path/file.txt",
                             storageItemResult.getTargetURL());
 
         final String readGroupNames = "GROUP2 GROUP3";
@@ -164,7 +164,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
                             "https://www.oldsite.com/oldservice?target=vos%3A%2F%2Fcadc.nrc" +
                                 ".ca%7Evospace%2Fmyroot%2Fpath%2Ffile" +
                                 ".txt&direction=pullFromVoSpace&protocol=ivo%3A%2F%2Fivoa" +
-                                ".net%2Fvospace%2Fcore%23httpget/vospace/myroot/path/file.txt",
+                                ".net%2Fvospace%2Fcore%23httpget/vault/myroot/path/file.txt",
                             storageItemResult.getTargetURL());
 
         final String readGroupNames = "GROUP2 GROUP3";
@@ -210,7 +210,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
                             "https://www.oldsite.com/oldservice?target=vos%3A%2F%2Fcadc.nrc" +
                                 ".ca%7Evospace%2Fmyroot%2Fpath%2Ffile" +
                                 ".txt&direction=pullFromVoSpace&protocol=ivo%3A%2F%2Fivoa" +
-                                ".net%2Fvospace%2Fcore%23httpget/vospace/myroot/path/file.txt",
+                                ".net%2Fvospace%2Fcore%23httpget/vault/myroot/path/file.txt",
                             storageItemResult.getTargetURL());
 
         Assert.assertEquals("Wrong Read groups.", "", storageItemResult.getReadGroupNames());
