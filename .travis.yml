@@ -1,5 +1,5 @@
 env:
-  DOCKER_COMPOSE_VERSION: 1.21.0
+  DOCKER_COMPOSE_VERSION: 1.23.2
 language: java
 jdk:
 - oraclejdk8
@@ -18,7 +18,8 @@ script:
 - gradle clean dockerize
 - docker-compose up -d
 - docker ps -a
-- gradle -i -PintTest_selenium_server_url=http://localhost:4444 -PintTest_web_app_url=http://storage.canfar.net:8080
+- gradle -i -PintTest_selenium_server_url=http://localhost:4444 -PintTest_web_app_url=http://storage.canfar
+  .net:8080/storage/list/
   intTestFirefox
 after_success:
 - if [ "$(. ./can-deploy.sh)" = "DEPLOY" ]; then docker login -u="$DOCKER_USERNAME"
