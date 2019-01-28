@@ -221,12 +221,16 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         return waitForStorageLoad();
     }
 
-    public UserStorageBrowserPage clickButtonAndWait(final By buttonBy) throws Exception {
-        click(buttonBy);
+    public UserStorageBrowserPage clickButtonAndWait(final WebElement buttonElement) throws Exception {
+        click(buttonElement);
         final UserStorageBrowserPage nextPage = new UserStorageBrowserPage(driver);
         nextPage.waitForStorageLoad();
 
         return nextPage;
+    }
+
+    public UserStorageBrowserPage clickButtonAndWait(final By buttonBy) throws Exception {
+        return clickButtonAndWait(find(buttonBy));
     }
 
     public void clickButtonWithClass(String promptText, String className) throws Exception {
@@ -560,8 +564,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
     // Navigation functions
     public UserStorageBrowserPage navToRoot() throws Exception {
-        click(rootButton);
-        return waitForStorageLoad();
+        final UserStorageBrowserPage rootPage = clickButtonAndWait(rootButton);
+        rootPage.waitForStorageLoad();
+
+        return rootPage;
     }
 
     public UserStorageBrowserPage navUpLevel() throws Exception {
