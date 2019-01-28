@@ -19,7 +19,7 @@ dependencies {
     compile 'org.opencadc:cadc-vosui:[1.1.35, )'
 
     testCompile 'junit:junit:4.+'
-    testCompile 'org.opencadc:cadc-web-test:2.+'
+    testCompile 'org.opencadc:cadc-web-test:[2.1.0, )'
     testCompile 'org.seleniumhq.selenium:selenium-java:3.+'
 }
 
@@ -89,7 +89,7 @@ idea {
         }
         dependencies {
             intTestCompile 'junit:junit:4.+'
-            intTestCompile 'org.opencadc:cadc-web-test:2.+'
+            intTestCompile 'org.opencadc:cadc-web-test:[2.1.0, )'
             intTestCompile 'org.seleniumhq.selenium:selenium-java:3.+'
         }
 

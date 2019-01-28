@@ -187,28 +187,19 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     private WebElement moredetailsButton;
 
 
-    public UserStorageBrowserPage(final WebDriver driver, final String headerText) throws Exception {
+    public UserStorageBrowserPage(final WebDriver driver) throws Exception {
         super(driver);
 
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
         waitForElementVisible(FOLDER_NAME_HEADER_BY);
 
-        if (StringUtil.hasText(headerText)) {
-            waitForHeaderText(headerText);
-        }
-
         waitForElementPresent(PROGRESS_BAR_BY);
         waitForElementVisible(PROGRESS_BAR_BY);
 
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(this.driver, this);
 
-        waitUntil(ExpectedConditions.attributeContains(progressBar, "class", "progress-bar-success"));
-    }
-
-
-    public UserStorageBrowserPage(final WebDriver driver) throws Exception {
-        this(driver, null);
+        waitUntil(ExpectedConditions.attributeContains(this.progressBar, "class", "progress-bar-success"));
     }
 
     // Transition functions
@@ -221,13 +212,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     // Transition functions
     protected UserStorageBrowserPage clickButtonAndWait(final String promptText) throws Exception {
         final By buttonBy = By.xpath("//button[contains(text(),\"" + promptText + "\")]");
-        waitForElementClickable(buttonBy);
         return clickButtonAndWait(buttonBy);
     }
 
     protected UserStorageBrowserPage clickButtonAndWait(final WebElement buttonElement) throws Exception {
         click(buttonElement);
-        final UserStorageBrowserPage nextPage = new UserStorageBrowserPage(driver);
+        final UserStorageBrowserPage nextPage = new UserStorageBrowserPage(this.driver);
         nextPage.waitForStorageLoad();
 
         return nextPage;
@@ -259,11 +249,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         sendKeys(find(USERNAME_INPUT_BY), username);
         sendKeys(find(PASSWORD_INPUT_BY), password);
 
-        click(find(LOGIN_SUBMIT_BUTTON_BY));
+        final UserStorageBrowserPage authPage = clickButtonAndWait(find(LOGIN_SUBMIT_BUTTON_BY));
+        authPage.waitForStorageLoad();
 
-        waitForElementInvisible(LOGIN_FORM_BY);
-
-        return new UserStorageBrowserPage(driver);
+        return authPage;
     }
 
     public UserStorageBrowserPage doLogout() throws Exception {
@@ -271,9 +260,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         click(USER_ACTIONS_LINK_BY);
 
         waitForElementClickable(LOGOUT_LINK_BY);
-        click(LOGOUT_LINK_BY);
-
-        return new UserStorageBrowserPage(driver);
+        return clickButtonAndWait(LOGOUT_LINK_BY);
     }
 
     // Folder Related Transition functions
@@ -287,9 +274,11 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         final WebElement folder = find(folderBy);
 
-        click(folder);
+        final UserStorageBrowserPage nextPage = clickButtonAndWait(folder);
+        nextPage.waitForStorageLoad();
+        nextPage.waitForHeaderText(currentHeaderText + "/" + folderName);
 
-        return new UserStorageBrowserPage(driver, currentHeaderText + "/" + folderName);
+        return nextPage;
     }
 
 
@@ -300,9 +289,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         waitForElementVisible(NEW_FOLDER_BY);
         click(NEW_FOLDER_BY);
         waitForElementClickable(By.id("fname"));
-        WebElement newfolderInput = find(By.id("fname"));
+        final WebElement newFolderInput = find(By.id("fname"));
 
-        sendKeys(newfolderInput, folderName);
+        sendKeys(newFolderInput, folderName);
 
         final WebElement createFolderButton = find(By.xpath("//button[contains(text(),\"Create Folder\")]"));
         click(createFolderButton);
@@ -410,7 +399,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         // confirm folder delete
         confirmJQIColourMessage(SUCCESSFUL);
         final UserStorageBrowserPage nextPage = clickButtonAndWait(CLOSE);
-        nextPage.waitForStorageLoad();;
+        nextPage.waitForStorageLoad(); ;
 
         return nextPage;
     }
@@ -494,18 +483,18 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         // could be that the save button is not activated otherwise
         click(groupInput);
         sendKeys(groupInput, newGroup);
-        clickButton(SAVE);
 
         // read/writeGroupDiv should have 'has-error' class
         // confirm here is conditional because it won't
         // show up if an invalid group has been sent in.
         if (confirm) {
+            clickButton(SAVE);
             final UserStorageBrowserPage newPage = confirmJqiMsg(MODIFIED);
             newPage.waitForStorageLoad();
 
             return newPage;
         } else {
-            return this;
+            return clickButtonAndWait(SAVE);
         }
     }
 
@@ -596,8 +585,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         waitForElementVisible(LEVEL_UP_BY);
 
         final UserStorageBrowserPage nextPage = clickButtonAndWait(LEVEL_UP_BY);
-        nextPage.waitForStorageLoad();
         nextPage.waitForHeaderText(expectedHeaderText);
+        nextPage.waitForStorageLoad();
 
         return nextPage;
     }
@@ -880,9 +869,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         // instead of striped. Could be this test isn't sufficient but it works
         // to have intTestFirefox not fail.
 
-        waitUntil(ExpectedConditions.attributeContains(progressBar, "class", "progress-bar-success"));
+        waitForElementVisible(PROGRESS_BAR_BY);
+        waitUntil(ExpectedConditions.attributeContains(this.progressBar, "class", "progress-bar-success"));
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
+        waitForElementVisible(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
+        waitForElementVisible(FOLDER_NAME_HEADER_BY);
     }
 
 
