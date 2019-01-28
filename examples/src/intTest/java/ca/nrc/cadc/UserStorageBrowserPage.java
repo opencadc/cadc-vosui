@@ -291,11 +291,13 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         final WebElement createFolderButton = find(By.xpath("//button[contains(text(),\"Create Folder\")]"));
         click(createFolderButton);
 
-        return confirmJqiMsg("success");
+        final UserStorageBrowserPage nextPage = confirmJqiMsg("success");
+        nextPage.waitForStorageLoad();
+
+        return nextPage;
     }
 
-    protected <V> V waitUntil(final ExpectedCondition<V> expectedCondition, final int timeoutInSeconds)
-        throws Exception {
+    protected <V> V waitUntil(final ExpectedCondition<V> expectedCondition, final int timeoutInSeconds) {
         final WebDriverWait webDriverWait = new WebDriverWait(driver, timeoutInSeconds);
         return webDriverWait.until(expectedCondition);
     }
@@ -491,7 +493,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
 
     protected UserStorageBrowserPage togglePublicAttributeForRow() throws Exception {
-        final String currHeaderText = getHeaderText();
         clickEditIconForFirstRow();
 
         waitForElementPresent(PUBLIC_CHECKBOX_BY);
@@ -502,17 +503,15 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         waitForAjaxFinished();
 
         clickButton(SAVE);
-        confirmJqiMsg(SUCCESSFUL);
-        waitForPromptFinish();
-        waitForStorageLoad();
+        final UserStorageBrowserPage nextPage = confirmJqiMsg(SUCCESSFUL);
+        nextPage.waitForStorageLoad();
 
-        return new UserStorageBrowserPage(driver, currHeaderText);
+        return nextPage;
     }
 
 
     protected UserStorageBrowserPage applyRecursivePermissions(final String idToFind, final String newGroup)
         throws Exception {
-        final String headerText = getHeaderText();
         clickEditIconForFirstRow();
         waitForElementPresent(RECURSIVE_CHECKBOX_BY);
         waitForElementVisible(RECURSIVE_CHECKBOX_BY);
@@ -528,13 +527,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         waitForAjaxFinished();
 
-        UserStorageBrowserPage localPage = clickButton(SAVE);
+        clickButton(SAVE);
 
-        confirmJqiMsg(SUBMITTED);
-        waitForPromptFinish();
-        waitForStorageLoad();
+        final UserStorageBrowserPage nextPage = confirmJqiMsg(SUBMITTED);
+        nextPage.waitForStorageLoad();
 
-        return new UserStorageBrowserPage(driver, headerText);
+        return nextPage;
     }
 
     // Row Checkbox related
