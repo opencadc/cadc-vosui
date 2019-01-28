@@ -196,10 +196,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         waitForElementPresent(PROGRESS_BAR_BY);
         waitForElementVisible(PROGRESS_BAR_BY);
+        waitForElementInvisible(LOGIN_FORM_BY);
 
         PageFactory.initElements(this.driver, this);
-
-        waitUntil(ExpectedConditions.attributeContains(this.progressBar, "class", "progress-bar-success"));
     }
 
     // Transition functions
@@ -249,7 +248,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         sendKeys(find(USERNAME_INPUT_BY), username);
         sendKeys(find(PASSWORD_INPUT_BY), password);
 
-        final UserStorageBrowserPage authPage = clickButtonAndWait(find(LOGIN_SUBMIT_BUTTON_BY));
+        final UserStorageBrowserPage authPage = clickButtonAndWait(LOGIN_SUBMIT_BUTTON_BY);
         authPage.waitForStorageLoad();
 
         return authPage;
@@ -869,12 +868,11 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         // instead of striped. Could be this test isn't sufficient but it works
         // to have intTestFirefox not fail.
 
-        waitForElementVisible(PROGRESS_BAR_BY);
-        waitUntil(ExpectedConditions.attributeContains(this.progressBar, "class", "progress-bar-success"));
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementVisible(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
         waitForElementVisible(FOLDER_NAME_HEADER_BY);
+        waitUntil(ExpectedConditions.attributeContains(this.progressBar, "class", "progress-bar-success"));
     }
 
 
