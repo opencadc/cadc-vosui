@@ -31,37 +31,42 @@
  ****  C A N A D I A N   A S T R O N O M Y   D A T A   C E N T R E  *****
  ************************************************************************
  */
+
 package ca.nrc.cadc;
 
 
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 
-public class UserStorageBrowserTest extends AbstractBrowserTest
-{
-    private static final String STORAGE_ENDPOINT = "/storage/list";
-
-
-    public UserStorageBrowserTest() throws Exception
-    {
+public class UserStorageBrowserTest extends AbstractBrowserTest {
+    public UserStorageBrowserTest() throws Exception {
         super();
     }
 
 
     @Test
-    public void browseUserStorage() throws Exception
-    {
-        System.out.println("Visiting: " + getWebURL() + STORAGE_ENDPOINT);
+    public void runTest() throws Exception {
+        try {
+            browseUserStorage();
+        } catch (Exception e) {
+            captureScreenShot(UserStorageBrowserTest.class.getName() + ".browseUserStorage");
+            throw e;
+        }
+    }
+
+    private void browseUserStorage() throws Exception {
+        System.out.println("Visiting: " + webURL);
 
         final String workingDirectoryName = UserStorageBrowserTest.class.getSimpleName() + "_" + generateAlphaNumeric();
-        UserStorageBrowserPage userStoragePage = goTo(STORAGE_ENDPOINT, null, UserStorageBrowserPage.class);
+        UserStorageBrowserPage userStoragePage = goToMain(UserStorageBrowserPage.class);
 
-        if (userStoragePage.isMainPage())
-        {
-            userStoragePage = userStoragePage.waitForStorageLoad();
+        if (userStoragePage.isMainPage()) {
+            userStoragePage.waitForStorageLoad();
         }
 
-        final String testFolderName = getUsername();
+        final String testFolderName = username;
 
         verifyTrue(userStoragePage.isDefaultSort());
 
@@ -88,8 +93,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         verifyFalse(userStoragePage.isRowItemPermissionsEditable(1));
 
         // Login test - credentials should be in the gradle build file.
-        String username = getUsername();
-
         userStoragePage = loginTest(userStoragePage);
 
         // verify edit icons are now present - as this is the user's own folder
@@ -122,15 +125,17 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Assert: home directory for CADCtest user is CADCtest
         // navigate to automated test folder
-        String autoTestFolder = "automated_test";
+        final String autoTestFolder = "automated_test";
+
+        final String fileDataTestFolder = "file_data_do_not_delete";
 
         // Get Write and Read group permissions for this folder
         userStoragePage.enterSearch(autoTestFolder);
 
         // For whatever reason the automated test folder has been deleted.
-        // Recreate it.
-        if (userStoragePage.isTableEmpty())
-        {
+        // Recreate it, but wait 3 seconds to make sure the search filter is finished.
+        waitFor(3);
+        if (userStoragePage.isTableEmpty()) {
             userStoragePage = userStoragePage.createNewFolder(autoTestFolder);
             userStoragePage.enterSearch(autoTestFolder);
         }
@@ -138,6 +143,14 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         String parentWriteGroup = userStoragePage.getValueForRowCol(1, 5);
         String parentReadGroup = userStoragePage.getValueForRowCol(1, 6);
         userStoragePage = userStoragePage.clickFolder(autoTestFolder);
+
+        userStoragePage = userStoragePage.clickFolder(fileDataTestFolder);
+        final WebElement fileItem = userStoragePage.getElementForRowCol(1, 2);
+        final String linkTarget = fileItem.findElement(By.tagName("a")).getAttribute("href");
+
+        System.out.println("Checking link target " + linkTarget);
+        verifyTrue(linkTarget.contains("/files") || linkTarget.contains("/synctrans"));
+        userStoragePage = userStoragePage.navUpLevel();
 
         // Test 'nav up one level' - last nav button to test explicitly
         userStoragePage = userStoragePage.navUpLevel();
@@ -175,8 +188,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Clearly only works for English test suite. :/
         // Toggle the Public attribute to get the underlying read group (if any)
-        if (currentReadGroup.equals("Public"))
-        {
+        if (currentReadGroup.equals("Public")) {
             userStoragePage = userStoragePage.togglePublicAttributeForRow();
         }
 
@@ -186,37 +198,16 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
 
         // Don't change anything, verify that the correct message is displayed
         userStoragePage.clickEditIconForFirstRow();
-        userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.SAVE);
-        userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.CANCEL);
-
-//        PermissionsFormData formData = userStoragePage.getValuesFromEditIcon();
-//        boolean isModifyNode = true;
-
-        // Set read group to blank (owner access only)
-        // Depending on whether the permissions on automated_test parent folder have been changed,
-        // the readGroup may not be set initially.
-        // Read group may be displayed as 'public', where the read group itself may not be that.
-        // The element grabbed here is not visible, but is a reflection of the input to the
-        // permissions editing form - attached to the edit icon (the glyphicon-pencil)
-//        if (!formData.hasReadGroup())
-//        {
-//            isModifyNode = false;
-//        }
-
+        userStoragePage = userStoragePage.clickButtonAndWait(UserStorageBrowserPage.SAVE);
+        userStoragePage = userStoragePage.clickButtonAndWait(UserStorageBrowserPage.CANCEL);
         userStoragePage = userStoragePage.setReadGroup("", true);
+
         verifyTrue(userStoragePage.isPermissionDataForRow(1, parentWriteGroup, "", false));
         userStoragePage.waitForPromptFinish();
 
-//        isModifyNode = true;
         // Set read group to selected group
         userStoragePage = userStoragePage.setReadGroup(readGroupName, true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, parentWriteGroup, readGroupName, false));
-
-        // Set write group to blank
-//        if (!formData.hasWriteGroup())
-//        {
-//            isModifyNode = false;
-//        }
 
         userStoragePage = userStoragePage.setWriteGroup("", true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, "", readGroupName, false));
@@ -288,7 +279,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         userStoragePage = userStoragePage.startMove();
 
         // Navigate through to the target node
-        userStoragePage.selectFolderFromTree(getUsername());
+        userStoragePage.selectFolderFromTree(username);
         userStoragePage.selectFolderFromTree(autoTestFolder);
         userStoragePage.selectFolderFromTree(workingDirectoryName);
         userStoragePage.selectFolderFromTree(tempTestFolder);
@@ -311,7 +302,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         userStoragePage = userStoragePage.startVOSpaceLink();
 
         // Navigate through to the target node
-        userStoragePage.selectFolderFromTree(getUsername());
+        userStoragePage.selectFolderFromTree(username);
         userStoragePage.selectFolderFromTree(autoTestFolder);
         userStoragePage.selectFolderFromTree(workingDirectoryName);
         userStoragePage.selectFolderFromTree(tempTestFolder);
@@ -347,10 +338,9 @@ public class UserStorageBrowserTest extends AbstractBrowserTest
         System.out.println("UserStorageBrowserTest completed");
     }
 
-    private UserStorageBrowserPage loginTest(final UserStorageBrowserPage userPage) throws Exception
-    {
+    private UserStorageBrowserPage loginTest(final UserStorageBrowserPage userPage) throws Exception {
         // Scenario 2: Login test - credentials should be in the gradle build file.
-        final UserStorageBrowserPage authPage = userPage.doLogin(getUsername(), getPassword());
+        final UserStorageBrowserPage authPage = userPage.doLogin(username, password);
         verifyTrue(authPage.isLoggedIn());
         System.out.println("logged in");
 

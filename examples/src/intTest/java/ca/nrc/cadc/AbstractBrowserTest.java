@@ -31,6 +31,7 @@
  ****  C A N A D I A N   A S T R O N O M Y   D A T A   C E N T R E  *****
  ************************************************************************
  */
+
 package ca.nrc.cadc;
 
 
@@ -38,26 +39,21 @@ import ca.nrc.cadc.web.selenium.AbstractWebApplicationIntegrationTest;
 import org.apache.commons.lang3.RandomStringUtils;
 
 
-public class AbstractBrowserTest extends AbstractWebApplicationIntegrationTest
-{
+public class AbstractBrowserTest extends AbstractWebApplicationIntegrationTest {
     private static final char[] SEED_CHARS;
 
-    static
-    {
+    static {
         final StringBuilder chars = new StringBuilder(128);
 
-        for (char c = 'a'; c <= 'z'; c++)
-        {
+        for (char c = 'a'; c <= 'z'; c++) {
             chars.append(c);
         }
 
-        for (char c = 'A'; c <= 'Z'; c++)
-        {
+        for (char c = 'A'; c <= 'Z'; c++) {
             chars.append(c);
         }
 
-        for (char c = '0'; c <= '9'; c++)
-        {
+        for (char c = '0'; c <= '9'; c++) {
             chars.append(c);
         }
 
@@ -66,8 +62,7 @@ public class AbstractBrowserTest extends AbstractWebApplicationIntegrationTest
         SEED_CHARS = chars.toString().toCharArray();
     }
 
-    public AbstractBrowserTest() throws Exception
-    {
+    public AbstractBrowserTest() throws Exception {
         super();
     }
 
@@ -76,10 +71,9 @@ public class AbstractBrowserTest extends AbstractWebApplicationIntegrationTest
      * Generate an ASCII string, replacing the '\' and '+' characters with
      * underscores to keep them URL friendly.
      *
-     * @return              An ASCII string of 16.
+     * @return An ASCII string of 16.
      */
-    protected String generateAlphaNumeric()
-    {
+    protected String generateAlphaNumeric() {
         return generateAlphaNumeric(16);
     }
 
@@ -87,11 +81,10 @@ public class AbstractBrowserTest extends AbstractWebApplicationIntegrationTest
      * Generate an ASCII string, replacing the '\' and '+' characters with
      * underscores to keep them URL friendly.
      *
-     * @param length        The desired length of the generated string.
-     * @return              An ASCII string of the given length.
+     * @param length The desired length of the generated string.
+     * @return An ASCII string of the given length.
      */
-    protected String generateAlphaNumeric(final int length)
-    {
+    protected String generateAlphaNumeric(final int length) {
         return RandomStringUtils.random(length, 0, SEED_CHARS.length, false,
                                         false, SEED_CHARS);
     }

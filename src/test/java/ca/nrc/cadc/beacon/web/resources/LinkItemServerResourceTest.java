@@ -68,7 +68,6 @@
 
 package ca.nrc.cadc.beacon.web.resources;
 
-import ca.nrc.cadc.beacon.web.restlet.VOSpaceApplication;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.vos.ContainerNode;
 import ca.nrc.cadc.vos.LinkNode;
@@ -88,29 +87,25 @@ import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static org.easymock.EasyMock.*;
 
 
 public class LinkItemServerResourceTest
-        extends AbstractServerResourceTest<LinkItemServerResource>
-{
+    extends AbstractServerResourceTest<LinkItemServerResource> {
     @Test
-    public void createLink() throws Exception
-    {
+    public void createLink() throws Exception {
         final URI target = URI.create("http://gohere.com/to/see");
         final LinkNode linkNode =
-                new LinkNode(new VOSURI(URI.create(
-                        StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
-                        + "/curr/dir/MY_LINK")), target);
+            new LinkNode(new VOSURI(URI.create(
+                StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
+                    + "/curr/dir/MY_LINK")), target);
 
         expect(mockServletContext.getContextPath()).andReturn("/to").once();
-        expect(mockVOSpaceClient.createNode(linkNode, false))
-                .andReturn(linkNode).once();
+        expect(mockVOSpaceClient.createNode(linkNode, false)).andReturn(linkNode).once();
 
         final JSONObject sourceJSON = new JSONObject("{\"link_name\":\"MY_LINK\","
-                                                     + "\"link_url\":\"http://gohere.com/to/see\"}");
+                                                         + "\"link_url\":\"http://gohere.com/to/see\"}");
 
         final JsonRepresentation payload = new JsonRepresentation(sourceJSON);
 
@@ -121,20 +116,29 @@ public class LinkItemServerResourceTest
         mockResponse.setStatus(Status.SUCCESS_CREATED);
         expectLastCall().once();
 
-        replay(mockVOSpaceClient, mockServletContext, mockResponse);
+        expect(mockContext.getAttributes()).andReturn(new ConcurrentHashMap<String, Object>()).times(2);
 
-        testSubject = new LinkItemServerResource(mockVOSpaceClient)
-        {
+        replay(mockVOSpaceClient, mockServletContext, mockResponse, mockContext);
+
+        testSubject = new LinkItemServerResource(mockVOSpaceClient) {
             @Override
-            ServletContext getServletContext()
-            {
+            ServletContext getServletContext() {
                 return mockServletContext;
             }
 
             @Override
-            RegistryClient getRegistryClient()
-            {
+            RegistryClient getRegistryClient() {
                 return mockRegistryClient;
+            }
+
+            /**
+             * Returns the current context.
+             *
+             * @return The current context.
+             */
+            @Override
+            public Context getContext() {
+                return mockContext;
             }
 
             /**
@@ -144,8 +148,7 @@ public class LinkItemServerResourceTest
              * @see Request#getAttributes()
              */
             @Override
-            public Map<String, Object> getRequestAttributes()
-            {
+            public Map<String, Object> getRequestAttributes() {
                 return attributes;
             }
 
@@ -155,21 +158,15 @@ public class LinkItemServerResourceTest
              * @return The handled response.
              */
             @Override
-            public Response getResponse()
-            {
+            public Response getResponse() {
                 return mockResponse;
             }
 
             @Override
-            <T> T executeSecurely(PrivilegedExceptionAction<T> runnable)
-                    throws IOException
-            {
-                try
-                {
+            <T> T executeSecurely(PrivilegedExceptionAction<T> runnable) {
+                try {
                     return runnable.run();
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -177,55 +174,63 @@ public class LinkItemServerResourceTest
 
         testSubject.create(payload);
 
-        verify(mockVOSpaceClient, mockServletContext, mockResponse);
+        verify(mockVOSpaceClient, mockServletContext, mockResponse, mockContext);
     }
 
     @Test
-    public void resolve() throws Exception
-    {
+    public void resolve() throws Exception {
         final String getNodeRequestQuery = "limit=-1";
         final Map<String, Object> attributes = new HashMap<>();
 
         attributes.put("path", "curr/dir/MY_LINK");
 
         expect(mockServletContext.getContextPath())
-                .andReturn("/servletpath").once();
+            .andReturn("/servletpath").once();
 
         final URI target = URI.create("vos://cadc.nrc.ca!vospace/other/dir/my/dir");
         final LinkNode linkNode =
-                new LinkNode(new VOSURI(URI.create(
-                        StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
-                        + "/curr/dir/MY_LINK")), target);
+            new LinkNode(new VOSURI(URI.create(
+                StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
+                    + "/curr/dir/MY_LINK")), target);
 
         final ContainerNode targetContainerNode =
-                new ContainerNode(new VOSURI(target));
+            new ContainerNode(new VOSURI(target));
 
         mockResponse.redirectTemporary(
-                "/servletpath/list/other/dir/my/dir");
+            "/servletpath/list/other/dir/my/dir");
         expectLastCall().once();
 
         expect(mockVOSpaceClient.getNode("/curr/dir/MY_LINK",
                                          getNodeRequestQuery)).andReturn(
-                                                 linkNode).once();
+            linkNode).once();
 
         expect(mockVOSpaceClient.getNode("/other/dir/my/dir",
                                          getNodeRequestQuery))
-                .andReturn(targetContainerNode).once();
+            .andReturn(targetContainerNode).once();
 
-        replay(mockVOSpaceClient, mockServletContext, mockResponse);
+        expect(mockContext.getAttributes()).andReturn(new ConcurrentHashMap<String, Object>()).times(2);
 
-        testSubject = new LinkItemServerResource(mockVOSpaceClient)
-        {
+        replay(mockVOSpaceClient, mockServletContext, mockResponse, mockContext);
+
+        testSubject = new LinkItemServerResource(mockVOSpaceClient) {
             @Override
-            ServletContext getServletContext()
-            {
+            ServletContext getServletContext() {
                 return mockServletContext;
             }
 
             @Override
-            RegistryClient getRegistryClient()
-            {
+            RegistryClient getRegistryClient() {
                 return mockRegistryClient;
+            }
+
+            /**
+             * Returns the current context.
+             *
+             * @return The current context.
+             */
+            @Override
+            public Context getContext() {
+                return mockContext;
             }
 
             /**
@@ -235,8 +240,7 @@ public class LinkItemServerResourceTest
              * @see Request#getAttributes()
              */
             @Override
-            public Map<String, Object> getRequestAttributes()
-            {
+            public Map<String, Object> getRequestAttributes() {
                 return attributes;
             }
 
@@ -246,21 +250,15 @@ public class LinkItemServerResourceTest
              * @return The handled response.
              */
             @Override
-            public Response getResponse()
-            {
+            public Response getResponse() {
                 return mockResponse;
             }
 
             @Override
-            <T> T executeSecurely(PrivilegedExceptionAction<T> runnable)
-                    throws IOException
-            {
-                try
-                {
+            <T> T executeSecurely(PrivilegedExceptionAction<T> runnable) {
+                try {
                     return runnable.run();
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -268,6 +266,6 @@ public class LinkItemServerResourceTest
 
         testSubject.resolve();
 
-        verify(mockVOSpaceClient, mockServletContext, mockResponse);
+        verify(mockVOSpaceClient, mockServletContext, mockResponse, mockContext);
     }
 }

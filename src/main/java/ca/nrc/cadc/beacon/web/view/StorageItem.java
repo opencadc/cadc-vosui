@@ -77,16 +77,14 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 
-import java.net.URI;
 import java.text.DateFormat;
 import java.util.Date;
 
 
-public abstract class StorageItem
-{
+public abstract class StorageItem {
     private static final FileSizeRepresentation FILE_SIZE_REPRESENTATION = new FileSizeRepresentation();
     private static final DateFormat DATE_FORMAT =
-            DateUtil.getDateFormat("yyyy-MM-dd ' - ' HH:mm:ss", DateUtil.UTC);
+        DateUtil.getDateFormat("yyyy-MM-dd ' - ' HH:mm:ss", DateUtil.UTC);
     static final String NO_SIZE_DISPLAY = "--";
 
     private final String name;
@@ -109,8 +107,7 @@ public abstract class StorageItem
 
     StorageItem(VOSURI uri, long sizeInBytes, Date lastModified, boolean publicFlag, boolean lockedFlag,
                 GroupURI[] writeGroupURIs, GroupURI[] readGroupURIs, final String owner, boolean readableFlag,
-                boolean writableFlag, String targetURL)
-    {
+                boolean writableFlag, String targetURL) {
         this.uri = uri;
         this.name = getURI().getName();
         this.sizeInBytes = sizeInBytes;
@@ -126,117 +123,93 @@ public abstract class StorageItem
     }
 
 
-    public String getSizeHumanReadable()
-    {
+    public String getSizeHumanReadable() {
         return FILE_SIZE_REPRESENTATION.getSizeHumanReadable(sizeInBytes);
     }
 
-    public long getSizeInBytes()
-    {
+    public long getSizeInBytes() {
         return sizeInBytes;
     }
 
-    public String getLastModifiedHumanReadable()
-    {
+    public String getLastModifiedHumanReadable() {
         return (lastModified == null) ? "" : DATE_FORMAT.format(lastModified);
     }
 
-    public String getPath()
-    {
+    public String getPath() {
         return uri.getPath();
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public VOSURI getURI()
-    {
+    public VOSURI getURI() {
         return uri;
     }
 
-    public boolean isReadable()
-    {
+    public boolean isReadable() {
         return (uri.isRoot() || uri.getParentURI().isRoot() || readableFlag);
     }
 
-    public boolean isWritable()
-    {
+    public boolean isWritable() {
         return writableFlag;
     }
 
-    public boolean isPublic()
-    {
+    public boolean isPublic() {
         return publicFlag;
     }
 
-    public boolean isLocked()
-    {
+    public boolean isLocked() {
         return lockedFlag;
     }
 
-    public String getParentPath()
-    {
+    public String getParentPath() {
         return uri.isRoot() ? "/" : uri.getParent();
     }
 
-    public String getWriteGroupNames()
-    {
+    public String getWriteGroupNames() {
         return getURINames(this.writeGroupURIs);
     }
 
-    public String getReadGroupNames()
-    {
+    public String getReadGroupNames() {
         return getURINames(this.readGroupURIs);
     }
 
-    public String getOwner()
-    {
+    public String getOwner() {
         return owner;
     }
 
-    public String getOwnerCN()
-    {
-        if ((owner == null) || uri.isRoot() || uri.getParentURI().isRoot())
-        {
+    public String getOwnerCN() {
+        if ((owner == null) || uri.isRoot() || uri.getParentURI().isRoot()) {
             return "";
-        }
-        else
-        {
+        } else {
             final X500Name xName = new X500Name(owner);
             final RDN[] cnList = xName.getRDNs(BCStyle.CN);
 
-            if (cnList.length > 0)
-            {
+            if (cnList.length > 0) {
                 // Parse out any part of the cn that is before a '_'
                 return IETFUtils.valueToString(cnList[0].getFirst().getValue()).split("_")[0];
-            }
-            else
-            {
+            } else {
                 return owner;
             }
         }
     }
 
-    private String getURINames(final GroupURI[] uris)
-    {
+    private String getURINames(final GroupURI[] uris) {
         final StringBuilder uriNames = new StringBuilder();
-        String namesString = "";
 
         if (uris != null) {
             for (final GroupURI uri : uris) {
                 uriNames.append(uri.getName()).append(" ");
             }
-            namesString =  uriNames.toString().trim();
         }
-        return namesString;
+
+        return uriNames.toString().trim();
     }
 
     public abstract String getItemIconCSS();
 
-    public String getTargetURL()
-    {
+    public String getTargetURL() {
         return targetURL;
     }
 }

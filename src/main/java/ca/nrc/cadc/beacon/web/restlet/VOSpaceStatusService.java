@@ -78,7 +78,6 @@ import org.restlet.Response;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.TemplateRepresentation;
-import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
@@ -119,7 +118,7 @@ public class VOSpaceStatusService extends StatusService
 
             return new TemplateRepresentation("error.ftl",
                                               (FreeMarkerConfiguration) curContext.getAttributes()
-                                                      .get(VOSpaceApplication.FREEMARKER_CONFIG_KEY),
+                                                      .get(StorageApplication.FREEMARKER_CONFIG_KEY),
                                               dataModel, MediaType.TEXT_HTML);
         }
     }

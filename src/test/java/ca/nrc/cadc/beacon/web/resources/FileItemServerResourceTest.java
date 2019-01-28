@@ -75,11 +75,11 @@ import ca.nrc.cadc.beacon.web.UploadVerifier;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.vos.*;
 import org.apache.commons.fileupload.FileItemStream;
+import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
@@ -89,6 +89,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 
@@ -99,18 +100,12 @@ import static org.junit.Assert.*;
 import static org.easymock.EasyMock.*;
 
 
-public class FileItemServerResourceTest
-        extends AbstractServerResourceTest<FileItemServerResource>
-{
+public class FileItemServerResourceTest extends AbstractServerResourceTest<FileItemServerResource> {
     @Test
-    public void uploadFileItem() throws Exception
-    {
+    public void uploadFileItem() throws Exception {
         final Map<String, Object> requestAttributes = new HashMap<>();
-        final VOSURI parentURI = new VOSURI(URI.create(
-                "vos://cadc.nrc.ca!vospace/parent/sub"));
-        final VOSURI expectedURI =
-                new VOSURI(URI.create(
-                        "vos://cadc.nrc.ca!vospace/parent/sub/MYUPLOADFILE.txt"));
+        final VOSURI parentURI = new VOSURI(URI.create("vos://cadc.nrc.ca!vospace/parent/sub"));
+        final VOSURI expectedURI = new VOSURI(URI.create("vos://cadc.nrc.ca!vospace/parent/sub/MYUPLOADFILE.txt"));
         final DataNode expectedDataNode = new DataNode(expectedURI);
         final String data = "MYUPLOADDATA";
         final byte[] dataBytes = data.getBytes();
@@ -118,50 +113,50 @@ public class FileItemServerResourceTest
 
         final List<NodeProperty> propertyList = new ArrayList<>();
 
-        propertyList.add(new NodeProperty("ivo://ivoa.net/vospace/core#length",
-                                          "" + dataBytes.length));
+        propertyList.add(new NodeProperty("ivo://ivoa.net/vospace/core#length", "" + dataBytes.length));
         propertyList.add(new NodeProperty("ivo://ivoa.net/vospace/core#MD5",
-                                          new String(MessageDigest
-                                                             .getInstance("MD5")
-                                                             .digest(dataBytes))));
+                                          new String(MessageDigest.getInstance("MD5").digest(dataBytes))));
 
         expectedDataNode.setProperties(propertyList);
 
         requestAttributes.put("path", "my/file.txt");
 
-        expect(mockRequest.getEntity()).andReturn(new EmptyRepresentation())
-                .once();
+        expect(mockContext.getAttributes()).andReturn(new ConcurrentHashMap<String, Object>()).times(2);
 
-        expect(mockServletContext.getContextPath()).andReturn("/teststorage")
-                .once();
+        expect(mockRequest.getEntity()).andReturn(new EmptyRepresentation()).once();
 
-        replay(mockServletContext);
+        expect(mockServletContext.getContextPath()).andReturn("/teststorage").once();
 
-        testSubject = new FileItemServerResource(mockVOSpaceClient,
-                                                 new UploadVerifier(),
-                                                 new RegexFileValidator())
-        {
+        replay(mockServletContext, mockContext);
+
+        testSubject = new FileItemServerResource(mockVOSpaceClient, new UploadVerifier(), new RegexFileValidator()) {
             @Override
-            public Response getResponse()
-            {
+            public Response getResponse() {
                 return mockResponse;
             }
 
+            /**
+             * Returns the current context.
+             *
+             * @return The current context.
+             */
             @Override
-            ServletContext getServletContext()
-            {
+            public Context getContext() {
+                return mockContext;
+            }
+
+            @Override
+            ServletContext getServletContext() {
                 return mockServletContext;
             }
 
             @Override
-            RegistryClient getRegistryClient()
-            {
+            RegistryClient getRegistryClient() {
                 return mockRegistryClient;
             }
 
             @Override
-            public Request getRequest()
-            {
+            public Request getRequest() {
                 return mockRequest;
             }
 
@@ -172,14 +167,12 @@ public class FileItemServerResourceTest
              * @see Request#getAttributes()
              */
             @Override
-            public Map<String, Object> getRequestAttributes()
-            {
+            public Map<String, Object> getRequestAttributes() {
                 return requestAttributes;
             }
 
             @Override
-            VOSURI getCurrentItemURI()
-            {
+            VOSURI getCurrentItemURI() {
                 return parentURI;
             }
 
@@ -189,19 +182,15 @@ public class FileItemServerResourceTest
              *
              * @param outputStreamWrapper The OutputStream wrapper.
              * @param dataNode            The node to upload.
-             * @throws Exception To capture transfer and upload failures.
              */
             @Override
-            void upload(UploadOutputStreamWrapper outputStreamWrapper,
-                        DataNode dataNode) throws Exception
-            {
+            void upload(UploadOutputStreamWrapper outputStreamWrapper, DataNode dataNode) {
                 // Do nothing.
             }
 
             @Override
             <T> T executeSecurely(PrivilegedExceptionAction<T> runnable)
-                    throws Exception
-            {
+                throws Exception {
                 return runnable.run();
             }
         };
@@ -210,24 +199,22 @@ public class FileItemServerResourceTest
 
         expect(mockVOSpaceClient.getNode("/parent/sub/MYUPLOADFILE.txt",
                                          "limit=0&detail=min"))
-                .andThrow(new NodeNotFoundException("No such node.")).once();
+            .andThrow(new NodeNotFoundException("No such node.")).once();
         expect(mockVOSpaceClient.createNode(expectedDataNode, false)).andReturn(
-                expectedDataNode).once();
+            expectedDataNode).once();
 
         expect(mockFileItemStream.getName()).andReturn("MYUPLOADFILE.txt")
-                .once();
+                                            .once();
         expect(mockFileItemStream.openStream()).andReturn(inputStream).once();
         expect(mockFileItemStream.getContentType()).andReturn("text/plain")
-                .once();
+                                                   .once();
 
-        replay(mockVOSpaceClient, mockResponse, mockRequest,
-               mockFileItemStream);
+        replay(mockVOSpaceClient, mockResponse, mockRequest, mockFileItemStream);
 
         final VOSURI resultURI = testSubject.upload(mockFileItemStream);
 
         assertEquals("End URI is wrong.", expectedURI, resultURI);
 
-        verify(mockVOSpaceClient, mockResponse, mockRequest, mockFileItemStream,
-               mockServletContext);
+        verify(mockVOSpaceClient, mockResponse, mockRequest, mockContext, mockFileItemStream);
     }
 }
