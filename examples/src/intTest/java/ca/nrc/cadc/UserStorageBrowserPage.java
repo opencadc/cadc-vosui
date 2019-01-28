@@ -387,12 +387,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     public UserStorageBrowserPage doVOSpaceLink() throws Exception {
         final String currentHeaderText = getHeaderText();
 
-        clickButtonAndWait(LINK);
+        clickButton(LINK);
         confirmJQIMessageText(LINK_OK);
-        clickButtonAndWait(OK);
-        waitForStorageLoad();
+        final UserStorageBrowserPage nextPage = clickButtonAndWait(OK);
+        nextPage.waitForStorageLoad();
 
-        return new UserStorageBrowserPage(driver, currentHeaderText);
+        return nextPage;
     }
 
 
@@ -409,9 +409,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         // confirm folder delete
         confirmJQIColourMessage(SUCCESSFUL);
-        clickButtonAndWait(CLOSE);
+        final UserStorageBrowserPage nextPage = clickButtonAndWait(CLOSE);
+        nextPage.waitForStorageLoad();;
 
-        return new UserStorageBrowserPage(driver, currentHeaderText);
+        return nextPage;
     }
 
     // Permissions functions
@@ -493,19 +494,19 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         // could be that the save button is not activated otherwise
         click(groupInput);
         sendKeys(groupInput, newGroup);
-
-        final UserStorageBrowserPage newPage = clickButtonAndWait(SAVE);
+        clickButton(SAVE);
 
         // read/writeGroupDiv should have 'has-error' class
         // confirm here is conditional because it won't
         // show up if an invalid group has been sent in.
         if (confirm) {
-            newPage.confirmJqiMsg(MODIFIED);
-            newPage.waitForPromptFinish();
-        }
+            final UserStorageBrowserPage newPage = confirmJqiMsg(MODIFIED);
+            newPage.waitForStorageLoad();
 
-        newPage.waitForStorageLoad();
-        return newPage;
+            return newPage;
+        } else {
+            return this;
+        }
     }
 
 
@@ -516,10 +517,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         waitForElementVisible(PUBLIC_CHECKBOX_BY);
 
         click(PUBLIC_CHECKBOX_BY);
-
         waitForAjaxFinished();
+        clickButton(SAVE);
 
-        clickButtonAndWait(SAVE);
         final UserStorageBrowserPage nextPage = confirmJqiMsg(SUCCESSFUL);
         nextPage.waitForStorageLoad();
 
@@ -541,10 +541,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         // could be that the save button is not activated otherwise
         click(groupInput);
         sendKeys(groupInput, newGroup);
-
         waitForAjaxFinished();
-
-        clickButtonAndWait(SAVE);
+        clickButton(SAVE);
 
         final UserStorageBrowserPage nextPage = confirmJqiMsg(SUBMITTED);
         nextPage.waitForStorageLoad();
