@@ -211,17 +211,21 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         this(driver, null);
     }
 
-
     // Transition functions
-    public UserStorageBrowserPage clickButton(String promptText) throws Exception {
+    protected void clickButton(String promptText) throws Exception {
         final By buttonBy = By.xpath("//button[contains(text(),\"" + promptText + "\")]");
         waitForElementClickable(buttonBy);
         click(buttonBy);
-
-        return waitForStorageLoad();
     }
 
-    public UserStorageBrowserPage clickButtonAndWait(final WebElement buttonElement) throws Exception {
+    // Transition functions
+    protected UserStorageBrowserPage clickButtonAndWait(final String promptText) throws Exception {
+        final By buttonBy = By.xpath("//button[contains(text(),\"" + promptText + "\")]");
+        waitForElementClickable(buttonBy);
+        return clickButtonAndWait(buttonBy);
+    }
+
+    protected UserStorageBrowserPage clickButtonAndWait(final WebElement buttonElement) throws Exception {
         click(buttonElement);
         final UserStorageBrowserPage nextPage = new UserStorageBrowserPage(driver);
         nextPage.waitForStorageLoad();
@@ -229,7 +233,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         return nextPage;
     }
 
-    public UserStorageBrowserPage clickButtonAndWait(final By buttonBy) throws Exception {
+    protected UserStorageBrowserPage clickButtonAndWait(final By buttonBy) throws Exception {
         return clickButtonAndWait(find(buttonBy));
     }
 
@@ -369,7 +373,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         click(MOVE_TO_BUTTON_BY);
         confirmJQIMessageText(MOVE_OK);
 
-        return clickButton(OK);
+        return clickButtonAndWait(OK);
     }
 
 
@@ -383,9 +387,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     public UserStorageBrowserPage doVOSpaceLink() throws Exception {
         final String currentHeaderText = getHeaderText();
 
-        clickButton(LINK);
+        clickButtonAndWait(LINK);
         confirmJQIMessageText(LINK_OK);
-        clickButton(OK);
+        clickButtonAndWait(OK);
         waitForStorageLoad();
 
         return new UserStorageBrowserPage(driver, currentHeaderText);
@@ -405,7 +409,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         // confirm folder delete
         confirmJQIColourMessage(SUCCESSFUL);
-        clickButton(CLOSE);
+        clickButtonAndWait(CLOSE);
 
         return new UserStorageBrowserPage(driver, currentHeaderText);
     }
@@ -434,7 +438,6 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
     UserStorageBrowserPage setGroup(final String idToFind, final String newGroup, final boolean isModifyNode)
         throws Exception {
-        final String currentHeaderText = getHeaderText();
         clickEditIconForFirstRow();
         final By idToFindBy = By.id(idToFind);
 
@@ -452,8 +455,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         clickButton(SAVE);
 
         final String confirmationBoxMsg = isModifyNode ? MODIFIED : NOT_MODIFIED;
+        final UserStorageBrowserPage nextPage = confirmJqiMsg(confirmationBoxMsg);
+        nextPage.waitForStorageLoad();
 
-        return confirmJqiMsg(confirmationBoxMsg);
+        return nextPage;
     }
 
     /**
@@ -466,7 +471,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     protected UserStorageBrowserPage confirmJqiMsg(String message) throws Exception {
         System.out.println(String.format("Confirming '%s'", message));
         confirmJQIMessageText(message);
-        return clickButton(OK);
+        return clickButtonAndWait(OK);
     }
 
     protected UserStorageBrowserPage setGroupOnly(final String idToFind, final String newGroup, final boolean confirm)
@@ -489,7 +494,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         click(groupInput);
         sendKeys(groupInput, newGroup);
 
-        final UserStorageBrowserPage newPage = clickButton(SAVE);
+        final UserStorageBrowserPage newPage = clickButtonAndWait(SAVE);
 
         // read/writeGroupDiv should have 'has-error' class
         // confirm here is conditional because it won't
@@ -514,7 +519,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         waitForAjaxFinished();
 
-        clickButton(SAVE);
+        clickButtonAndWait(SAVE);
         final UserStorageBrowserPage nextPage = confirmJqiMsg(SUCCESSFUL);
         nextPage.waitForStorageLoad();
 
@@ -539,7 +544,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         waitForAjaxFinished();
 
-        clickButton(SAVE);
+        clickButtonAndWait(SAVE);
 
         final UserStorageBrowserPage nextPage = confirmJqiMsg(SUBMITTED);
         nextPage.waitForStorageLoad();
@@ -601,9 +606,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
     public UserStorageBrowserPage navToHome() throws Exception {
         waitForElementPresent(HOME_DIR_BY);
-        click(HOME_DIR_BY);
-
-        return new UserStorageBrowserPage(driver);
+        return clickButtonAndWait(HOME_DIR_BY);
     }
 
     int getTableRowCount() {
@@ -873,17 +876,15 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         return elementExists(By.xpath("//*[@id=\"main_section\"]"));
     }
 
-    UserStorageBrowserPage waitForStorageLoad() throws Exception {
+    void waitForStorageLoad() throws Exception {
         // The beacon-progress bar state changes while it's loading
         // the page. Firefox doesn't display whole list until the bar is green
         // instead of striped. Could be this test isn't sufficient but it works
         // to have intTestFirefox not fail.
 
-        waitUntil(ExpectedConditions.attributeContains(PROGRESS_BAR_BY, "class", "progress-bar-success"));
+        waitUntil(ExpectedConditions.attributeContains(progressBar, "class", "progress-bar-success"));
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
-
-        return new UserStorageBrowserPage(driver);
     }
 
 

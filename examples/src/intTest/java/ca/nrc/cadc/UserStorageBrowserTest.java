@@ -63,7 +63,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest {
         UserStorageBrowserPage userStoragePage = goToMain(UserStorageBrowserPage.class);
 
         if (userStoragePage.isMainPage()) {
-            userStoragePage = userStoragePage.waitForStorageLoad();
+            userStoragePage.waitForStorageLoad();
         }
 
         final String testFolderName = username;
@@ -198,8 +198,8 @@ public class UserStorageBrowserTest extends AbstractBrowserTest {
 
         // Don't change anything, verify that the correct message is displayed
         userStoragePage.clickEditIconForFirstRow();
-        userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.SAVE);
-        userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.CANCEL);
+        userStoragePage = userStoragePage.clickButtonAndWait(UserStorageBrowserPage.SAVE);
+        userStoragePage = userStoragePage.clickButtonAndWait(UserStorageBrowserPage.CANCEL);
         userStoragePage = userStoragePage.setReadGroup("", true);
 
         verifyTrue(userStoragePage.isPermissionDataForRow(1, parentWriteGroup, "", false));
