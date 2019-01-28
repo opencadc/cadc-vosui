@@ -829,9 +829,11 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
     boolean quotaIsDisplayed() {
         boolean isDisplayed;
+        final By quotaBy = By.xpath("//*[@id=\"beacon_wrapper\"]/div[1]/div/div[contains(@class, 'quota')]");
 
         try {
-            WebElement quota = find(By.xpath("//*[@id=\"beacon_wrapper\"]/div[1]/div/div[contains(@class, 'quota')]"));
+            waitForElementVisible(quotaBy);
+            final WebElement quota = find(quotaBy);
             isDisplayed = StringUtil.hasText(quota.getText());
         } catch (Exception e) {
             isDisplayed = false;
