@@ -221,6 +221,14 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         return waitForStorageLoad();
     }
 
+    public UserStorageBrowserPage clickButtonAndWait(final By buttonBy) throws Exception {
+        click(buttonBy);
+        final UserStorageBrowserPage nextPage = new UserStorageBrowserPage(driver);
+        nextPage.waitForStorageLoad();
+
+        return nextPage;
+    }
+
     public void clickButtonWithClass(String promptText, String className) throws Exception {
         final By buttonWithClassBy = By.xpath("//button[contains(@class, '" + className + "') and contains(text(),'"
                                                   + promptText + "')]");
@@ -577,9 +585,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         waitForElementPresent(LEVEL_UP_BY);
         waitForElementVisible(LEVEL_UP_BY);
-        click(LEVEL_UP_BY);
 
-        return new UserStorageBrowserPage(driver, expectedHeaderText);
+        final UserStorageBrowserPage nextPage = clickButtonAndWait(LEVEL_UP_BY);
+        nextPage.waitForStorageLoad();
+        nextPage.waitForHeaderText(expectedHeaderText);
+
+        return nextPage;
     }
 
     public UserStorageBrowserPage navToHome() throws Exception {
@@ -589,12 +600,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         return new UserStorageBrowserPage(driver);
     }
 
-    int getTableRowCount() throws Exception {
-        List<WebElement> tableRows = beaconTable.findElements(By.tagName("tr"));
+    int getTableRowCount() {
+        final List<WebElement> tableRows = beaconTable.findElements(By.tagName("tr"));
         return tableRows.size();
     }
 
-    boolean verifyFolderName(int rowNum, String expectedValue) throws Exception {
+    boolean verifyFolderName(int rowNum, String expectedValue) {
         List<WebElement> tableRows = beaconTable.findElements(By.tagName("tr"));
         WebElement selectedRow = tableRows.get(rowNum);
         WebElement namecolumn = selectedRow.findElement(By.cssSelector("a:nth-of-type(1)"));
