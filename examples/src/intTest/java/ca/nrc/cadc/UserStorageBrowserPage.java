@@ -291,11 +291,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         final WebElement createFolderButton = find(By.xpath("//button[contains(text(),\"Create Folder\")]"));
         click(createFolderButton);
 
-        confirmJqiMsg("success");
-        waitForPromptFinish();
-        waitForStorageLoad();
-
-        return new UserStorageBrowserPage(driver, getHeaderText());
+        return confirmJqiMsg("success");
     }
 
     protected <V> V waitUntil(final ExpectedCondition<V> expectedCondition, final int timeoutInSeconds)
@@ -443,12 +439,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         final String confirmationBoxMsg = isModifyNode ? MODIFIED : NOT_MODIFIED;
 
-        confirmJqiMsg(confirmationBoxMsg);
-        waitForPromptFinish();
-        waitForStorageLoad();
-
-        return new UserStorageBrowserPage(driver, currentHeaderText);
-
+        return confirmJqiMsg(confirmationBoxMsg);
     }
 
     /**
