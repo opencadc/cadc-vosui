@@ -41,26 +41,32 @@ import org.openqa.selenium.WebElement;
 
 
 public class UserStorageBrowserTest extends AbstractBrowserTest {
-    private static final String STORAGE_ENDPOINT = "/storage/list";
-
-
     public UserStorageBrowserTest() throws Exception {
         super();
     }
 
 
     @Test
-    public void browseUserStorage() throws Exception {
-        System.out.println("Visiting: " + getWebURL() + STORAGE_ENDPOINT);
+    public void runTest() throws Exception {
+        try {
+            browseUserStorage();
+        } catch (Exception e) {
+            captureScreenShot(UserStorageBrowserTest.class.getName() + ".browseUserStorage");
+            throw e;
+        }
+    }
+
+    private void browseUserStorage() throws Exception {
+        System.out.println("Visiting: " + webURL);
 
         final String workingDirectoryName = UserStorageBrowserTest.class.getSimpleName() + "_" + generateAlphaNumeric();
-        UserStorageBrowserPage userStoragePage = goTo(STORAGE_ENDPOINT, null, UserStorageBrowserPage.class);
+        UserStorageBrowserPage userStoragePage = goToMain(UserStorageBrowserPage.class);
 
         if (userStoragePage.isMainPage()) {
             userStoragePage = userStoragePage.waitForStorageLoad();
         }
 
-        final String testFolderName = getUsername();
+        final String testFolderName = username;
 
         verifyTrue(userStoragePage.isDefaultSort());
 
@@ -87,8 +93,6 @@ public class UserStorageBrowserTest extends AbstractBrowserTest {
         verifyFalse(userStoragePage.isRowItemPermissionsEditable(1));
 
         // Login test - credentials should be in the gradle build file.
-        String username = getUsername();
-
         userStoragePage = loginTest(userStoragePage);
 
         // verify edit icons are now present - as this is the user's own folder
@@ -196,35 +200,14 @@ public class UserStorageBrowserTest extends AbstractBrowserTest {
         userStoragePage.clickEditIconForFirstRow();
         userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.SAVE);
         userStoragePage = userStoragePage.clickButton(UserStorageBrowserPage.CANCEL);
-
-//        PermissionsFormData formData = userStoragePage.getValuesFromEditIcon();
-//        boolean isModifyNode = true;
-
-        // Set read group to blank (owner access only)
-        // Depending on whether the permissions on automated_test parent folder have been changed,
-        // the readGroup may not be set initially.
-        // Read group may be displayed as 'public', where the read group itself may not be that.
-        // The element grabbed here is not visible, but is a reflection of the input to the
-        // permissions editing form - attached to the edit icon (the glyphicon-pencil)
-//        if (!formData.hasReadGroup())
-//        {
-//            isModifyNode = false;
-//        }
-
         userStoragePage = userStoragePage.setReadGroup("", true);
+
         verifyTrue(userStoragePage.isPermissionDataForRow(1, parentWriteGroup, "", false));
         userStoragePage.waitForPromptFinish();
 
-//        isModifyNode = true;
         // Set read group to selected group
         userStoragePage = userStoragePage.setReadGroup(readGroupName, true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, parentWriteGroup, readGroupName, false));
-
-        // Set write group to blank
-//        if (!formData.hasWriteGroup())
-//        {
-//            isModifyNode = false;
-//        }
 
         userStoragePage = userStoragePage.setWriteGroup("", true);
         verifyTrue(userStoragePage.isPermissionDataForRow(1, "", readGroupName, false));
@@ -296,7 +279,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest {
         userStoragePage = userStoragePage.startMove();
 
         // Navigate through to the target node
-        userStoragePage.selectFolderFromTree(getUsername());
+        userStoragePage.selectFolderFromTree(username);
         userStoragePage.selectFolderFromTree(autoTestFolder);
         userStoragePage.selectFolderFromTree(workingDirectoryName);
         userStoragePage.selectFolderFromTree(tempTestFolder);
@@ -319,7 +302,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest {
         userStoragePage = userStoragePage.startVOSpaceLink();
 
         // Navigate through to the target node
-        userStoragePage.selectFolderFromTree(getUsername());
+        userStoragePage.selectFolderFromTree(username);
         userStoragePage.selectFolderFromTree(autoTestFolder);
         userStoragePage.selectFolderFromTree(workingDirectoryName);
         userStoragePage.selectFolderFromTree(tempTestFolder);
@@ -357,7 +340,7 @@ public class UserStorageBrowserTest extends AbstractBrowserTest {
 
     private UserStorageBrowserPage loginTest(final UserStorageBrowserPage userPage) throws Exception {
         // Scenario 2: Login test - credentials should be in the gradle build file.
-        final UserStorageBrowserPage authPage = userPage.doLogin(getUsername(), getPassword());
+        final UserStorageBrowserPage authPage = userPage.doLogin(username, password);
         verifyTrue(authPage.isLoggedIn());
         System.out.println("logged in");
 

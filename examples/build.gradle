@@ -58,7 +58,7 @@ task dockerize(type: Exec, dependsOn: [initDockerize, copyWAR]) {
 
 ext {
     // Change this value to test other locations, such as Production or RC.
-    intTest_default_web_app_url = 'http://localhost:8080'
+    intTest_default_web_app_url = 'http://localhost:8080/storage/list/'
     intTest_user_name = 'CADCtest'
     intTest_user_password = 'sywymUL4'
 }

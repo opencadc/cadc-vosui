@@ -81,8 +81,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.openqa.selenium.By.xpath;
-
 
 public class UserStorageBrowserPage extends AbstractTestWebPage {
     // Strings for matching against prompt messages and buttons
@@ -103,7 +101,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
 
     // Web Element locators
-    private static final By NAVBAR_ELEMENTS_BY = xpath("//*[@id=\"navbar-functions\"]/ul");
+    private static final By NAVBAR_ELEMENTS_BY = By.xpath("//*[@id=\"navbar-functions\"]/ul");
     private static final By NEW_FOLDER_BY = By.id("newfolder");
     private static final By NEW_VOSPACE_LINK_BY = By.id("new_vospace_link");
     private static final By ACCESS_ACTIONS_DROPDOWN_BY = By.cssSelector("a.access-actions");
@@ -141,6 +139,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     // Elements always on the page
     @FindBy(id = "beacon_filter")
     private WebElement searchFilter;
+
+    @FindBy(className = "beacon-progress")
+    private WebElement progressBar;
 
     @FindBy(id = "beacon")
     private WebElement beaconTable;
@@ -199,9 +200,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         waitForElementPresent(PROGRESS_BAR_BY);
         waitForElementVisible(PROGRESS_BAR_BY);
-        waitUntil(ExpectedConditions.attributeContains(PROGRESS_BAR_BY, "class", "progress-bar-success"));
 
         PageFactory.initElements(driver, this);
+
+        waitUntil(ExpectedConditions.attributeContains(progressBar, "class", "progress-bar-success"));
     }
 
 
@@ -212,16 +214,16 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
     // Transition functions
     public UserStorageBrowserPage clickButton(String promptText) throws Exception {
-        final By buttonBy = xpath("//button[contains(text(),\"" + promptText + "\")]");
+        final By buttonBy = By.xpath("//button[contains(text(),\"" + promptText + "\")]");
         waitForElementClickable(buttonBy);
         click(buttonBy);
 
-        return new UserStorageBrowserPage(driver);
+        return waitForStorageLoad();
     }
 
     public void clickButtonWithClass(String promptText, String className) throws Exception {
-        final By buttonWithClassBy = xpath("//button[contains(@class, '" + className + "') and contains(text(),'"
-                                               + promptText + "')]");
+        final By buttonWithClassBy = By.xpath("//button[contains(@class, '" + className + "') and contains(text(),'"
+                                                  + promptText + "')]");
         waitForElementPresent(buttonWithClassBy);
         waitForElementVisible(buttonWithClassBy);
         waitForElementClickable(buttonWithClassBy);
@@ -261,7 +263,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     // Folder Related Transition functions
     public UserStorageBrowserPage clickFolder(String folderName) throws Exception {
         final String currentHeaderText = getHeaderText().equals("ROOT") ? "" : getHeaderText();
-        final By folderBy = xpath("//*/td/a[contains(text(),'" + folderName + "')]");
+        final By folderBy = By.xpath("//*/td/a[contains(text(),'" + folderName + "')]");
 
         waitForElementPresent(folderBy);
         waitForElementVisible(folderBy);
@@ -286,7 +288,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
         sendKeys(newfolderInput, folderName);
 
-        final WebElement createFolderButton = find(xpath("//button[contains(text(),\"Create Folder\")]"));
+        final WebElement createFolderButton = find(By.xpath("//button[contains(text(),\"Create Folder\")]"));
         click(createFolderButton);
 
         confirmJqiMsg("success");
@@ -374,6 +376,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         clickButton(LINK);
         confirmJQIMessageText(LINK_OK);
         clickButton(OK);
+        waitForStorageLoad();
 
         return new UserStorageBrowserPage(driver, currentHeaderText);
     }
@@ -399,7 +402,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
     // Permissions functions
     public void clickEditIconForFirstRow() throws Exception {
-        final By firstRowBy = xpath(String.format(EDIT_ICON_BY_TEMPLATE, "1"));
+        final By firstRowBy = By.xpath(String.format(EDIT_ICON_BY_TEMPLATE, "1"));
         waitForElementPresent(firstRowBy);
         waitForElementVisible(firstRowBy);
         click(firstRowBy);
@@ -481,21 +484,18 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         click(groupInput);
         sendKeys(groupInput, newGroup);
 
-        UserStorageBrowserPage localPage = clickButton(SAVE);
+        final UserStorageBrowserPage newPage = clickButton(SAVE);
 
         // read/writeGroupDiv should have 'has-error' class
         // confirm here is conditional because it won't
         // show up if an invalid group has been sent in.
         if (confirm) {
-            confirmJqiMsg(MODIFIED);
-            waitForPromptFinish();
-            waitForStorageLoad();
+            newPage.confirmJqiMsg(MODIFIED);
+            newPage.waitForPromptFinish();
         }
 
-        localPage = waitForStorageLoad();
-
-
-        return localPage;
+        newPage.waitForStorageLoad();
+        return newPage;
     }
 
 
@@ -549,14 +549,14 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     // Row Checkbox related
     public void clickCheckboxForRow(final int rowNum) throws Exception {
         final WebElement firstCheckbox = waitUntil(ExpectedConditions.elementToBeClickable(
-            xpath("//*[@id=\"beacon\"]/tbody/tr[" + rowNum + "]/td[1]")));
+            By.xpath("//*[@id=\"beacon\"]/tbody/tr[" + rowNum + "]/td[1]")));
         click(firstCheckbox);
     }
 
     public void clickCheckboxForFolder(String folderName) throws Exception {
-        WebElement folder = find(xpath("//*[@id=\"beacon\"]/tbody/tr/td/a[contains(text()," + folderName + ")]"));
-        WebElement folderParent = folder.findElement(xpath(".."));
-        WebElement folderCheckbox = folderParent.findElement(xpath("//div[contains(@class=\"select-checkbox\")]"));
+        WebElement folder = find(By.xpath("//*[@id=\"beacon\"]/tbody/tr/td/a[contains(text()," + folderName + ")]"));
+        WebElement folderParent = folder.findElement(By.xpath(".."));
+        WebElement folderCheckbox = folderParent.findElement(By.xpath("//div[contains(@class=\"select-checkbox\")]"));
         folderCheckbox.click();
     }
 
@@ -647,7 +647,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
     public WebElement getElementForRowCol(int rowNum, int colNum) {
         try {
-            return find(xpath("//*[@id='beacon']/tbody/tr[" + rowNum + "]/td[" + colNum + "]"));
+            return find(By.xpath("//*[@id='beacon']/tbody/tr[" + rowNum + "]/td[" + colNum + "]"));
         } catch (Exception e) {
             // element not found, return empty string
             return null;
@@ -656,7 +656,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
 
     // Permissions Data
     public PermissionsFormData getValuesFromEditIcon() throws Exception {
-        WebElement editIcon = find(xpath(String.format(EDIT_ICON_BY_TEMPLATE, "1")));
+        WebElement editIcon = find(By.xpath(String.format(EDIT_ICON_BY_TEMPLATE, "1")));
 
         return new PermissionsFormData(editIcon.getAttribute("data-readgroup"),
                                        editIcon.getAttribute("data-writegroup"));
@@ -714,10 +714,10 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         if (isLoggedIn()) {
             return getHeaderText().contains(ROOT_FOLDER_NAME)
                 && isHomeDirButtonDisplayed()
-                && navbarButtonList.findElements(xpath("//*[@id=\"navbar-functions\"]/ul/li")).size() == 2;
+                && navbarButtonList.findElements(By.xpath("//*[@id=\"navbar-functions\"]/ul/li")).size() == 2;
         } else {
             return getHeaderText().contains(ROOT_FOLDER_NAME)
-                && navbarButtonList.findElements(xpath("//*[@id=\"navbar-functions\"]/ul/li")).size() == 1;
+                && navbarButtonList.findElements(By.xpath("//*[@id=\"navbar-functions\"]/ul/li")).size() == 1;
         }
     }
 
@@ -731,31 +731,26 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         // visually it will be different, but for now the change
         // in css class is enough to check
         //*[@id="beacon"]/tbody/tr[1]
-        WebElement selectedRow = beaconTable.findElement(xpath("//*[@id=\"beacon\"]/tbody/tr[" + rowNumber + "]"));
+        WebElement selectedRow = beaconTable.findElement(By.xpath("//*[@id=\"beacon\"]/tbody/tr[" + rowNumber + "]"));
 
-        if (!selectedRow.getAttribute("class").contains("selected")) {
+        if (selectedRow.getAttribute("class").contains("selected")) {
+
+            // Behaviour is different if person is logged in or not
+            if (isLoggedIn()) {
+                return !(isDisabled(moveButton) && isDisabled(deleteButton) && isDisabled(downloadButton));
+            } else {   // There will need to be a check for publicly available for download or not?
+                return isDisabled(moveButton) && isDisabled(deleteButton) && !isDisabled(downloadButton);
+            }
+        } else {
             return false;
         }
-
-        // Behaviour is different if person is logged in or not
-        if (isLoggedIn()) {
-            if (!(isDisabled(moveButton) && isDisabled(deleteButton) && isDisabled(downloadButton))) {
-                return true;
-            }
-        } else {   // There will need to be a check for publicly available for download or not?
-            if (isDisabled(moveButton) && isDisabled(deleteButton) && !isDisabled(downloadButton)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 
     public boolean isDefaultSort() {
         // Name column asc is default sort when page loads
-        WebElement nameColHeader = beaconTable.findElement(
-            xpath("//*[@id=\"beacon_wrapper\"]/div[2]/div/div[1]/div[1]/div/table/thead/tr/th[2]"));
+        final WebElement nameColHeader = beaconTable.findElement(
+            By.xpath("//*[@id=\"beacon_wrapper\"]/div[2]/div/div[1]/div[1]/div/table/thead/tr/th[2]"));
         return nameColHeader.getAttribute("class").equals("sorting_asc");
     }
 
@@ -780,7 +775,8 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     }
 
     public void confirmJQIColourMessage(String message) throws Exception {
-        waitForElementPresent(xpath("//div[contains(@class, 'jqimessage')]/span[contains(text(), '" + message + "')]"));
+        waitForElementPresent(By.xpath("//div[contains(@class, 'jqimessage')]/span[contains(text(), '" + message +
+                                           "')]"));
     }
 
 
@@ -835,7 +831,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         boolean isDisplayed;
 
         try {
-            WebElement quota = find(xpath("//*[@id=\"beacon_wrapper\"]/div[1]/div/div[contains(@class, 'quota')]"));
+            WebElement quota = find(By.xpath("//*[@id=\"beacon_wrapper\"]/div[1]/div/div[contains(@class, 'quota')]"));
             isDisplayed = StringUtil.hasText(quota.getText());
         } catch (Exception e) {
             isDisplayed = false;
@@ -845,12 +841,12 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     }
 
     boolean isRowItemPermissionsEditable(int rowNum) throws Exception {
-        return (find(xpath(String.format(EDIT_ICON_BY_TEMPLATE, rowNum + ""))) != null);
+        return (find(By.xpath(String.format(EDIT_ICON_BY_TEMPLATE, rowNum + ""))) != null);
     }
 
 
     public boolean isPromptOpen() throws Exception {
-        return (find(xpath("//div[@class='jqistate']")) != null);
+        return (find(By.xpath("//div[@class='jqistate']")) != null);
     }
 
     // --------- Page state wait methods
@@ -875,8 +871,7 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
         // instead of striped. Could be this test isn't sufficient but it works
         // to have intTestFirefox not fail.
 
-        waitUntil(ExpectedConditions.attributeContains(
-            By.className("beacon-progress"), "class", "progress-bar-success"));
+        waitUntil(ExpectedConditions.attributeContains(PROGRESS_BAR_BY, "class", "progress-bar-success"));
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
 
