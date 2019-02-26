@@ -1,4 +1,4 @@
-"use strict"
+'use strict'
 /**
  *  Filemanager JS core
  *
@@ -23,7 +23,7 @@ function fileManager(
 ) {
   // function to retrieve GET params
   $.urlParam = function(name) {
-    var results = new RegExp("[\\?&]" + name + "=([^&#]*)").exec(
+    var results = new RegExp('[\\?&]' + name + '=([^&#]*)').exec(
       window.location.href
     )
     return results ? results[1] : 0
@@ -36,26 +36,26 @@ function fileManager(
   // We retrieve config settings from filemanager.config.js
   var loadConfigFile = function(type) {
     var json = null
-    type = typeof type === "undefined" ? "user" : type
+    type = typeof type === 'undefined' ? 'user' : type
 
     var url
 
-    if (type === "user") {
-      if ($.urlParam("config") !== 0) {
-        url = contextPath + "scripts/" + $.urlParam("config")
-        userconfig = $.urlParam("config")
+    if (type === 'user') {
+      if ($.urlParam('config') !== 0) {
+        url = contextPath + 'scripts/' + $.urlParam('config')
+        userconfig = $.urlParam('config')
       } else {
-        url = contextPath + "scripts/filemanager.config.json"
-        userconfig = "filemanager.config.json"
+        url = contextPath + 'scripts/filemanager.config.json'
+        userconfig = 'filemanager.config.json'
       }
     } else {
-      url = contextPath + "scripts/filemanager.config.default.json"
+      url = contextPath + 'scripts/filemanager.config.default.json'
     }
 
     $.ajax({
       async: false,
       url: url,
-      dataType: "json",
+      dataType: 'json',
       cache: false,
       success: function(data) {
         json = data
@@ -65,7 +65,7 @@ function fileManager(
   }
 
   // loading default configuration file
-  var configd = loadConfigFile("default")
+  var configd = loadConfigFile('default')
   // loading user configuration file
   var config = loadConfigFile()
   // we remove version from user config file
@@ -80,14 +80,14 @@ function fileManager(
     var start = new Date().getTime()
   }
 
-  var ROW_SELECT_TYPE = "row"
+  var ROW_SELECT_TYPE = 'row'
   var lockedIcon = '<span class="glyphicon glyphicon-lock"></span>'
 
   // Used for controlling button bar function
-  var multiSelectSelector = ".multi-select-function-container"
-  var multiSelectWritableSelector = ".multi-select-function-container-writable"
-  var multiSelectClass = ".multi-select-function"
-  var multiSelectWritableClass = ".multi-select-function-writable"
+  var multiSelectSelector = '.multi-select-function-container'
+  var multiSelectWritableSelector = '.multi-select-function-container-writable'
+  var multiSelectClass = '.multi-select-function'
+  var multiSelectWritableClass = '.multi-select-function-writable'
   var isWritableFlagIndex = 13
 
   var stringUtil = new org.opencadc.StringUtil()
@@ -105,19 +105,19 @@ function fileManager(
 
   // Options for alert, prompt, and confirm dialogues.
   $.prompt.setDefaults({
-    overlayspeed: "fast",
-    show: "fadeIn",
-    hide: "fadeOut",
+    overlayspeed: 'fast',
+    show: 'fadeIn',
+    hide: 'fadeOut',
     opacity: 0.4,
     persistent: false
   })
 
   var selectInput = {
-    style: "os",
-    selector: "td:first-child.select-checkbox"
+    style: 'os',
+    selector: 'td:first-child.select-checkbox'
   }
 
-  var $fileInfo = $("#fileInfo")
+  var $fileInfo = $('#fileInfo')
   var fileRoot
   var baseURL
   var fullexpandedFolder
@@ -148,17 +148,17 @@ function fileManager(
   var $dt = _$beaconTable.DataTable({
     data: _initialData,
     initComplete: function(settings, json) {
-      if (folderPath === "") {
+      if (folderPath === '') {
         // will be this for Root folder
-        $("#beacon")
+        $('#beacon')
           .DataTable()
           .column(6)
           .visible(false)
       }
     },
     language: {
-      search: "_INPUT_",
-      searchPlaceholder: "Search Name..."
+      search: '_INPUT_',
+      searchPlaceholder: 'Search Name...'
     },
     dom:
       "<'row beacon-info-row'<'col-sm-12'<'progress active'<'beacon-progress progress-bar progress-bar-info progress-bar-striped'>><'quota'>i>>" +
@@ -166,7 +166,7 @@ function fileManager(
     loading: true,
     processing: true,
     deferRender: true,
-    scrollY: "60vh",
+    scrollY: '60vh',
     lengthChange: false,
     scrollCollapse: true,
     scroller: true,
@@ -174,7 +174,7 @@ function fileManager(
       {
         targets: 0,
         orderable: false,
-        className: "select-checkbox",
+        className: 'select-checkbox',
         searchable: false,
         render: function(data, type, full) {
           var renderedValue
@@ -203,8 +203,8 @@ function fileManager(
             var itemNameDisplay =
               '<span class="glyphicon ' + full[8] + '"></span>&nbsp;&nbsp;'
 
-            if (full[12] === "true") {
-              itemNameDisplay += '<a href="' + full[11] + '">' + data + "</a>"
+            if (full[12] === 'true') {
+              itemNameDisplay += '<a href="' + full[11] + '">' + data + '</a>'
             } else {
               itemNameDisplay += data
             }
@@ -217,7 +217,7 @@ function fileManager(
       },
       {
         targets: 2,
-        type: "file-size",
+        type: 'file-size',
         searchable: false
       },
       {
@@ -228,10 +228,10 @@ function fileManager(
         targets: 4,
         searchable: false,
         render: function(data, type, full) {
-          var renderedValue = ""
+          var renderedValue = ''
 
           // if isWritable bit is true, provide edit icon
-          if (full[13] === "true") {
+          if (full[13] === 'true') {
             renderedValue += makeEditIcon(contextPath, full)
           }
 
@@ -244,16 +244,16 @@ function fileManager(
         targets: 5,
         searchable: false,
         render: function(data, type, full) {
-          var renderedValue = ""
+          var renderedValue = ''
 
           // if isWritable bit is true, provide edit icon
-          if (full[13] === "true") {
+          if (full[13] === 'true') {
             renderedValue += makeEditIcon(contextPath, full)
           }
 
           if (full.length > 9) {
             // Column [6] is the public flag.
-            renderedValue += full[6] === "true" ? lg.public : data
+            renderedValue += full[6] === 'true' ? lg.public : data
           } else {
             renderedValue += data
           }
@@ -270,15 +270,15 @@ function fileManager(
       }
     ],
     select: selectInput,
-    order: [[1, "asc"]]
+    order: [[1, 'asc']]
   })
 
   // Setup the Progress Bar.
-  $("div.beacon-progress")
-    .attr("role", "progressbar")
-    .attr("aria-valuenow", _totalDataCount + "")
-    .attr("aria-valuemin", _totalDataCount + "")
-    .attr("aria-valuemax", _totalDataCount + "")
+  $('div.beacon-progress')
+    .attr('role', 'progressbar')
+    .attr('aria-valuenow', _totalDataCount + '')
+    .attr('aria-valuemin', _totalDataCount + '')
+    .attr('aria-valuemax', _totalDataCount + '')
   // .text(lg.loading_data);
 
   var toggleButtonSet = function(_disabledFlag, selector, selectClass) {
@@ -289,22 +289,22 @@ function fileManager(
 
     if (_disabledFlag === true) {
       $selectorContainers
-        .prop("disabled", true)
-        .attr("disabled", "disabled")
-        .addClass("disabled")
+        .prop('disabled', true)
+        .attr('disabled', 'disabled')
+        .addClass('disabled')
       $selectorFunctions
-        .prop("disabled", true)
-        .attr("disabled", "disabled")
-        .addClass("disabled")
+        .prop('disabled', true)
+        .attr('disabled', 'disabled')
+        .addClass('disabled')
     } else {
       $selectorContainers
-        .prop("disabled", false)
-        .removeAttr("disabled")
-        .removeClass("disabled")
+        .prop('disabled', false)
+        .removeAttr('disabled')
+        .removeClass('disabled')
       $selectorFunctions
-        .prop("disabled", false)
-        .removeAttr("disabled")
-        .removeClass("disabled")
+        .prop('disabled', false)
+        .removeAttr('disabled')
+        .removeClass('disabled')
     }
   }
 
@@ -334,7 +334,7 @@ function fileManager(
       // check isWritable for all selected rows
       var writable = true
       for (var i = 0; i < tableRows.count(); i++) {
-        if (tableRows.data()[i][isWritableFlagIndex] === "false") {
+        if (tableRows.data()[i][isWritableFlagIndex] === 'false') {
           writable = false
           break
         }
@@ -343,22 +343,33 @@ function fileManager(
     }
   }
 
-  $dt.on("select", function(event, dataTablesAPI, type) {
+  $dt.on('select', function(event, dataTablesAPI, type) {
     if (type === ROW_SELECT_TYPE) {
-      var selectedRows = $dt.rows({ selected: true })
+      var selectedRows = $dt.rows({
+        selected: true
+      })
       enableMultiFunctionButtons(isSelectionWritable(selectedRows))
     }
   })
 
-  $dt.on("select.dtSelect.dt deselect.dtSelect.dt", function() {
-    var selectedRows = $dt.rows({ selected: true })
+  $dt.on('select.dtSelect.dt deselect.dtSelect.dt', function() {
+    var selectedRows = $dt.rows({
+      selected: true
+    })
     enableMultiFunctionButtons(isSelectionWritable(selectedRows))
   })
 
-  $dt.on("deselect", function(event, dataTablesAPI, type) {
+  $dt.on('deselect', function(event, dataTablesAPI, type) {
     // If the indexes.length is 1, this that last item is
     // being removed (deselected).
-    if (type === ROW_SELECT_TYPE && $dt.rows({ selected: true }).count() <= 0) {
+    if (
+      type === ROW_SELECT_TYPE &&
+      $dt
+        .rows({
+          selected: true
+        })
+        .count() <= 0
+    ) {
       disableMultiFunctionButtons()
     }
   })
@@ -367,14 +378,14 @@ function fileManager(
    * We're putting a custom search field in, so we need to
    * initialize the searching here.
    */
-  $("input.dataTables_filter").on("keyup", function() {
+  $('input.dataTables_filter').on('keyup', function() {
     $dt.search($(this).val()).draw()
   })
 
   var getPage = function(_data, _callback) {
     $.get({
       url: url,
-      dataType: "text",
+      dataType: 'text',
       data: _data
     }).done(function(csvData) {
       _callback(csvData)
@@ -382,12 +393,12 @@ function fileManager(
   }
 
   var loadComplete = function() {
-    $("div.progress")
-      .removeClass("active")
-      .children("div.beacon-progress")
-      .removeClass("progress-bar-striped")
-      .removeClass("progress-bar-info")
-      .addClass("progress-bar-success")
+    $('div.progress')
+      .removeClass('active')
+      .children('div.beacon-progress')
+      .removeClass('progress-bar-striped')
+      .removeClass('progress-bar-info')
+      .addClass('progress-bar-success')
       .empty()
   }
 
@@ -441,7 +452,7 @@ function fileManager(
       var cssLink = $(
         "<link rel='stylesheet' type='text/css' href='" + href + "'>"
       )
-      $("head").append(cssLink)
+      $('head').append(cssLink)
 
       HEAD_included_files.push(href)
     }
@@ -455,7 +466,7 @@ function fileManager(
     // we check if already included
     if ($.inArray(src, HEAD_included_files) == -1) {
       var jsLink = $("<script type='text/javascript' src='" + src + "'>")
-      $("head").append(jsLink)
+      $('head').append(jsLink)
       HEAD_included_files.push(src)
     }
   }
@@ -467,8 +478,8 @@ function fileManager(
    *
    */
   var smartPath = function(url, path) {
-    var a = url.split("/")
-    var separator = "/" + a[a.length - 2] + "/"
+    var a = url.split('/')
+    var separator = '/' + a[a.length - 2] + '/'
     var pos = path.indexOf(separator)
     var rvalue
 
@@ -483,15 +494,15 @@ function fileManager(
 
     if (config.options.logger) {
       console.log(
-        "url : " +
+        'url : ' +
           url +
-          " - path : " +
+          ' - path : ' +
           path +
-          " - separator : " +
+          ' - separator : ' +
           separator +
-          " -  pos : " +
+          ' -  pos : ' +
           pos +
-          " - returned value : " +
+          ' - returned value : ' +
           rvalue
       )
     }
@@ -502,32 +513,32 @@ function fileManager(
   // Sets paths to connectors based on language selection.
   var fileConnector =
     contextPath + config.options.fileConnector ||
-    "connectors/" + config.options.lang + "/filemanager." + config.options.lang
+    'connectors/' + config.options.lang + '/filemanager.' + config.options.lang
 
   // Read capabilities from config files if exists
   // else apply default settings
   var capabilities = config.options.capabilities || [
-    "select",
-    "download",
-    "rename",
-    "move",
-    "delete",
-    "replace"
+    'select',
+    'download',
+    'rename',
+    'move',
+    'delete',
+    'replace'
   ]
 
   // Get localized messages from file
   // through culture var or from URL
-  if ($.urlParam("langCode") != 0) {
+  if ($.urlParam('langCode') != 0) {
     if (
       file_exists(
-        contextPath + "scripts/languages/" + $.urlParam("langCode") + ".js"
+        contextPath + 'scripts/languages/' + $.urlParam('langCode') + '.js'
       )
     ) {
-      config.options.culture = $.urlParam("langCode")
+      config.options.culture = $.urlParam('langCode')
     } else {
-      var urlLang = $.urlParam("langCode").substring(0, 2)
+      var urlLang = $.urlParam('langCode').substring(0, 2)
 
-      if (file_exists(contextPath + "scripts/languages/" + urlLang + ".js")) {
+      if (file_exists(contextPath + 'scripts/languages/' + urlLang + '.js')) {
         config.options.culture = urlLang
       }
     }
@@ -537,9 +548,9 @@ function fileManager(
   // Called on initial page load and on resize.
   var setDimensions = function() {
     var bheight = 53,
-      $uploader = $("#uploader")
+      $uploader = $('#uploader')
 
-    if ($.urlParam("CKEditorCleanUpFuncNum")) {
+    if ($.urlParam('CKEditorCleanUpFuncNum')) {
       bheight += 60
     }
 
@@ -555,18 +566,18 @@ function fileManager(
 
   // Display Min Path
   var displayPath = function(path, reduce) {
-    reduce = typeof reduce === "undefined"
+    reduce = typeof reduce === 'undefined'
 
     if (config.options.showFullPath == false) {
       // if a "displayPathDecorator" function is defined, use it to decorate
       // path
-      if ("function" === typeof displayPathDecorator) {
-        return displayPathDecorator(path.replace(fileRoot, "/"))
+      if ('function' === typeof displayPathDecorator) {
+        return displayPathDecorator(path.replace(fileRoot, '/'))
       } else {
-        path = path.replace(fileRoot, "/")
+        path = path.replace(fileRoot, '/')
         if (path.length > 50 && reduce === true) {
-          var n = path.split("/")
-          path = "/" + n[1] + "/" + n[2] + "/(...)/" + n[n.length - 2] + "/"
+          var n = path.split('/')
+          path = '/' + n[1] + '/' + n[2] + '/(...)/' + n[n.length - 2] + '/'
         }
         return path
       }
@@ -576,17 +587,17 @@ function fileManager(
   }
 
   if (useDefaultLogin === true) {
-    var $loginForm = $("#loginForm")
+    var $loginForm = $('#loginForm')
 
     var resetLoginFormErrors = function() {
-      var $loginFailContainer = $loginForm.find("#login_fail")
+      var $loginFailContainer = $loginForm.find('#login_fail')
 
-      $loginForm.removeClass("has-error")
-      $loginFailContainer.text("")
+      $loginForm.removeClass('has-error')
+      $loginFailContainer.text('')
     }
 
     $loginForm
-      .find("input.form-control")
+      .find('input.form-control')
       .off()
       .change(function() {
         resetLoginFormErrors()
@@ -604,8 +615,8 @@ function fileManager(
             refreshPage()
           },
           401: function() {
-            $thisForm.find("#login_fail").text(lg.INVALID_CREDENTIALS)
-            $thisForm.addClass("has-error")
+            $thisForm.find('#login_fail').text(lg.INVALID_CREDENTIALS)
+            $thisForm.addClass('has-error')
           }
         }
       })
@@ -619,7 +630,7 @@ function fileManager(
    */
 
   var isLoggedIn = function() {
-    return $("a.access-actions")
+    return $('a.access-actions')
   }
 
   /**
@@ -628,7 +639,7 @@ function fileManager(
    * @returns {*|{}}
    */
   var getCurrentPath = function() {
-    return $("#currentpath").val() || "/"
+    return $('#currentpath').val() || '/'
   }
 
   // Test if a given url exists
@@ -643,14 +654,14 @@ function fileManager(
     // file_exists('http://kevin.vanzonneveld.net/pj_test_supportfile_1.htm');
     // *     returns 1: '123'
     var req = this.window.ActiveXObject
-      ? new ActiveXObject("Microsoft.XMLHTTP")
+      ? new ActiveXObject('Microsoft.XMLHTTP')
       : new XMLHttpRequest()
     if (!req) {
-      throw new Error("XMLHttpRequest not supported")
+      throw new Error('XMLHttpRequest not supported')
     }
 
     // HEAD Results are usually shorter (faster) than GET
-    req.open("HEAD", url, false)
+    req.open('HEAD', url, false)
     req.send(null)
 
     return req.status == 200
@@ -661,7 +672,7 @@ function fileManager(
   var preg_replace = function(array_pattern, array_pattern_replace, str) {
     var new_str = String(str)
     for (i = 0; i < array_pattern.length; i++) {
-      var reg_exp = new RegExp(array_pattern[i], "g")
+      var reg_exp = new RegExp(array_pattern[i], 'g')
       var val_to_replace = array_pattern_replace[i]
       new_str = new_str.replace(reg_exp, val_to_replace)
     }
@@ -682,180 +693,180 @@ function fileManager(
   // cleanString
   var cleanString = function(str) {
     var p_search = [
-      "Š",
-      "š",
-      "Đ",
-      "đ",
-      "Ž",
-      "ž",
-      "Č",
-      "č",
-      "Ć",
-      "ć",
-      "À",
-      "Á",
-      "Â",
-      "Ã",
-      "Ä",
-      "Å",
-      "Æ",
-      "Ç",
-      "È",
-      "É",
-      "Ê",
-      "Ë",
-      "Ì",
-      "Í",
-      "Î",
-      "Ï",
-      "Ñ",
-      "Ò",
-      "Ó",
-      "Ô",
-      "Õ",
-      "Ö",
-      "Ő",
-      "Ø",
-      "Ù",
-      "Ú",
-      "Û",
-      "Ü",
-      "Ý",
-      "Þ",
-      "ß",
-      "à",
-      "á",
-      "â",
-      "ã",
-      "ä",
-      "å",
-      "æ",
-      "ç",
-      "è",
-      "é",
-      "ê",
-      "ë",
-      "ì",
-      "í",
-      "î",
-      "ï",
-      "ð",
-      "ñ",
-      "ò",
-      "ó",
-      "ô",
-      "õ",
-      "ö",
-      "ő",
-      "ø",
-      "ù",
-      "ú",
-      "û",
-      "ü",
-      "ý",
-      "ý",
-      "þ",
-      "ÿ",
-      "Ŕ",
-      "ŕ",
-      " ",
+      'Š',
+      'š',
+      'Đ',
+      'đ',
+      'Ž',
+      'ž',
+      'Č',
+      'č',
+      'Ć',
+      'ć',
+      'À',
+      'Á',
+      'Â',
+      'Ã',
+      'Ä',
+      'Å',
+      'Æ',
+      'Ç',
+      'È',
+      'É',
+      'Ê',
+      'Ë',
+      'Ì',
+      'Í',
+      'Î',
+      'Ï',
+      'Ñ',
+      'Ò',
+      'Ó',
+      'Ô',
+      'Õ',
+      'Ö',
+      'Ő',
+      'Ø',
+      'Ù',
+      'Ú',
+      'Û',
+      'Ü',
+      'Ý',
+      'Þ',
+      'ß',
+      'à',
+      'á',
+      'â',
+      'ã',
+      'ä',
+      'å',
+      'æ',
+      'ç',
+      'è',
+      'é',
+      'ê',
+      'ë',
+      'ì',
+      'í',
+      'î',
+      'ï',
+      'ð',
+      'ñ',
+      'ò',
+      'ó',
+      'ô',
+      'õ',
+      'ö',
+      'ő',
+      'ø',
+      'ù',
+      'ú',
+      'û',
+      'ü',
+      'ý',
+      'ý',
+      'þ',
+      'ÿ',
+      'Ŕ',
+      'ŕ',
+      ' ',
       "'",
-      "/"
+      '/'
     ]
     var p_replace = [
-      "S",
-      "s",
-      "Dj",
-      "dj",
-      "Z",
-      "z",
-      "C",
-      "c",
-      "C",
-      "c",
-      "A",
-      "A",
-      "A",
-      "A",
-      "A",
-      "A",
-      "A",
-      "C",
-      "E",
-      "E",
-      "E",
-      "E",
-      "I",
-      "I",
-      "I",
-      "I",
-      "N",
-      "O",
-      "O",
-      "O",
-      "O",
-      "O",
-      "O",
-      "O",
-      "U",
-      "U",
-      "U",
-      "U",
-      "Y",
-      "B",
-      "Ss",
-      "a",
-      "a",
-      "a",
-      "a",
-      "a",
-      "a",
-      "a",
-      "c",
-      "e",
-      "e",
-      "e",
-      "e",
-      "i",
-      "i",
-      "i",
-      "i",
-      "o",
-      "n",
-      "o",
-      "o",
-      "o",
-      "o",
-      "o",
-      "o",
-      "o",
-      "u",
-      "u",
-      "u",
-      "u",
-      "y",
-      "y",
-      "b",
-      "y",
-      "R",
-      "r",
-      "_",
-      "_",
-      ""
+      'S',
+      's',
+      'Dj',
+      'dj',
+      'Z',
+      'z',
+      'C',
+      'c',
+      'C',
+      'c',
+      'A',
+      'A',
+      'A',
+      'A',
+      'A',
+      'A',
+      'A',
+      'C',
+      'E',
+      'E',
+      'E',
+      'E',
+      'I',
+      'I',
+      'I',
+      'I',
+      'N',
+      'O',
+      'O',
+      'O',
+      'O',
+      'O',
+      'O',
+      'O',
+      'U',
+      'U',
+      'U',
+      'U',
+      'Y',
+      'B',
+      'Ss',
+      'a',
+      'a',
+      'a',
+      'a',
+      'a',
+      'a',
+      'a',
+      'c',
+      'e',
+      'e',
+      'e',
+      'e',
+      'i',
+      'i',
+      'i',
+      'i',
+      'o',
+      'n',
+      'o',
+      'o',
+      'o',
+      'o',
+      'o',
+      'o',
+      'o',
+      'u',
+      'u',
+      'u',
+      'u',
+      'y',
+      'y',
+      'b',
+      'y',
+      'R',
+      'r',
+      '_',
+      '_',
+      ''
     ]
 
     var cleaned = preg_replace(p_search, p_replace, str)
 
     // allow only latin alphabet
     if (config.options.chars_only_latin) {
-      cleaned = cleaned.replace(/[^_a-zA-Z0-9]/g, "")
+      cleaned = cleaned.replace(/[^_a-zA-Z0-9]/g, '')
     }
 
-    cleaned = cleaned.replace(/[_]+/g, "_")
+    cleaned = cleaned.replace(/[_]+/g, '_')
 
     // prevent bug https://github.com/simogeo/Filemanager/issues/474
-    if (cleaned == "") {
-      cleaned = "unsupportedCharsReplacement"
+    if (cleaned == '') {
+      cleaned = 'unsupportedCharsReplacement'
     }
 
     return cleaned
@@ -864,10 +875,10 @@ function fileManager(
   // nameFormat (), separate filename from extension before calling cleanString()
   // nameFormat
   var nameFormat = function(input) {
-    var filename = ""
-    if (input.lastIndexOf(".") != -1) {
-      filename = cleanString(input.substr(0, input.lastIndexOf(".")))
-      filename += "." + input.split(".").pop()
+    var filename = ''
+    if (input.lastIndexOf('.') != -1) {
+      filename = cleanString(input.substr(0, input.lastIndexOf('.')))
+      filename += '.' + input.split('.').pop()
     } else {
       filename = cleanString(input)
     }
@@ -895,18 +906,18 @@ function fileManager(
   // Test if Data structure has the 'cap' capability
   // 'cap' is one of 'select', 'rename', 'delete', 'download', move
   function has_capability(data, cap) {
-    if (data["File Type"] == "dir" && cap == "replace") {
+    if (data['File Type'] == 'dir' && cap == 'replace') {
       return false
     }
 
-    if (data["File Type"] == "dir" && cap == "download") {
+    if (data['File Type'] == 'dir' && cap == 'download') {
       return config.security.allowFolderDownload == true
     }
 
-    if (typeof data["Capabilities"] == "undefined") {
+    if (typeof data['Capabilities'] == 'undefined') {
       return true
     } else {
-      return $.inArray(cap, data["Capabilities"]) > -1
+      return $.inArray(cap, data['Capabilities']) > -1
     }
   }
 
@@ -915,16 +926,16 @@ function fileManager(
     var ext = getExtension(filename)
 
     // no extension is allowed
-    if (ext == "" && config.security.allowNoExtension == true) {
+    if (ext == '' && config.security.allowNoExtension == true) {
       return true
     }
 
-    if (config.security.uploadPolicy == "DISALLOW_ALL") {
+    if (config.security.uploadPolicy == 'DISALLOW_ALL') {
       if ($.inArray(ext, config.security.uploadRestrictions) != -1) {
         return true
       }
     }
-    if (config.security.uploadPolicy == "ALLOW_ALL") {
+    if (config.security.uploadPolicy == 'ALLOW_ALL') {
       if ($.inArray(ext, config.security.uploadRestrictions) == -1) {
         return true
       }
@@ -935,19 +946,19 @@ function fileManager(
 
   // return filename extension
   var getExtension = function(filename) {
-    if (filename.split(".").length == 1) {
-      return ""
+    if (filename.split('.').length == 1) {
+      return ''
     }
     return filename
-      .split(".")
+      .split('.')
       .pop()
       .toLowerCase()
   }
 
   // return filename without extension {
   var getFilename = function(filename) {
-    if (filename.lastIndexOf(".") != -1) {
-      return filename.substring(0, filename.lastIndexOf("."))
+    if (filename.lastIndexOf('.') != -1) {
+      return filename.substring(0, filename.lastIndexOf('.'))
     } else {
       return filename
     }
@@ -974,34 +985,34 @@ function fileManager(
   }
 
   var postFormatPlayer = function(_playerHTML) {
-    $fileInfo.find("img").remove()
+    $fileInfo.find('img').remove()
     $fileInfo
-      .find("#preview")
-      .find("#main-title")
+      .find('#preview')
+      .find('#main-title')
       .before(_playerHTML)
   }
 
   // Return HTML video player
   var getVideoPlayer = function(data) {
     var code =
-      "<video width=" +
+      '<video width=' +
       config.videos.videosPlayerWidth +
-      " height=" +
+      ' height=' +
       config.videos.videosPlayerHeight +
       ' src="' +
-      data["Path"] +
+      data['Path'] +
       '" controls="controls">'
-    code += '<img src="' + data["Preview"] + '" />'
-    code += "</video>"
+    code += '<img src="' + data['Preview'] + '" />'
+    code += '</video>'
 
     postFormatPlayer(code)
   }
 
   //Return HTML audio player
   var getAudioPlayer = function(data) {
-    var code = '<audio src="' + data["Path"] + '" controls="controls">'
-    code += '<img src="' + data["Preview"] + '" />'
-    code += "</audio>"
+    var code = '<audio src="' + data['Path'] + '" controls="controls">'
+    code += '<img src="' + data['Preview'] + '" />'
+    code += '</audio>'
 
     postFormatPlayer(code)
   }
@@ -1010,7 +1021,7 @@ function fileManager(
   var getPdfReader = function(data) {
     var code =
       '<iframe id="fm-pdf-viewer" src = "scripts/ViewerJS/index.html#' +
-      data["Path"] +
+      data['Path'] +
       '" width="' +
       config.pdfs.pdfsReaderWidth +
       '" height="' +
@@ -1024,7 +1035,7 @@ function fileManager(
    * Prompt for a link name and URL, then issue a create request to the server.
    */
   var popupCreateLink = function() {
-    var linkURLExample = "http://example.com/path"
+    var linkURLExample = 'http://example.com/path'
     var msg =
       '<div class="form-group"><label for="link_name" class="hidden">' +
       lg.name +
@@ -1041,7 +1052,7 @@ function fileManager(
 
     var doLinkCreate = function(_formVals) {
       var returnValue = null
-      var linkName = _formVals["link_name"]
+      var linkName = _formVals['link_name']
 
       if (validFilename(linkName)) {
         $.ajax({
@@ -1049,11 +1060,11 @@ function fileManager(
             contextPath +
             config.options.linkConnector +
             getCurrentPath() +
-            "/" +
+            '/' +
             encodeURIComponent(linkName),
-          method: "PUT",
+          method: 'PUT',
           data: JSON.stringify(_formVals),
-          contentType: "application/json",
+          contentType: 'application/json',
           statusCode: {
             201: function() {
               returnValue = true
@@ -1088,23 +1099,23 @@ function fileManager(
       return returnValue
     }
 
-    $.prompt.disableStateButtons("link_creation")
+    $.prompt.disableStateButtons('link_creation')
 
     var btns = []
     btns.push({
       title: lg.create_external_link,
       value: true,
-      classes: "btn btn-primary"
+      classes: 'btn btn-primary'
     })
     btns.push({
       title: lg.cancel,
       value: false,
-      classes: "btn btn-default"
+      classes: 'btn btn-default'
     })
 
     $.prompt({
       input: {
-        focus: "#link_name",
+        focus: '#link_name',
         buttons: btns,
         html: msg,
         submit: function(e, value, message, formVals) {
@@ -1113,8 +1124,8 @@ function fileManager(
             $.prompt.nextState(function(event) {
               event.preventDefault()
               var nextState = doLinkCreate(formVals)
-                ? "successful"
-                : "unsuccessful"
+                ? 'successful'
+                : 'unsuccessful'
               $.prompt.goToState(nextState)
               return false
             })
@@ -1132,7 +1143,7 @@ function fileManager(
           {
             title: lg.close,
             value: false,
-            classes: "btn btn-success"
+            classes: 'btn btn-success'
           }
         ],
         submit: refreshPage
@@ -1145,19 +1156,19 @@ function fileManager(
 
   var setSrcNodes = function() {
     var selectedItems = $(
-      "tr.selected > td:nth-child(5) > span.glyphicon-pencil > a"
+      'tr.selected > td:nth-child(5) > span.glyphicon-pencil > a'
     )
     var selectedPaths = []
 
     $(selectedItems).each(function(index, item) {
-      selectedPaths.push($(item).data("path"))
+      selectedPaths.push($(item).data('path'))
     })
 
-    return selectedPaths.length > 0 ? selectedPaths.join(",") : ""
+    return selectedPaths.length > 0 ? selectedPaths.join(',') : ''
   }
 
   var setLinker = function() {
-    $("#new_vospace_link")
+    $('#new_vospace_link')
       .off()
       .click(function() {
         linkItem()
@@ -1165,7 +1176,7 @@ function fileManager(
   }
 
   var setMover = function() {
-    $("#move")
+    $('#move')
       .off()
       .click(function() {
         var srcNodeList = setSrcNodes()
@@ -1179,30 +1190,30 @@ function fileManager(
   // to the path specified. Called on initial page load and
   // whenever a new directory is selected.
   var setUploader = function() {
-    $("#new_external_link")
+    $('#new_external_link')
       .off()
       .click(function() {
         popupCreateLink()
       })
 
-    $("#uploadfolder")
+    $('#uploadfolder')
       .off()
       .click(function() {
-        var form = document.createElement("form")
-        var formAction = "/uploadManager/upload"
+        var form = document.createElement('form')
+        var formAction = '/uploadManager/upload'
         // var formAction = contextPath + config.upload.connector + getCurrentPath();
-        form.setAttribute("method", "POST")
-        form.setAttribute("action", formAction)
+        form.setAttribute('method', 'POST')
+        form.setAttribute('action', formAction)
 
         // Move the submit function to another
         // variable so that it doesn't get
         // overwritten.
         form._submit_function_ = form.submit
 
-        var destinationHiddenField = document.createElement("input")
-        destinationHiddenField.setAttribute("type", "hidden")
-        destinationHiddenField.setAttribute("name", "destination")
-        destinationHiddenField.setAttribute("value", getCurrentPath())
+        var destinationHiddenField = document.createElement('input')
+        destinationHiddenField.setAttribute('type', 'hidden')
+        destinationHiddenField.setAttribute('name', 'destination')
+        destinationHiddenField.setAttribute('value', getCurrentPath())
 
         form.appendChild(destinationHiddenField)
 
@@ -1215,12 +1226,12 @@ function fileManager(
         return false
       })
 
-    $("#newfolder")
+    $('#newfolder')
       .off()
       .click(function() {
         var buttonAction = function(event, value, message, formVals) {
           if (value === true) {
-            var fname = formVals["fname"]
+            var fname = formVals['fname']
 
             if (validFilename(fname)) {
               $.ajax({
@@ -1228,10 +1239,10 @@ function fileManager(
                   contextPath +
                   config.options.folderConnector +
                   getCurrentPath() +
-                  "/" +
+                  '/' +
                   encodeURIComponent(fname),
-                method: "PUT",
-                contentType: "application/json",
+                method: 'PUT',
+                contentType: 'application/json',
                 statusCode: {
                   201: function() {
                     $.prompt(lg.successful_added_folder, {
@@ -1267,16 +1278,16 @@ function fileManager(
         btns.push({
           title: lg.create_folder,
           value: true,
-          classes: "btn btn-primary"
+          classes: 'btn btn-primary'
         })
         btns.push({
           title: lg.cancel,
           value: false,
-          classes: "btn btn-default"
+          classes: 'btn btn-default'
         })
         $.prompt(msg, {
           submit: buttonAction,
-          focus: "#fname",
+          focus: '#fname',
           buttons: btns
         })
       })
@@ -1286,19 +1297,19 @@ function fileManager(
   // Called when detail views are loaded.
   var bindToolbar = function(data) {
     // Cosmetic
-    $fileInfo.find("button").each(function() {
+    $fileInfo.find('button').each(function() {
       // check if span doesn't exist yet.
-      if ($(this).find("span").length === 0) {
-        $(this).wrapInner("<span></span>")
+      if ($(this).find('span').length === 0) {
+        $(this).wrapInner('<span></span>')
       }
     })
 
     // @todo
-    if (!has_capability(data, "replace")) {
-      $fileInfo.find("button#replace").hide()
+    if (!has_capability(data, 'replace')) {
+      $fileInfo.find('button#replace').hide()
     } else {
       $fileInfo
-        .find("button#replace")
+        .find('button#replace')
         .click(function() {
           replaceItem(data)
         })
@@ -1311,11 +1322,11 @@ function fileManager(
    ---------------------------------------------------------*/
   // Highlighting the input box if an invalid selection is entered
   var togglePromptError = function(fieldId, msgFieldId, msg, setOn) {
-    if (setOn === "on") {
-      $(fieldId).addClass("has-error")
+    if (setOn === 'on') {
+      $(fieldId).addClass('has-error')
       $(msgFieldId).text(msg)
     } else {
-      $(fieldId).removeClass("has-error")
+      $(fieldId).removeClass('has-error')
       $(msgFieldId).text(msg)
     }
   }
@@ -1327,8 +1338,8 @@ function fileManager(
   // Callback from ajax call to /storage/groups
   var handleLoadAutocomplete = function(autocompleteData) {
     autoCompleteList = autocompleteData
-    $("#readGroup").autocomplete({
-      appendTo: "#readGroupDiv",
+    $('#readGroup').autocomplete({
+      appendTo: '#readGroupDiv',
       source: function(request, response) {
         // Reduce results to 10 for display
         var results = $.ui.autocomplete.filter(autocompleteData, request.term)
@@ -1337,17 +1348,17 @@ function fileManager(
       minLength: 2
     })
 
-    $("#readGroup").keyup(function() {
+    $('#readGroup').keyup(function() {
       togglePromptError(
-        "#readGroupDiv",
-        "#readGroupLabel",
+        '#readGroupDiv',
+        '#readGroupLabel',
         lg.READ_GROUP,
-        "off"
+        'off'
       )
     })
 
-    $("#writeGroup").autocomplete({
-      appendTo: "#writeGroupDiv",
+    $('#writeGroup').autocomplete({
+      appendTo: '#writeGroupDiv',
       source: function(request, response) {
         // Reduce results to 10 for display
         var results = $.ui.autocomplete.filter(autocompleteData, request.term)
@@ -1356,32 +1367,32 @@ function fileManager(
       minLength: 2
     })
 
-    $("#writeGroup").keyup(function() {
+    $('#writeGroup').keyup(function() {
       togglePromptError(
-        "#writeGroupDiv",
-        "#writeGroupLabel",
+        '#writeGroupDiv',
+        '#writeGroupLabel',
         lg.WRITE_GROUP,
-        "off"
+        'off'
       )
     })
   }
 
   var isPermissionChanged = function(formValues) {
     // Values to check against are in the currently edited icon
-    var $clickedEditIcon = $(".editing")
+    var $clickedEditIcon = $('.editing')
 
-    if (formValues["writeGroup"] !== $clickedEditIcon.data("writegroup")) {
+    if (formValues['writeGroup'] !== $clickedEditIcon.data('writegroup')) {
       return true
-    } else if (formValues["readGroup"] !== $clickedEditIcon.data("readgroup")) {
+    } else if (formValues['readGroup'] !== $clickedEditIcon.data('readgroup')) {
       return true
-    } else if (formValues["recursive"] === "on") {
+    } else if (formValues['recursive'] === 'on') {
       return true
     } else {
       return !(
-        ($clickedEditIcon.data("readable") === true &&
-          formValues["publicPermission"] === "on") ||
-        ($clickedEditIcon.data("readable") === false &&
-          typeof formValues["publicPermission"] === "undefined")
+        ($clickedEditIcon.data('readable') === true &&
+          formValues['publicPermission'] === 'on') ||
+        ($clickedEditIcon.data('readable') === false &&
+          typeof formValues['publicPermission'] === 'undefined')
       )
     }
   }
@@ -1393,7 +1404,7 @@ function fileManager(
 
     if (value === true) {
       // Form has not been modified, leave it open
-      if ($(".listener-hook").hasClass("disabled")) {
+      if ($('.listener-hook').hasClass('disabled')) {
         return false
       }
 
@@ -1404,36 +1415,36 @@ function fileManager(
         // validate that form has changed or not. If not, don't submit.
 
         if (
-          typeof formVals["readGroup"] === "undefined" ||
-          formVals["readGroup"] === "" ||
-          $.inArray(formVals["readGroup"], autoCompleteList) >= 0
+          typeof formVals['readGroup'] === 'undefined' ||
+          formVals['readGroup'] === '' ||
+          $.inArray(formVals['readGroup'], autoCompleteList) >= 0
         ) {
           readGroupValid = true
         }
 
         if (
-          typeof formVals["writeGroup"] === "undefined" ||
-          formVals["writeGroup"] === "" ||
-          $.inArray(formVals["writeGroup"], autoCompleteList) >= 0
+          typeof formVals['writeGroup'] === 'undefined' ||
+          formVals['writeGroup'] === '' ||
+          $.inArray(formVals['writeGroup'], autoCompleteList) >= 0
         ) {
           writeGroupValid = true
         }
 
         // If box not checked, does not get added to formVals
-        if (typeof formVals["publicPermission"] === "undefined") {
-          formVals["publicPermission"] = "off"
+        if (typeof formVals['publicPermission'] === 'undefined') {
+          formVals['publicPermission'] = 'off'
         }
 
         if (writeGroupValid === true && readGroupValid === true) {
-          var itemPath = formVals["itemPath"]
+          var itemPath = formVals['itemPath']
 
           var url = contextPath + config.options.itemConnector + itemPath
 
           var dataStr = JSON.stringify(formVals)
           $.ajax({
             url: url,
-            method: "POST",
-            contentType: "application/json",
+            method: 'POST',
+            contentType: 'application/json',
             data: dataStr,
             statusCode: {
               202: function() {
@@ -1468,18 +1479,18 @@ function fileManager(
           event.preventDefault()
           if (readGroupValid === false) {
             togglePromptError(
-              "#readGroupDiv",
-              "#readGroupLabel",
+              '#readGroupDiv',
+              '#readGroupLabel',
               lg.READ_GROUP,
-              "on"
+              'on'
             )
           }
           if (writeGroupValid === false) {
             togglePromptError(
-              "#writeGroupDiv",
-              "#writeGroupLabel",
+              '#writeGroupDiv',
+              '#writeGroupLabel',
               lg.WRITE_GROUP,
-              "on"
+              'on'
             )
           }
 
@@ -1494,7 +1505,7 @@ function fileManager(
 
     if (doneEditing === true) {
       // Remove flag showing this is active edit icon
-      $(".editing")[0].setAttribute("class", "")
+      $('.editing')[0].setAttribute('class', '')
     }
 
     if (returnValue === true) {
@@ -1502,25 +1513,25 @@ function fileManager(
     }
   } // end handleEditPermissions
 
-  $(document).on("click", ".glyphicon-pencil", function(event) {
+  $(document).on('click', '.glyphicon-pencil', function(event) {
     // Pull attributes from edit icon
-    var $iconAnchor = $(event.currentTarget).find("a")
+    var $iconAnchor = $(event.currentTarget).find('a')
 
     // Flag this icon as the currently active one
     // will be referenced for seeing if form values have changed
-    $iconAnchor.addClass("editing")
+    $iconAnchor.addClass('editing')
 
     // Check to see if a call to server is necessary to confirm access to this node
     // Everything below would go into another function that will fire
     // if the ajax call returns the correct value.
 
-    if ($iconAnchor.data("writable") === "null") {
+    if ($iconAnchor.data('writable') === 'null') {
       // verify authorization for editing this node
       // authenticate, pass in URI
       // url: contextPath + "ac/authenticate" + "?uri=" + iconAnchor.getAttribute("uri"),
       $.ajax({
-        url: contextPath + "access" + $iconAnchor.data("path"),
-        method: "GET",
+        url: contextPath + 'access' + $iconAnchor.data('path'),
+        method: 'GET',
         statusCode: {
           200: function() {
             loadEditPermPrompt($iconAnchor)
@@ -1539,72 +1550,72 @@ function fileManager(
   })
 
   var loadEditPermPrompt = function(promptData) {
-    var checkboxState = ""
-    if (promptData.data("readable") === true) {
-      checkboxState = "checked"
+    var checkboxState = ''
+    if (promptData.data('readable') === true) {
+      checkboxState = 'checked'
     }
     var msg =
       '<div class="form-group fm-prompt">' +
       '<label for="publicPermission" class="control-label col-sm-4">' +
       lg.public_question +
-      "</label>" +
+      '</label>' +
       '<div class="col-sm-7">' +
       '<input style="margin: 9px 0 0;" class="action-hook" type="checkbox" id="publicPermission" name="publicPermission" ' +
       checkboxState +
-      ">" +
-      "</div>" +
-      "</div>" +
+      '>' +
+      '</div>' +
+      '</div>' +
       '<div class="form-group ui-front fm-prompt" id="readGroupDiv"> ' +
       '<label for="readGroup" id="readGroupLabel" class="control-label col-sm-4">' +
       lg.READ_GROUP +
-      "</label>" +
+      '</label>' +
       '<div id="readGroupInputDiv" class="col-sm-7"> ' +
       '<input type="text" class="form-control  ui-autocomplete-input action-hook" id="readGroup" name="readGroup" placeholder="' +
       lg.group_name_program_id +
       '">' +
-      "</div>" +
-      "</div>" +
+      '</div>' +
+      '</div>' +
       '<div class="form-group ui-front fm-prompt" id="writeGroupDiv">' +
       '<label for="writeGroup" id="writeGroupLabel" class="control-label col-sm-4">' +
       lg.WRITE_GROUP +
-      "</label>" +
+      '</label>' +
       '<div class="col-sm-7">' +
       '<input type="text" class="form-control action-hook" id="writeGroup" name="writeGroup" placeholder="' +
       lg.group_name_program_id +
       '">' +
-      "</div>" +
-      "</div>" +
+      '</div>' +
+      '</div>' +
       '<div class="form-group fm-prompt">' +
       '<label for="recursive" class="control-label col-sm-4"">' +
       lg.recursive +
-      "</label>" +
+      '</label>' +
       '<div class="col-sm-7">' +
       '<input style="margin: 9px 0 0;" class="action-hook" type="checkbox" id="recursive" name="recursive">' +
-      "</div>" +
-      "</div>" +
+      '</div>' +
+      '</div>' +
       '<div class="form-group fm-prompt">' +
       '<div class="col-sm-4" >' +
-      "</div>" +
+      '</div>' +
       '<div class="col-sm-7 prompt-link">' +
       '<a href="http://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
       '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' +
-      promptData.data("path") +
+      promptData.data('path') +
       '">' +
-      "</div>" +
-      "</div>"
+      '</div>' +
+      '</div>'
 
     var btns = []
     btns.push({
-      name: "b1",
+      name: 'b1',
       title: lg.save,
       value: true,
-      classes: "btn btn-primary listener-hook"
+      classes: 'btn btn-primary listener-hook'
     })
     btns.push({
-      name: "b2",
+      name: 'b2',
       title: lg.cancel,
       value: false,
-      classes: "btn btn-default"
+      classes: 'btn btn-default'
     })
 
     // 'classes' entry below is to enable bootstrap to
@@ -1612,7 +1623,7 @@ function fileManager(
 
     var states = {
       state0: {
-        title: '<h3 class="prompt-h3">' + promptData.data("itemname") + "</h3>",
+        title: '<h3 class="prompt-h3">' + promptData.data('itemname') + '</h3>',
         html: msg,
         buttons: btns,
         submit: handleEditPermissions
@@ -1620,22 +1631,22 @@ function fileManager(
     }
     $.prompt(states, {
       classes: {
-        form: "form-horizontal",
-        box: "",
-        fade: "",
-        prompt: "",
-        close: "",
-        title: "lead",
-        message: "",
-        buttons: "",
-        button: "btn",
-        defaultButton: "btn-primary"
+        form: 'form-horizontal',
+        box: '',
+        fade: '',
+        prompt: '',
+        close: '',
+        title: 'lead',
+        message: '',
+        buttons: '',
+        button: 'btn',
+        defaultButton: 'btn-primary'
       },
       loaded: function() {
         // Get the group names list for populating the dropdown first
         $.ajax({
-          type: "GET",
-          url: contextPath + "groups",
+          type: 'GET',
+          url: contextPath + 'groups',
           success: function(returnValue) {
             handleLoadAutocomplete(returnValue)
           },
@@ -1645,13 +1656,13 @@ function fileManager(
         })
 
         // Set initial form state
-        $("#readGroup").val(promptData.data("readgroup"))
-        $("#writeGroup").val(promptData.data("writegroup"))
-        var listenerHook = $(".listener-hook")
-        listenerHook.addClass("disabled")
+        $('#readGroup').val(promptData.data('readgroup'))
+        $('#writeGroup').val(promptData.data('writegroup'))
+        var listenerHook = $('.listener-hook')
+        listenerHook.addClass('disabled')
 
-        $(".action-hook").on("click", function(event) {
-          listenerHook.removeClass("disabled")
+        $('.action-hook').on('click', function(event) {
+          listenerHook.removeClass('disabled')
         })
       }
     }) // end prompt declaration
@@ -1671,25 +1682,25 @@ function fileManager(
     var url
 
     if (config.options.baseUrl !== false) {
-      url = smartPath(baseUrl, data["Path"].replace(fileRoot, ""))
+      url = smartPath(baseUrl, data['Path'].replace(fileRoot, ''))
     } else {
-      url = data["Path"]
+      url = data['Path']
     }
 
     if (
       window.opener ||
       window.tinyMCEPopup ||
-      $.urlParam("field_name") ||
-      $.urlParam("CKEditorCleanUpFuncNum") ||
-      $.urlParam("CKEditor")
+      $.urlParam('field_name') ||
+      $.urlParam('CKEditorCleanUpFuncNum') ||
+      $.urlParam('CKEditor')
     ) {
       if (window.tinyMCEPopup) {
         // use TinyMCE > 3.0 integration method
-        var win = tinyMCEPopup.getWindowArg("window")
+        var win = tinyMCEPopup.getWindowArg('window')
         win.document.getElementById(
-          tinyMCEPopup.getWindowArg("input")
+          tinyMCEPopup.getWindowArg('input')
         ).value = url
-        if (typeof win.ImageDialog !== "undefined") {
+        if (typeof win.ImageDialog !== 'undefined') {
           // Update image dimensions
           if (win.ImageDialog.getImageData) {
             win.ImageDialog.getImageData()
@@ -1703,39 +1714,39 @@ function fileManager(
         tinyMCEPopup.close()
       } else {
         // tinymce 4 and colorbox
-        if ($.urlParam("field_name")) {
-          parent.document.getElementById($.urlParam("field_name")).value = url
+        if ($.urlParam('field_name')) {
+          parent.document.getElementById($.urlParam('field_name')).value = url
 
-          if (typeof parent.tinyMCE !== "undefined") {
+          if (typeof parent.tinyMCE !== 'undefined') {
             parent.tinyMCE.activeEditor.windowManager.close()
           }
-          if (typeof parent.$.fn.colorbox !== "undefined") {
+          if (typeof parent.$.fn.colorbox !== 'undefined') {
             parent.$.fn.colorbox.close()
           }
-        } else if ($.urlParam("CKEditor")) {
+        } else if ($.urlParam('CKEditor')) {
           // use CKEditor 3.0 + integration method
           if (window.opener) {
             // Popup
             window.opener.CKEDITOR.tools.callFunction(
-              $.urlParam("CKEditorFuncNum"),
+              $.urlParam('CKEditorFuncNum'),
               url
             )
           } else {
             // Modal (in iframe)
             parent.CKEDITOR.tools.callFunction(
-              $.urlParam("CKEditorFuncNum"),
+              $.urlParam('CKEditorFuncNum'),
               url
             )
             parent.CKEDITOR.tools.callFunction(
-              $.urlParam("CKEditorCleanUpFuncNum")
+              $.urlParam('CKEditorCleanUpFuncNum')
             )
           }
         } else {
           // use FCKEditor 2.0 integration method
-          if (data["Properties"]["Width"] !== "") {
+          if (data['Properties']['Width'] !== '') {
             var p = url
-            var w = data["Properties"]["Width"]
-            var h = data["Properties"]["Height"]
+            var w = data['Properties']['Width']
+            var h = data['Properties']['Height']
             window.opener.SetUrl(p, w, h)
           } else {
             window.opener.SetUrl(url)
@@ -1753,7 +1764,12 @@ function fileManager(
 
   function ItemLayer() {
     ItemLayer.makeNode = function() {
-      return { name: null, path: null, uri: null, child: null }
+      return {
+        name: null,
+        path: null,
+        uri: null,
+        child: null
+      }
     }
 
     this.head = []
@@ -1778,10 +1794,10 @@ function fileManager(
 
     this.findNode = function(fullName) {
       var node = null
-      var tempName = "/"
+      var tempName = '/'
 
-      if (stringUtil.hasText(fullName)) {
-        var name = fullName.split("/")[1]
+      if (fullName && stringUtil.hasText(fullName)) {
+        var name = fullName.split('/')[1]
         node = this.findNodeOnCurrentLayer(name)
         tempName = tempName + name
         if (fullName.length > tempName.length) {
@@ -1793,7 +1809,7 @@ function fileManager(
     }
 
     this.toHTML = function() {
-      var returnHTML = ""
+      var returnHTML = ''
 
       $.each(this.head, function(index, node) {
         if (!node.child || node.child === null) {
@@ -1805,7 +1821,7 @@ function fileManager(
             node.uri +
             '">' +
             node.name +
-            "</div><ul></ul></li>"
+            '</div><ul></ul></li>'
         } else {
           returnHTML =
             returnHTML +
@@ -1815,9 +1831,9 @@ function fileManager(
             node.uri +
             '">' +
             node.name +
-            "</div>"
-          returnHTML = returnHTML + "<ul>" + node.child.toHTML() + "</ul>"
-          returnHTML = returnHTML + "</li>"
+            '</div>'
+          returnHTML = returnHTML + '<ul>' + node.child.toHTML() + '</ul>'
+          returnHTML = returnHTML + '</li>'
         }
       })
 
@@ -1842,8 +1858,7 @@ function fileManager(
     }
 
     this.toHTML = function() {
-      return (returnHTML =
-        '<ul class="collapsibleList">' + this.root.toHTML() + "</ul>")
+      return '<ul class="collapsibleList">' + this.root.toHTML() + '</ul>'
     }
   }
 
@@ -1851,7 +1866,7 @@ function fileManager(
   // both files and folders, apply this filter to filter out all
   // files.
   var filterOutFiles = function(itemLayer, rowData) {
-    if (rowData[8].includes("glyphicon-folder")) {
+    if (rowData[8].includes('glyphicon-folder')) {
       itemLayer.addNode(rowData[1], rowData[9], rowData[10])
     }
   }
@@ -1864,9 +1879,9 @@ function fileManager(
   // Called by clicking the "VOSpace Link" menu item.
   var linkItem = function() {
     var params = {
-      bCancelName: "bCancelLinkto",
+      bCancelName: 'bCancelLinkto',
       bCancelTitle: lg.cancel,
-      bOpName: "bLinkto",
+      bOpName: 'bLinkto',
       bOpTitle: lg.link,
       filter: filterOutNothing,
       opSuccess: lg.successful_linked,
@@ -1874,16 +1889,16 @@ function fileManager(
       submitFunction: doLink
     }
 
-    processItem(params, "")
+    processItem(params, '')
   } // end linkItem
 
   // Move the current item to specified dir and returns the new name.
   // Called by clicking the "Move" button.
   var moveItem = function(srcNodeList) {
     var params = {
-      bCancelName: "bCancelMoveto",
+      bCancelName: 'bCancelMoveto',
       bCancelTitle: lg.cancel,
-      bOpName: "bMoveto",
+      bOpName: 'bMoveto',
       bOpTitle: lg.move,
       filter: filterOutFiles,
       opSuccess: lg.successful_moved,
@@ -1898,15 +1913,15 @@ function fileManager(
   var doMove = function(event, value, msg, formVals) {
     if (value === true) {
       // Target destination for the operation
-      var itemPath = formVals["destNode"]
+      var itemPath = formVals['destNode']
 
       var url = contextPath + config.options.folderConnector + itemPath
 
       var dataStr = JSON.stringify(formVals)
       $.ajax({
         url: url,
-        method: "POST",
-        contentType: "application/json",
+        method: 'POST',
+        contentType: 'application/json',
         data: dataStr,
         statusCode: {
           204: function() {
@@ -1922,7 +1937,7 @@ function fileManager(
           },
           409: function() {
             $.prompt(
-              lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals["destNode"])
+              lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode'])
             )
           },
           500: function() {
@@ -1940,17 +1955,17 @@ function fileManager(
       var url =
         contextPath +
         config.options.linkConnector +
-        $("#currentpath").val() +
-        "/" +
-        formVals["itemName"]
+        $('#currentpath').val() +
+        '/' +
+        formVals['itemName']
 
-      formVals["link_url"] = formVals["selectedNodeURI"]
+      formVals['link_url'] = formVals['selectedNodeURI']
 
       var dataStr = JSON.stringify(formVals)
       $.ajax({
         url: url,
-        method: "PUT",
-        contentType: "application/json",
+        method: 'PUT',
+        contentType: 'application/json',
         data: dataStr,
         statusCode: {
           201: function() {
@@ -1966,7 +1981,7 @@ function fileManager(
           },
           409: function() {
             $.prompt(
-              lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals["itemName"])
+              lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals['itemName'])
             )
           },
           500: function() {
@@ -1980,8 +1995,8 @@ function fileManager(
   // Link or move the current item to specified dir and returns the new name.
   // Called by clicking the "VOSpace Link" menu item or the "Move" button.
   var processItem = function(params, srcNodeList) {
-    var srcNodes = ""
-    var fullName = ""
+    var srcNodes = ''
+    var fullName = ''
     var itemTree = new ItemTree()
     var itemLayer
     var pageUrl = contextPath + config.options.pageConnector
@@ -1992,16 +2007,16 @@ function fileManager(
     )
 
     $(document)
-      .on(".layerItemName")
+      .on('.layerItemName')
       .click(function(event) {
         var target = $(event)[0].target
-        var nameWithPath = $(target).attr("fullName")
+        var nameWithPath = $(target).attr('fullName')
         var node = itemTree.findNode(nameWithPath)
 
         if (
           node &&
           node !== null &&
-          target.parentNode.className !== "collapsibleListClosed"
+          target.parentNode.className !== 'collapsibleListClosed'
         ) {
           if (!node || node.child === null) {
             // we have no sub-folders for
@@ -2014,26 +2029,26 @@ function fileManager(
 
           // display path should be the
           // current item, not entire path
-          $("#destNodeDisplay").val(" " + node.name)
+          $('#destNodeDisplay').val(' ' + node.name)
 
           // entire path (or should this
           // be URI?) is passed in to back
           // end
-          $("#destNode").val(node.path)
-          $("#selectedNodeURI").val(node.uri)
-          $("#itemName").val(node.name)
-          $(".listener-hook").removeClass("disabled")
+          $('#destNode').val(node.path)
+          $('#selectedNodeURI').val(node.uri)
+          $('#itemName').val(node.name)
+          $('.listener-hook').removeClass('disabled')
         }
       })
 
     var getPageOfItems = function(_pageRequest, _callback) {
-      if (!$("#itemsLoading").length) {
-        $(".spinnerSpan").append(spinningWheel)
+      if (!$('#itemsLoading').length) {
+        $('.spinnerSpan').append(spinningWheel)
       }
 
       $.get({
         url: pageUrl,
-        dataType: "text",
+        dataType: 'text',
         data: _pageRequest
       }).done(function(csvData) {
         _callback(csvData)
@@ -2044,19 +2059,19 @@ function fileManager(
       // add the new layer to the tree and draw the item tree
       itemTree.addLayer(fullName, itemLayer)
 
-      if ($(".collapsibleList").length) {
+      if ($('.collapsibleList').length) {
         // we already have the collapsible list, add to it
         var layerNodes = $.parseHTML(itemLayer.toHTML())
-        var selectedNode = $("ul.collapsibleList")
+        var selectedNode = $('ul.collapsibleList')
           .find("div[fullName='" + fullName + "']")
-          .closest("li")
-        var $containerNode = selectedNode.find("ul")
+          .closest('li')
+        var $containerNode = selectedNode.find('ul')
 
         if (!layerNodes || layerNodes === null) {
           // leaf node, indicate it in the collapsible list
           $containerNode.remove()
           $containerNode = selectedNode
-          $containerNode.removeClass("collapsibleListOpen")
+          $containerNode.removeClass('collapsibleListOpen')
         } else {
           // non-leaf node, insert as a list of sub-nodes
           $containerNode.append(layerNodes)
@@ -2067,10 +2082,10 @@ function fileManager(
         // initial load, no collapsible list, draw the vospace root item layer
         var node = $.parseHTML(itemTree.toHTML())[0]
         CollapsibleLists.applyTo(node, false)
-        $(".itemTree").append(node)
+        $('.itemTree').append(node)
       }
 
-      $("#itemsLoading").remove()
+      $('#itemsLoading').remove()
     }
 
     // callback to update the cached item tree
@@ -2079,11 +2094,11 @@ function fileManager(
       var dl = data.length
 
       if (dl > 0) {
-        var startURI = ""
+        var startURI = ''
         for (var di = 0; di < dl; di++) {
           var rowData = data[di]
           // apply filter
-          params["filter"](itemLayer, rowData)
+          params['filter'](itemLayer, rowData)
           startURI = rowData[10]
         }
 
@@ -2111,21 +2126,21 @@ function fileManager(
 
     var msg =
       '<div class="mMoveto">' +
-      params["promptMsg"] +
+      params['promptMsg'] +
       '<span class="spinnerSpan"></span></div> ' +
       '<div id="itemTree" class="itemTree col-sm-12"></div>' +
       '<div class="form-group ui-front" id="destNodeDiv">' +
       '<label for="destNodeDisplay" id=destNodeDisplayLabel" class="control-label col-sm-3">' +
       lg.destination +
-      "</label>" +
+      '</label>' +
       '<div class="col-sm-9">' +
       '<input type="text" disabled="disabled" class="form-control" id="destNodeDisplay" name="destNodeDisplay" placeholder="' +
       lg.select +
-      " " +
+      ' ' +
       lg.destination_folder +
       '">' +
-      "</div>" +
-      "</div>" +
+      '</div>' +
+      '</div>' +
       '<input type="text" class="hidden" name="destNode" id="destNode">' +
       '<input type="text" class="hidden" name="selectedNodeURI" id="selectedNodeURI">' +
       '<input type="text" class="hidden" name="itemName" id="itemName">' +
@@ -2135,51 +2150,58 @@ function fileManager(
 
     var btns = []
     btns.push({
-      name: params["bOpName"],
-      title: params["bOpTitle"],
+      name: params['bOpName'],
+      title: params['bOpTitle'],
       value: true,
-      classes: "btn btn-primary listener-hook"
+      classes: 'btn btn-primary listener-hook'
     })
     btns.push({
-      name: params["bCancelName"],
-      title: params["bCancelTitle"],
+      name: params['bCancelName'],
+      title: params['bCancelTitle'],
       value: false,
-      classes: "btn btn-default"
+      classes: 'btn btn-default'
     })
 
     $.prompt(msg, {
       classes: {
-        form: "form-horizontal",
-        box: "",
-        fade: "",
-        prompt: "",
-        close: "",
-        title: "lead",
-        message: "",
-        buttons: "",
-        button: "btn",
-        defaultButton: "btn-primary"
+        form: 'form-horizontal',
+        box: '',
+        fade: '',
+        prompt: '',
+        close: '',
+        title: 'lead',
+        message: '',
+        buttons: '',
+        button: 'btn',
+        defaultButton: 'btn-primary'
       },
       loaded: function() {
         // Only add this if the tree has not been
         // initialised already
-        if ($("#itemTree").children().length === 0) {
-          $(".spinnerSpan").append(spinningWheel)
+        if ($('#itemTree').children().length === 0) {
+          $('.spinnerSpan').append(spinningWheel)
         }
 
-        $(".listener-hook").addClass("disabled")
+        $('.listener-hook').addClass('disabled')
       },
-      submit: params["submitFunction"],
+      submit: params['submitFunction'],
       buttons: btns
     })
   } // end processItem
 
-  $(document).on("click", "#delete", function() {
+  $(document).on('click', '#delete', function() {
     var paths = []
 
-    $.each($dt.rows({ selected: true }).data(), function(key, itemData) {
-      paths.push(itemData[9])
-    })
+    $.each(
+      $dt
+        .rows({
+          selected: true
+        })
+        .data(),
+      function(key, itemData) {
+        paths.push(itemData[9])
+      }
+    )
 
     deleteItems(paths)
   })
@@ -2204,7 +2226,7 @@ function fileManager(
         var path = paths[p]
 
         $.ajax({
-          type: "DELETE",
+          type: 'DELETE',
           url: contextPath + config.options.itemConnector + path,
           async: false,
           statusCode: {
@@ -2240,16 +2262,16 @@ function fileManager(
     btns.push({
       title: lg.yes,
       value: true,
-      classes: "btn btn-danger"
+      classes: 'btn btn-danger'
     })
     btns.push({
       title: lg.no,
       value: false,
-      classes: "btn btn-default"
+      classes: 'btn btn-default'
     })
 
     if (deleteCount > 0) {
-      $.prompt.disableStateButtons("deletion")
+      $.prompt.disableStateButtons('deletion')
 
       $.prompt({
         confirmation: {
@@ -2260,7 +2282,7 @@ function fileManager(
               e.preventDefault()
               $.prompt.nextState(function(event) {
                 event.preventDefault()
-                var nextState = doDelete(event) ? "successful" : "unsuccessful"
+                var nextState = doDelete(event) ? 'successful' : 'unsuccessful'
                 $.prompt.goToState(nextState)
                 return false
               })
@@ -2271,7 +2293,7 @@ function fileManager(
           }
         },
         deletion: {
-          html: lg.deleting_message.replace("%d", deleteCount)
+          html: lg.deleting_message.replace('%d', deleteCount)
         },
         successful: {
           html: lg.successful_delete,
@@ -2279,20 +2301,20 @@ function fileManager(
             {
               title: lg.close,
               value: false,
-              classes: "btn btn-success"
+              classes: 'btn btn-success'
             }
           ],
           submit: refreshPage
         },
         unsuccessful: {
           html: function() {
-            var output = ""
+            var output = ''
 
             $.each(unsuccessful, function(path, error) {
-              output += path + ": " + error + "<br />"
+              output += path + ': ' + error + '<br />'
             })
 
-            return lg.unsuccessful_delete + "<br />" + output
+            return lg.unsuccessful_delete + '<br />' + output
           }
         }
       })
@@ -2321,7 +2343,7 @@ function fileManager(
         var path = paths[p]
 
         $.ajax({
-          type: "DELETE",
+          type: 'DELETE',
           url: contextPath + config.options.itemConnector + path,
           async: false,
           statusCode: {
@@ -2357,16 +2379,16 @@ function fileManager(
     btns.push({
       title: lg.yes,
       value: true,
-      classes: "btn btn-danger"
+      classes: 'btn btn-danger'
     })
     btns.push({
       title: lg.no,
       value: false,
-      classes: "btn btn-default"
+      classes: 'btn btn-default'
     })
 
     if (deleteCount > 0) {
-      $.prompt.disableStateButtons("deletion")
+      $.prompt.disableStateButtons('deletion')
 
       $.prompt({
         confirmation: {
@@ -2377,7 +2399,7 @@ function fileManager(
               e.preventDefault()
               $.prompt.nextState(function(event) {
                 event.preventDefault()
-                var nextState = doDelete(event) ? "successful" : "unsuccessful"
+                var nextState = doDelete(event) ? 'successful' : 'unsuccessful'
                 $.prompt.goToState(nextState)
                 return false
               })
@@ -2388,7 +2410,7 @@ function fileManager(
           }
         },
         deletion: {
-          html: lg.deleting_message.replace("%d", deleteCount)
+          html: lg.deleting_message.replace('%d', deleteCount)
         },
         successful: {
           html: lg.successful_delete,
@@ -2396,20 +2418,20 @@ function fileManager(
             {
               title: lg.close,
               value: false,
-              classes: "btn btn-success"
+              classes: 'btn btn-success'
             }
           ],
           submit: refreshPage
         },
         unsuccessful: {
           html: function() {
-            var output = ""
+            var output = ''
 
             $.each(unsuccessful, function(path, error) {
-              output += path + ": " + error + "<br />"
+              output += path + ': ' + error + '<br />'
             })
 
-            return lg.unsuccessful_delete + "<br />" + output
+            return lg.unsuccessful_delete + '<br />' + output
           }
         }
       })
@@ -2418,20 +2440,20 @@ function fileManager(
     return isDeleted
   }
 
-  $(document).on("click", ".download-dropdown-menu > li > a", function() {
+  $(document).on('click', '.download-dropdown-menu > li > a', function() {
     var $thisLink = $(this)
 
-    var downloadMethod = config.download.methods[$thisLink.attr("class")]
-    var form = document.createElement("form")
-    var formAction = "/downloadManager/download"
+    var downloadMethod = config.download.methods[$thisLink.attr('class')]
+    var form = document.createElement('form')
+    var formAction = '/downloadManager/download'
     // var formAction = contextPath + config.download.connector;
-    form.setAttribute("method", "POST")
-    form.setAttribute("action", formAction)
+    form.setAttribute('method', 'POST')
+    form.setAttribute('action', formAction)
 
-    var methodHiddenField = document.createElement("input")
-    methodHiddenField.setAttribute("type", "hidden")
-    methodHiddenField.setAttribute("name", "method")
-    methodHiddenField.setAttribute("value", downloadMethod.id)
+    var methodHiddenField = document.createElement('input')
+    methodHiddenField.setAttribute('type', 'hidden')
+    methodHiddenField.setAttribute('name', 'method')
+    methodHiddenField.setAttribute('value', downloadMethod.id)
 
     form.appendChild(methodHiddenField)
 
@@ -2439,17 +2461,24 @@ function fileManager(
     //so that it doesn't get overwritten.
     form._submit_function_ = form.submit
 
-    $.each($dt.rows({ selected: true }).data(), function(key, itemData) {
-      var hiddenField = document.createElement("input")
-      hiddenField.setAttribute("type", "hidden")
-      hiddenField.setAttribute("name", "uri")
-      hiddenField.setAttribute(
-        "value",
-        config.download.vos_prefix + itemData[9]
-      )
+    $.each(
+      $dt
+        .rows({
+          selected: true
+        })
+        .data(),
+      function(key, itemData) {
+        var hiddenField = document.createElement('input')
+        hiddenField.setAttribute('type', 'hidden')
+        hiddenField.setAttribute('name', 'uri')
+        hiddenField.setAttribute(
+          'value',
+          config.download.vos_prefix + itemData[9]
+        )
 
-      form.appendChild(hiddenField)
-    })
+        form.appendChild(hiddenField)
+      }
+    )
 
     document.body.appendChild(form)
 
@@ -2463,90 +2492,90 @@ function fileManager(
     isEdited = false
 
     $fileInfo
-      .find("div#tools")
+      .find('div#tools')
       .append(
         ' <a id="edit-file" href="#" title="' +
           lg.edit +
           '"><span>' +
           lg.edit +
-          "</span></a>"
+          '</span></a>'
       )
 
-    $("#edit-file").click(function() {
+    $('#edit-file').click(function() {
       $(this).hide() // hiding Edit link
 
       var d = new Date() // to prevent IE cache issues
       var connectString =
         fileConnector +
-        "?mode=editfile&path=" +
-        encodeURIComponent(data["Path"]) +
-        "&config=" +
+        '?mode=editfile&path=' +
+        encodeURIComponent(data['Path']) +
+        '&config=' +
         userconfig +
-        "&time=" +
+        '&time=' +
         d.getMilliseconds()
 
       $.ajax({
-        type: "GET",
+        type: 'GET',
         url: connectString,
-        dataType: "json",
+        dataType: 'json',
         async: false,
         success: function(result) {
-          if (result["Code"] == 0) {
+          if (result['Code'] == 0) {
             var content = '<form id="edit-form">'
             content +=
               '<textarea id="edit-content" name="content">' +
-              result["Content"] +
-              "</textarea>"
+              result['Content'] +
+              '</textarea>'
             content += '<input type="hidden" name="mode" value="savefile" />'
             content +=
-              '<input type="hidden" name="path" value="' + data["Path"] + '" />'
+              '<input type="hidden" name="path" value="' + data['Path'] + '" />'
             content +=
               '<button id="edit-cancel" class="edition" type="button">' +
               lg.quit_editor +
-              "</button>"
+              '</button>'
             content +=
               '<button id="edit-save" class="edition" type="button">' +
               lg.save +
-              "</button>"
-            content += "</form>"
+              '</button>'
+            content += '</form>'
 
-            $("#preview")
-              .find("img")
+            $('#preview')
+              .find('img')
               .hide()
-            $("#preview")
+            $('#preview')
               .prepend(content)
               .hide()
               .fadeIn()
 
             // Cancel Button Behavior
-            $("#edit-cancel").click(function() {
-              $("#preview")
-                .find("form#edit-form")
+            $('#edit-cancel').click(function() {
+              $('#preview')
+                .find('form#edit-form')
                 .hide()
-              $("#preview")
-                .find("img")
+              $('#preview')
+                .find('img')
                 .fadeIn()
-              $("#edit-file").show()
+              $('#edit-file').show()
             })
 
             // Save Button Behavior
-            $("#edit-save").click(function() {
+            $('#edit-save').click(function() {
               // we get new
               // textarea
               // content
               var newcontent = codeMirrorEditor.getValue()
-              $("textarea#edit-content").val(newcontent)
+              $('textarea#edit-content').val(newcontent)
 
-              var postData = $("#edit-form").serializeArray()
+              var postData = $('#edit-form').serializeArray()
 
               $.ajax({
-                type: "POST",
-                url: fileConnector + "?config=" + userconfig,
-                dataType: "json",
+                type: 'POST',
+                url: fileConnector + '?config=' + userconfig,
+                dataType: 'json',
                 data: postData,
                 async: false,
                 success: function(result) {
-                  if (result["Code"] == 0) {
+                  if (result['Code'] == 0) {
                     isEdited = true
                     // if
                     // (config.options.showConfirmation)
@@ -2554,7 +2583,7 @@ function fileManager(
                     $.prompt(lg.successful_edit)
                   } else {
                     isEdited = false
-                    $.prompt(result["Error"])
+                    $.prompt(result['Error'])
                   }
                 }
               })
@@ -2563,12 +2592,12 @@ function fileManager(
             // we instantiate codeMirror according
             // to config options
             codeMirrorEditor = instantiateCodeMirror(
-              getExtension(data["Path"]),
+              getExtension(data['Path']),
               config
             )
           } else {
             isEdited = false
-            $.prompt(result["Error"])
+            $.prompt(result['Error'])
             $(this).show() // hiding Edit link
           }
         }
@@ -2586,7 +2615,7 @@ function fileManager(
   // parent node. Called after a successful file upload.
   var addNode = function(path, name) {
     var ext = getExtension(name)
-    var thisNode = $("#filetree").find('a[data-path="' + path + '"]')
+    var thisNode = $('#filetree').find('a[data-path="' + path + '"]')
     var parentNode = thisNode.parent()
     var newNode =
       '<li class="file ext_' +
@@ -2596,16 +2625,16 @@ function fileManager(
       name +
       '" href="#" class="">' +
       name +
-      "</a></li>"
+      '</a></li>'
 
     // if is root folder
     // TODO optimize
-    if (!parentNode.find("ul").size()) {
-      parentNode = $("#filetree").find("ul.jqueryFileTree")
+    if (!parentNode.find('ul').size()) {
+      parentNode = $('#filetree').find('ul.jqueryFileTree')
 
       parentNode.prepend(newNode)
     } else {
-      parentNode.find("ul").prepend(newNode)
+      parentNode.find('ul').prepend(newNode)
       thisNode.click().click()
     }
 
@@ -2623,7 +2652,7 @@ function fileManager(
   // Decides whether to retrieve file or folder info based on
   // the path provided.
   var getDetailView = function(path) {
-    if (path.lastIndexOf("/") == path.length - 1) {
+    if (path.lastIndexOf('/') == path.length - 1) {
       getFolderInfo(path)
     } else {
       getFileInfo(path)
@@ -2637,86 +2666,86 @@ function fileManager(
   // clicked in the file tree or list views.
   var getFileInfo = function(file) {
     //Hide context menu
-    $(".contextMenu").hide()
+    $('.contextMenu').hide()
 
     // Update location for status, upload, & new folder functions.
-    var currentpath = file.substr(0, file.lastIndexOf("/") + 1)
+    var currentpath = file.substr(0, file.lastIndexOf('/') + 1)
     setUploader(currentpath)
 
     // Include the template.
     var template =
       '<div id="preview"><img /><div id="main-title"><h1></h1><div id="tools"></div></div><dl></dl></div>'
     template += '<form id="toolbar">'
-    template += '<button id="parentfolder">' + lg.parentfolder + "</button>"
+    template += '<button id="parentfolder">' + lg.parentfolder + '</button>'
     if (
-      $.inArray("select", capabilities) != -1 &&
-      ($.urlParam("CKEditor") ||
+      $.inArray('select', capabilities) != -1 &&
+      ($.urlParam('CKEditor') ||
         window.opener ||
         window.tinyMCEPopup ||
-        $.urlParam("field_name"))
+        $.urlParam('field_name'))
     ) {
       template +=
         '<button id="select" name="select" type="button" value="Select">' +
         lg.select +
-        "</button>"
+        '</button>'
     }
-    if ($.inArray("download", capabilities) != -1) {
+    if ($.inArray('download', capabilities) != -1) {
       template +=
         '<button id="download" name="download" type="button" value="Download">' +
         lg.download +
-        "</button>"
+        '</button>'
     }
     if (
-      $.inArray("rename", capabilities) != -1 &&
+      $.inArray('rename', capabilities) != -1 &&
       config.options.browseOnly != true
     ) {
       template +=
         '<button id="rename" name="rename" type="button" value="Rename">' +
         lg.rename +
-        "</button>"
+        '</button>'
     }
     if (
-      $.inArray("move", capabilities) != -1 &&
+      $.inArray('move', capabilities) != -1 &&
       config.options.browseOnly != true
     ) {
       template +=
         '<button id="move" name="move" type="button" value="Move">' +
         lg.move +
-        "</button>"
+        '</button>'
     }
     if (
-      $.inArray("delete", capabilities) != -1 &&
+      $.inArray('delete', capabilities) != -1 &&
       config.options.browseOnly != true
     ) {
       template +=
         '<button id="delete" name="delete" type="button" value="Delete">' +
         lg.del +
-        "</button>"
+        '</button>'
     }
     if (
-      $.inArray("replace", capabilities) != -1 &&
+      $.inArray('replace', capabilities) != -1 &&
       config.options.browseOnly != true
     ) {
       template +=
         '<button id="replace" name="replace" type="button" value="Replace">' +
         lg.replace +
-        "</button>"
+        '</button>'
       template +=
         '<div class="hidden-file-input"><input id="fileR" name="fileR" type="file" /></div>'
       template +=
         '<input id="mode" name="mode" type="hidden" value="replace" /> '
       template += '<input id="newfilepath" name="newfilepath" type="hidden" />'
     }
-    template += "</form>"
+    template += '</form>'
 
     // test if scrollbar plugin is enabled
-    if ($fileInfo.has(".mCSB_container")) {
-      $fileInfo.find(".mCSB_container").html(template)
+    if ($fileInfo.has('.mCSB_container')) {
+      $fileInfo.find('.mCSB_container').html(template)
     } else {
       $fileInfo.html(template)
     }
 
-    $("#parentfolder").click(function() {
+    $('#parentfolder').click(function() {
       getFolderInfo(currentpath)
     })
 
@@ -2724,43 +2753,43 @@ function fileManager(
     var d = new Date() // to prevent IE cache issues
     $.getJSON(
       fileConnector +
-        "?mode=getinfo&path=" +
+        '?mode=getinfo&path=' +
         encodeURIComponent(file) +
-        "&config=" +
+        '&config=' +
         userconfig +
-        "&time=" +
+        '&time=' +
         d.getMilliseconds(),
       function(data) {
-        if (data["Code"] == 0) {
+        if (data['Code'] == 0) {
           $fileInfo
-            .find("h1")
-            .text(data["Filename"])
-            .attr("title", file)
+            .find('h1')
+            .text(data['Filename'])
+            .attr('title', file)
 
-          $fileInfo.find("img").attr("src", data["Preview"])
+          $fileInfo.find('img').attr('src', data['Preview'])
           if (
-            isVideoFile(data["Filename"]) &&
+            isVideoFile(data['Filename']) &&
             config.videos.showVideoPlayer == true
           ) {
             getVideoPlayer(data)
           }
           if (
-            isAudioFile(data["Filename"]) &&
+            isAudioFile(data['Filename']) &&
             config.audios.showAudioPlayer == true
           ) {
             getAudioPlayer(data)
           }
           //Pdf
           if (
-            isPdfFile(data["Filename"]) &&
+            isPdfFile(data['Filename']) &&
             config.pdfs.showPdfReader == true
           ) {
             getPdfReader(data)
           }
           if (
-            isEditableFile(data["Filename"]) &&
+            isEditableFile(data['Filename']) &&
             config.edit.enabled == true &&
-            data["Protected"] == 0
+            data['Protected'] == 0
           ) {
             editItem(data)
           }
@@ -2770,14 +2799,14 @@ function fileManager(
           var url
 
           if (config.options.baseUrl !== false) {
-            url = smartPath(baseUrl, data["Path"].replace(fileRoot, ""))
+            url = smartPath(baseUrl, data['Path'].replace(fileRoot, ''))
           } else {
-            url = data["Path"]
+            url = data['Path']
           }
 
-          if (data["Protected"] == 0) {
+          if (data['Protected'] == 0) {
             $fileInfo
-              .find("div#tools")
+              .find('div#tools')
               .append(
                 ' <a id="copy-button" data-clipboard-text="' +
                   url +
@@ -2785,20 +2814,20 @@ function fileManager(
                   lg.copy_to_clipboard +
                   '" href="#"><span>' +
                   lg.copy_to_clipboard +
-                  "</span></a>"
+                  '</span></a>'
               )
             // loading zeroClipboard code
 
             loadJS(
               contextPath +
-                "scripts/zeroclipboard/copy.js?d" +
+                'scripts/zeroclipboard/copy.js?d' +
                 d.getMilliseconds()
             )
-            $("#copy-button").click(function() {
+            $('#copy-button').click(function() {
               $fileInfo
-                .find("div#tools")
-                .append('<span id="copied">' + lg.copied + "</span>")
-              $("#copied")
+                .find('div#tools')
+                .append('<span id="copied">' + lg.copied + '</span>')
+              $('#copied')
                 .delay(500)
                 .fadeOut(1000, function() {
                   $(this).remove()
@@ -2806,60 +2835,60 @@ function fileManager(
             })
           }
 
-          var properties = ""
+          var properties = ''
 
           if (
-            data["Properties"]["Width"] &&
-            data["Properties"]["Width"] != ""
+            data['Properties']['Width'] &&
+            data['Properties']['Width'] != ''
           ) {
             properties +=
-              "<dt>" +
+              '<dt>' +
               lg.dimensions +
-              "</dt><dd>" +
-              data["Properties"]["Width"] +
-              "x" +
-              data["Properties"]["Height"] +
-              "</dd>"
+              '</dt><dd>' +
+              data['Properties']['Width'] +
+              'x' +
+              data['Properties']['Height'] +
+              '</dd>'
           }
           if (
-            data["Properties"]["Date Created"] &&
-            data["Properties"]["Date Created"] != ""
+            data['Properties']['Date Created'] &&
+            data['Properties']['Date Created'] != ''
           ) {
             properties +=
-              "<dt>" +
+              '<dt>' +
               lg.created +
-              "</dt><dd>" +
-              data["Properties"]["Date Created"] +
-              "</dd>"
+              '</dt><dd>' +
+              data['Properties']['Date Created'] +
+              '</dd>'
           }
           if (
-            data["Properties"]["Date Modified"] &&
-            data["Properties"]["Date Modified"] != ""
+            data['Properties']['Date Modified'] &&
+            data['Properties']['Date Modified'] != ''
           ) {
             properties +=
-              "<dt>" +
+              '<dt>' +
               lg.modified +
-              "</dt><dd>" +
-              data["Properties"]["Date Modified"] +
-              "</dd>"
+              '</dt><dd>' +
+              data['Properties']['Date Modified'] +
+              '</dd>'
           }
           if (
-            data["Properties"]["Size"] ||
-            parseInt(data["Properties"]["Size"]) == 0
+            data['Properties']['Size'] ||
+            parseInt(data['Properties']['Size']) == 0
           ) {
             properties +=
-              "<dt>" +
+              '<dt>' +
               lg.size +
-              "</dt><dd>" +
-              formatBytes(data["Properties"]["Size"]) +
-              "</dd>"
+              '</dt><dd>' +
+              formatBytes(data['Properties']['Size']) +
+              '</dd>'
           }
-          $fileInfo.find("dl").html(properties)
+          $fileInfo.find('dl').html(properties)
 
           // Bind toolbar functions.
           bindToolbar(data)
         } else {
-          $.prompt(data["Error"])
+          $.prompt(data['Error'])
         }
       }
     )
@@ -2883,30 +2912,30 @@ function fileManager(
       for (var i = 0; i < config.extras.extra_js.length; i++) {
         $.ajax({
           url: config.extras.extra_js[i],
-          dataType: "script",
+          dataType: 'script',
           async: config.extras.extra_js_async
         })
       }
     }
 
-    $("#link-to-project")
-      .attr("href", config.url)
-      .attr("target", "_blank")
+    $('#link-to-project')
+      .attr('href', config.url)
+      .attr('target', '_blank')
       .attr(
-        "title",
-        lg.support_fm + " [" + lg.version + " : " + config.version + "]"
+        'title',
+        lg.support_fm + ' [' + lg.version + ' : ' + config.version + ']'
       )
-    $("div.version").html(config.version)
+    $('div.version').html(config.version)
 
     // Loading theme
     loadCSS(
-      contextPath + "themes/" + config.options.theme + "/styles/filemanager.css"
+      contextPath + 'themes/' + config.options.theme + '/styles/filemanager.css'
     )
     $.ajax({
-      url: contextPath + "themes/" + config.options.theme + "/styles/ie.css",
+      url: contextPath + 'themes/' + config.options.theme + '/styles/ie.css',
       async: false,
       success: function(data) {
-        $("head").append(data)
+        $('head').append(data)
       }
     })
 
@@ -2914,86 +2943,86 @@ function fileManager(
     var currPath = getCurrentPath()
     if (stringUtil.hasText(currPath)) {
       $.ajax({
-        method: "GET",
+        method: 'GET',
         url:
           contextPath +
           config.options.folderConnector +
-          "/" +
-          currPath.split("/")[1],
-        dataType: "json",
+          '/' +
+          currPath.split('/')[1],
+        dataType: 'json',
         async: false,
         success: function(data) {
           var htmlString = stringUtil.format(
-            "<strong>{1}</strong> remaining of <strong>{2}</strong> " +
+            '<strong>{1}</strong> remaining of <strong>{2}</strong> ' +
               '<span class="request-more-link">(<a title="E-mail support@canfar.net to request more" href="mailto:support@canfar.net">Request more from support@canfar.net</a>)</span>',
             [data.size, data.quota]
           )
-          $("div.quota").html(htmlString)
+          $('div.quota').html(htmlString)
         }
       })
     }
 
     // loading zeroClipboard
-    loadJS(contextPath + "scripts/zeroclipboard/dist/ZeroClipboard.js")
+    loadJS(contextPath + 'scripts/zeroclipboard/dist/ZeroClipboard.js')
 
     // Loading CodeMirror if enabled for online edition
     if (config.edit.enabled) {
-      loadCSS(contextPath + "scripts/CodeMirror/lib/codemirror.css")
+      loadCSS(contextPath + 'scripts/CodeMirror/lib/codemirror.css')
       loadCSS(
-        contextPath + "scripts/CodeMirror/theme/" + config.edit.theme + ".css"
+        contextPath + 'scripts/CodeMirror/theme/' + config.edit.theme + '.css'
       )
-      loadJS(contextPath + "scripts/CodeMirror/lib/codemirror.js")
-      loadJS(contextPath + "scripts/CodeMirror/addon/selection/active-line.js")
-      loadCSS(contextPath + "scripts/CodeMirror/addon/display/fullscreen.css")
-      loadJS(contextPath + "scripts/CodeMirror/addon/display/fullscreen.js")
-      loadJS(contextPath + "scripts/CodeMirror/dynamic-mode.js")
+      loadJS(contextPath + 'scripts/CodeMirror/lib/codemirror.js')
+      loadJS(contextPath + 'scripts/CodeMirror/addon/selection/active-line.js')
+      loadCSS(contextPath + 'scripts/CodeMirror/addon/display/fullscreen.css')
+      loadJS(contextPath + 'scripts/CodeMirror/addon/display/fullscreen.js')
+      loadJS(contextPath + 'scripts/CodeMirror/dynamic-mode.js')
     }
 
     if (!config.options.fileRoot) {
       fileRoot =
-        "/" +
+        '/' +
         document.location.pathname.substring(
           1,
-          document.location.pathname.lastIndexOf("/") + 1
+          document.location.pathname.lastIndexOf('/') + 1
         ) +
-        "userfiles/"
+        'userfiles/'
     } else {
       fileRoot =
-        (config.options.serverRoot ? "/" : "") + config.options.fileRoot
+        (config.options.serverRoot ? '/' : '') + config.options.fileRoot
 
       // we remove double slashes - can happen when using PHP SetFileRoot()
       // function with fileRoot = "/" value
-      fileRoot = fileRoot.replace(/\/\//g, "/")
+      fileRoot = fileRoot.replace(/\/\//g, '/')
     }
 
     if (config.options.baseUrl === false) {
-      baseURL = window.location.protocol + "//" + window.location.host
+      baseURL = window.location.protocol + '//' + window.location.host
     } else {
       baseURL = config.options.baseUrl
     }
 
-    if ($.urlParam("exclusiveFolder") !== 0) {
-      fileRoot += $.urlParam("exclusiveFolder")
-      if (fileRoot.charAt(fileRoot.length - 1) !== "/") {
-        fileRoot += "/"
+    if ($.urlParam('exclusiveFolder') !== 0) {
+      fileRoot += $.urlParam('exclusiveFolder')
+      if (fileRoot.charAt(fileRoot.length - 1) !== '/') {
+        fileRoot += '/'
       } // add last "/" if needed
-      fileRoot = fileRoot.replace(/\/\//g, "/")
+      fileRoot = fileRoot.replace(/\/\//g, '/')
     }
 
-    if ($.urlParam("expandedFolder") !== 0) {
-      expandedFolder = $.urlParam("expandedFolder")
+    if ($.urlParam('expandedFolder') !== 0) {
+      expandedFolder = $.urlParam('expandedFolder')
       fullexpandedFolder = fileRoot + expandedFolder
     } else {
-      expandedFolder = ""
+      expandedFolder = ''
       fullexpandedFolder = null
     }
 
-    var $itemOptions = $("#itemOptions")
+    var $itemOptions = $('#itemOptions')
 
-    $("#folder-info").html(
+    $('#folder-info').html(
       '<span id="items-counter"></span> ' +
         lg.items +
-        " - " +
+        ' - ' +
         lg.size +
         ' : <span id="items-size"></span> ' +
         lg.mb
@@ -3002,7 +3031,7 @@ function fileManager(
     // we finalize the FileManager UI initialization
     // with localized text if necessary
     if (config.options.autoload === true) {
-      $fileInfo.find("h1").append(lg.select_from_left)
+      $fileInfo.find('h1').append(lg.select_from_left)
       $itemOptions.find('a[href$="#select"]').append(lg.select)
       $itemOptions.find('a[href$="#download"]').append(lg.download)
       $itemOptions.find('a[href$="#rename"]').append(lg.rename)
@@ -3012,34 +3041,34 @@ function fileManager(
     }
 
     /** Adding a close button triggering callback function if CKEditorCleanUpFuncNum passed */
-    if ($.urlParam("CKEditorCleanUpFuncNum")) {
-      $("body").append(
-        '<button id="close-btn" type="button">' + lg.close + "</button>"
+    if ($.urlParam('CKEditorCleanUpFuncNum')) {
+      $('body').append(
+        '<button id="close-btn" type="button">' + lg.close + '</button>'
       )
 
-      $("#close-btn").click(function() {
-        parent.CKEDITOR.tools.callFunction($.urlParam("CKEditorCleanUpFuncNum"))
+      $('#close-btn').click(function() {
+        parent.CKEDITOR.tools.callFunction($.urlParam('CKEditorCleanUpFuncNum'))
       })
     }
 
     /** Input file Replacement */
-    $("#newfile").change(function() {
-      $("#filepath").val(
+    $('#newfile').change(function() {
+      $('#filepath').val(
         $(this)
           .val()
-          .replace(/.+[\\\/]/, "")
+          .replace(/.+[\\\/]/, '')
       )
     })
 
     /** load searchbox */
     if (config.options.searchBox === true) {
-      loadJS(contextPath + "scripts/filemanager.liveSearch.js")
+      loadJS(contextPath + 'scripts/filemanager.liveSearch.js')
     } else {
-      $("#search").remove()
+      $('#search').remove()
     }
 
     // cosmetic tweak for buttons
-    $("button").wrapInner("<span></span>")
+    $('button').wrapInner('<span></span>')
 
     // Provide initial values for upload form, status, etc.
     setUploader(fileRoot)
@@ -3049,12 +3078,12 @@ function fileManager(
     // Multiple Uploads
     if (config.upload.multiple) {
       // we load dropzone library
-      loadCSS(contextPath + "scripts/dropzone/downloads/css/dropzone.css")
-      loadJS(contextPath + "scripts/dropzone/downloads/dropzone.js")
+      loadCSS(contextPath + 'scripts/dropzone/downloads/css/dropzone.css')
+      loadJS(contextPath + 'scripts/dropzone/downloads/dropzone.js')
       Dropzone.autoDiscover = false
 
       // we remove simple file upload element
-      $("#file-input-container").remove()
+      $('#file-input-container').remove()
 
       // we add multiple-files upload button using upload button
       // $('#upload').prop('type', 'button');
@@ -3063,7 +3092,7 @@ function fileManager(
       // safer for IE (see
       // http://stackoverflow.com/questions/1544317/change-type-of-input-field-with-jquery
 
-      $("#upload")
+      $('#upload')
         .off()
         .click(function() {
           // Create prompt window: path is a hidden
@@ -3072,10 +3101,10 @@ function fileManager(
           var msg =
             '<div id="dropzone-container"><h2>' +
             lg.current_folder +
-            $("#currentFolderName").val() +
+            $('#currentFolderName').val() +
             '</h2><div class="dz-scrollContainer">' +
             '<div id="multiple-uploads" class="dropzone table table-striped files dz-clickable">' +
-            "</div></div>"
+            '</div></div>'
 
           msg +=
             '<div id="total-progress"><div data-dz-uploadprogress="" style="width:0;" class="progress-bar"></div></div>'
@@ -3084,9 +3113,9 @@ function fileManager(
             '<div class="prompt-info">' +
             '<a href="http://www.canfar.net/en/docs/storage/">' +
             lg.alternative_large_file_count_msg +
-            "</a></div>"
+            '</a></div>'
 
-          msg += '<button id="process-upload">' + lg.upload + "</button></div>"
+          msg += '<button id="process-upload">' + lg.upload + '</button></div>'
 
           var error_flag = false
           var path = getCurrentPath()
@@ -3097,31 +3126,31 @@ function fileManager(
             buttons: btns
           })
 
-          var $progressBar = $("#total-progress").find(".progress-bar")
+          var $progressBar = $('#total-progress').find('.progress-bar')
 
-          var $uploadResponse = $("#uploadresponse")
+          var $uploadResponse = $('#uploadresponse')
 
           var previewItemTemplate =
             '<div class="file-row" >' +
-            "<div>" +
+            '<div>' +
             '<p class="name" data-dz-name></p>' +
             '<strong class="error text-danger" data-dz-errormessage></strong>' +
-            "</div>" +
-            "<div>" +
+            '</div>' +
+            '<div>' +
             '<p class="size" data-dz-size></p>' +
-            "</div>" +
+            '</div>' +
             '<div class="dropzone-progressbar">' +
             '<div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">' +
             '<div class="progress-bar progress-bar-success" data-dz-uploadprogress></div>' +
-            "</div>" +
-            "</div>" +
-            "</div>"
+            '</div>' +
+            '</div>' +
+            '</div>'
 
-          $("div#multiple-uploads").dropzone({
-            paramName: "upload",
+          $('div#multiple-uploads').dropzone({
+            paramName: 'upload',
             previewTemplate: previewItemTemplate,
             url: contextPath + config.options.fileConnector + path,
-            method: "PUT",
+            method: 'PUT',
             maxFiles: null,
             addRemoveLinks: true,
             parallelUploads: config.upload.number,
@@ -3138,34 +3167,34 @@ function fileManager(
               // :
               // https://github.com/enyo/dropzone/issues/180
               var dropzone = this
-              $("#process-upload").click(function() {
+              $('#process-upload').click(function() {
                 // To proceed full queue parallelUploads must be equal or > to maxFileSize. https://github.com/enyo/dropzone/issues/462
                 dropzone.processQueue()
               })
             },
             totaluploadprogress: function(progress) {
-              $progressBar.css("width", progress + "%")
+              $progressBar.css('width', progress + '%')
             },
             sending: function(file, xhr, formData) {
-              formData.append("mode", "add")
-              formData.append("currentpath", path)
+              formData.append('mode', 'add')
+              formData.append('currentpath', path)
             },
             error: function(file, response) {
-              var message = ""
-              if (typeof response === "string") {
+              var message = ''
+              if (typeof response === 'string') {
                 message = response
-              } else if (response.hasOwnProperty("error")) {
+              } else if (response.hasOwnProperty('error')) {
                 message = response.error
-              } else if (response.hasOwnProperty("message")) {
+              } else if (response.hasOwnProperty('message')) {
                 message = response.message
               } else {
                 message = lg.unknown_error
               }
 
               // Decorate the individual files.
-              file.previewElement.classList.add("dz-error")
+              file.previewElement.classList.add('dz-error')
               var _ref = file.previewElement.querySelectorAll(
-                "[data-dz-errormessage]"
+                '[data-dz-errormessage]'
               )
               var _results = []
               for (var _i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -3193,52 +3222,52 @@ function fileManager(
           })
         })
     } else {
-      $("#uploader").attr("action", fileConnector + "?config=" + userconfig)
+      $('#uploader').attr('action', fileConnector + '?config=' + userconfig)
 
-      $("#uploader").ajaxForm({
-        target: "#uploadresponse",
+      $('#uploader').ajaxForm({
+        target: '#uploadresponse',
         beforeSubmit: function(arr, form, options) {
           // Test if a value is given
-          if ($("#newfile", form).val() === "") {
+          if ($('#newfile', form).val() === '') {
             return false
           }
           // Check if file extension is allowed
-          if (!isAuthorizedFile($("#newfile", form).val())) {
-            var str = "<p>" + lg.INVALID_FILE_TYPE + "</p>"
-            if (config.security.uploadPolicy === "DISALLOW_ALL") {
+          if (!isAuthorizedFile($('#newfile', form).val())) {
+            var str = '<p>' + lg.INVALID_FILE_TYPE + '</p>'
+            if (config.security.uploadPolicy === 'DISALLOW_ALL') {
               str +=
-                "<p>" +
+                '<p>' +
                 lg.ALLOWED_FILE_TYPE +
-                config.security.uploadRestrictions.join(", ") +
-                ".</p>"
+                config.security.uploadRestrictions.join(', ') +
+                '.</p>'
             }
-            if (config.security.uploadPolicy === "ALLOW_ALL") {
+            if (config.security.uploadPolicy === 'ALLOW_ALL') {
               str +=
-                "<p>" +
+                '<p>' +
                 lg.DISALLOWED_FILE_TYPE +
-                config.security.uploadRestrictions.join(", ") +
-                ".</p>"
+                config.security.uploadRestrictions.join(', ') +
+                '.</p>'
             }
-            $("#filepath").val("")
+            $('#filepath').val('')
             $.prompt(str)
             return false
           }
-          $("#upload").attr("disabled", true)
-          $("#upload")
-            .find("span")
-            .addClass("loading")
+          $('#upload').attr('disabled', true)
+          $('#upload')
+            .find('span')
+            .addClass('loading')
             .text(lg.loading_data)
           if (
-            $.urlParam("type")
+            $.urlParam('type')
               .toString()
-              .toLowerCase() === "images"
+              .toLowerCase() === 'images'
           ) {
             // Test if uploaded file extension is in
             // valid image extensions
-            var newfileSplitted = $("#newfile", form)
+            var newfileSplitted = $('#newfile', form)
               .val()
               .toLowerCase()
-              .split(".")
+              .split('.')
             var found = false
             for (key in config.images.imagesExt) {
               if (
@@ -3250,10 +3279,10 @@ function fileManager(
             }
             if (found === false) {
               $.prompt(lg.UPLOAD_IMAGES_ONLY)
-              $("#upload")
-                .removeAttr("disabled")
-                .find("span")
-                .removeClass("loading")
+              $('#upload')
+                .removeAttr('disabled')
+                .find('span')
+                .removeClass('loading')
                 .text(lg.upload)
               return false
             }
@@ -3261,64 +3290,64 @@ function fileManager(
           // if config.upload.fileSizeLimit == auto
           // we delegate size test to connector
           if (
-            typeof FileReader !== "undefined" &&
-            typeof config.upload.fileSizeLimit !== "auto"
+            typeof FileReader !== 'undefined' &&
+            typeof config.upload.fileSizeLimit !== 'auto'
           ) {
             // Check file size using html5 FileReader
             // API
-            var size = $("#newfile", form).get(0).files[0].size
+            var size = $('#newfile', form).get(0).files[0].size
             if (size > config.upload.fileSizeLimit * 1024 * 1024) {
               $.prompt(
-                "<p>" +
+                '<p>' +
                   lg.file_too_big +
-                  "</p><p>" +
+                  '</p><p>' +
                   lg.file_size_limit +
                   config.upload.fileSizeLimit +
-                  " " +
+                  ' ' +
                   lg.mb +
-                  ".</p>"
+                  '.</p>'
               )
-              $("#upload")
-                .removeAttr("disabled")
-                .find("span")
-                .removeClass("loading")
+              $('#upload')
+                .removeAttr('disabled')
+                .find('span')
+                .removeClass('loading')
                 .text(lg.upload)
               return false
             }
           }
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          $("#upload")
-            .removeAttr("disabled")
-            .find("span")
-            .removeClass("loading")
+          $('#upload')
+            .removeAttr('disabled')
+            .find('span')
+            .removeClass('loading')
             .text(lg.upload)
           $.prompt(lg.ERROR_UPLOADING_FILE)
         },
         success: function(result) {
           var data = jQuery.parseJSON(
-            $("#uploadresponse")
-              .find("textarea")
+            $('#uploadresponse')
+              .find('textarea')
               .text()
           )
-          if (data["Code"] === 0) {
+          if (data['Code'] === 0) {
             // addNode(data['Path'], data['Name']);
-            $("#filepath, #newfile").val("")
+            $('#filepath, #newfile').val('')
             // IE can not empty input='file'. A fix
             // consist to replace the element (see
             // github issue #215)
             if ($.browser.msie) {
-              $("#newfile").replaceWith($("#newfile").clone(true))
+              $('#newfile').replaceWith($('#newfile').clone(true))
             }
           } else {
-            $.prompt(data["Error"])
+            $.prompt(data['Error'])
           }
-          $("#upload").removeAttr("disabled")
-          $("#upload")
-            .find("span")
-            .removeClass("loading")
+          $('#upload').removeAttr('disabled')
+          $('#upload')
+            .find('span')
+            .removeClass('loading')
             .text(lg.upload)
-          $("#filepath").val("")
+          $('#filepath').val('')
         }
       })
     }
@@ -3329,52 +3358,54 @@ function fileManager(
     if (config.customScrollbar.enabled) {
       loadCSS(
         contextPath +
-          "scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css"
+          'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css'
       )
       loadJS(
         contextPath +
-          "scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"
+          'scripts/custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js'
       )
 
       var csTheme =
         config.customScrollbar.theme !== undefined
           ? config.customScrollbar.theme
-          : "inset-2-dark"
+          : 'inset-2-dark'
       var csButton =
         config.customScrollbar.button !== undefined
           ? config.customScrollbar.button
           : true
 
       $(window).load(function() {
-        $("#fileinfo").mCustomScrollbar({
+        $('#fileinfo').mCustomScrollbar({
           theme: csTheme,
-          scrollButtons: { enable: csButton },
+          scrollButtons: {
+            enable: csButton
+          },
           advanced: {
             autoExpandHorizontalScroll: true,
             updateOnContentResize: true
           },
-          axis: "y",
+          axis: 'y',
           alwaysShowScrollbar: 1
         })
       })
     }
 
     // Disable select function if no window.opener
-    if (!(window.opener || window.tinyMCEPopup || $.urlParam("field_name"))) {
-      $("#itemOptions")
+    if (!(window.opener || window.tinyMCEPopup || $.urlParam('field_name'))) {
+      $('#itemOptions')
         .find("a[href$='#select']")
         .remove()
     }
     // Keep only browseOnly features if needed
     if (config.options.browseOnly === true) {
-      $("#file-input-container").remove()
-      $("#upload").remove()
-      $("#newfolder").remove()
-      $("#toolbar").remove("#rename")
-      $(".contextMenu .rename").remove()
-      $(".contextMenu .move").remove()
-      $(".contextMenu .replace").remove()
-      $(".contextMenu .delete").remove()
+      $('#file-input-container').remove()
+      $('#upload').remove()
+      $('#newfolder').remove()
+      $('#toolbar').remove('#rename')
+      $('.contextMenu .rename').remove()
+      $('.contextMenu .move').remove()
+      $('.contextMenu .replace').remove()
+      $('.contextMenu .delete').remove()
     }
 
     // Adjust layout.
@@ -3388,12 +3419,12 @@ function fileManager(
 
   // add useragent string to html element for IE 10/11 detection
   var doc = document.documentElement
-  doc.setAttribute("data-useragent", navigator.userAgent)
+  doc.setAttribute('data-useragent', navigator.userAgent)
 
   if (config.options.logger) {
     var end = new Date().getTime()
     var time = end - start
-    console.log("Total execution time : " + time + " ms")
+    console.log('Total execution time : ' + time + ' ms')
   }
 
   $(window).load(function() {
