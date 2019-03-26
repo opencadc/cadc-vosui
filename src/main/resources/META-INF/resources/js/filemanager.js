@@ -1597,7 +1597,7 @@ function fileManager(
       '<div class="col-sm-4" >' +
       '</div>' +
       '<div class="col-sm-7 prompt-link">' +
-      '<a href="http://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
+      '<a href="https://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
       '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' +
       promptData.data('path') +
       '">' +
@@ -3111,7 +3111,7 @@ function fileManager(
 
           msg +=
             '<div class="prompt-info">' +
-            '<a href="http://www.canfar.net/en/docs/storage/">' +
+            '<a href="https://www.canfar.net/en/docs/storage/">' +
             lg.alternative_large_file_count_msg +
             '</a></div>'
 
