@@ -80,6 +80,7 @@ import org.json.JSONObject;
 import org.restlet.Context;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
+import org.restlet.representation.Representation;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
@@ -89,6 +90,7 @@ import javax.security.auth.Subject;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.*;
 import java.util.List;
 import java.util.Set;
@@ -232,9 +234,7 @@ public class StorageItemServerResource extends SecureServerResource {
         throws ResourceException {
         final int pageSize;
 
-        if (detail == null) {
-            pageSize = -1;
-        } else if ((detail == VOS.Detail.max) || (detail == VOS.Detail.raw)) {
+        if ((detail == VOS.Detail.max) || (detail == VOS.Detail.raw)) {
             pageSize = DEFAULT_DISPLAY_PAGE_SIZE;
         } else {
             pageSize = 0;

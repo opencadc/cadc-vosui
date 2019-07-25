@@ -1440,12 +1440,11 @@ function fileManager(
 
           var url = contextPath + config.options.itemConnector + itemPath
 
-          var dataStr = JSON.stringify(formVals)
           $.ajax({
             url: url,
             method: 'POST',
             contentType: 'application/json',
-            data: dataStr,
+            data: JSON.stringify(formVals),
             statusCode: {
               202: function() {
                 $.prompt(lg.permissions_recursive_submitted, {
