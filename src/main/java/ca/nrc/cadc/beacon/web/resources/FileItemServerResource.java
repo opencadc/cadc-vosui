@@ -101,8 +101,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class FileItemServerResource extends StorageItemServerResource
-{
+public class FileItemServerResource extends StorageItemServerResource {
+
     private static final int BUFFER_SIZE = 8192;
     private static final String UPLOAD_FILE_KEY = "upload";
 
@@ -111,15 +111,13 @@ public class FileItemServerResource extends StorageItemServerResource
 
 
     FileItemServerResource(final VOSpaceClient voSpaceClient, final UploadVerifier uploadVerifier,
-                           final FileValidator fileValidator)
-    {
+                           final FileValidator fileValidator) {
         super(voSpaceClient);
         this.uploadVerifier = uploadVerifier;
         this.fileValidator = fileValidator;
     }
 
-    public FileItemServerResource()
-    {
+    public FileItemServerResource() {
         this.uploadVerifier = new UploadVerifier();
         this.fileValidator = new RegexFileValidator();
     }
@@ -127,10 +125,8 @@ public class FileItemServerResource extends StorageItemServerResource
 
     @Post
     @Put
-    public void accept(final Representation payload) throws Exception
-    {
-        if ((payload != null) && MediaType.MULTIPART_FORM_DATA.equals(payload.getMediaType(), true))
-        {
+    public void accept(final Representation payload) throws Exception {
+        if ((payload != null) && MediaType.MULTIPART_FORM_DATA.equals(payload.getMediaType(), true)) {
             // The Apache FileUpload project parses HTTP requests which
             // conform to RFC 1867, "Form-based File Upload in HTML". That
             // is, if an HTTP request is submitted using the POST method,
@@ -142,52 +138,44 @@ public class FileItemServerResource extends StorageItemServerResource
             final ServletFileUpload upload = parseRepresentation();
             final FileItemIterator fileItemIterator = upload.getItemIterator(ServletUtils.getRequest(getRequest()));
 
-            if (!fileItemIterator.hasNext())
-            {
+            if (!fileItemIterator.hasNext()) {
                 // Some problem occurs, sent back a simple line of text.
                 uploadError(Status.CLIENT_ERROR_BAD_REQUEST,
                             "Unable to upload corrupted or incompatible data.");
-            }
-            else
-            {
+            } else {
                 upload(fileItemIterator);
             }
-        }
-        else
-        {
+        } else {
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             getResponse().setEntity("Nothing to upload or invalid data.", MediaType.TEXT_PLAIN);
         }
     }
 
-    protected void upload(final FileItemIterator fileItemIterator) throws Exception
-    {
+    /**
+     * Upload the given items from the iterator.
+     *
+     * @param fileItemIterator      Iterator of file items to upload.
+     * @throws Exception            Any errors during permission setting or uploading over the network.
+     */
+    protected void upload(final FileItemIterator fileItemIterator) throws Exception {
         boolean inheritParentPermissions = false;
         VOSURI newNodeURI = null;
 
-        try
-        {
-            while (fileItemIterator.hasNext())
-            {
+        try {
+            while (fileItemIterator.hasNext()) {
                 final FileItemStream nextFileItemStream = fileItemIterator.next();
 
-                if (nextFileItemStream.getFieldName().startsWith(UPLOAD_FILE_KEY))
-                {
+                if (nextFileItemStream.getFieldName().startsWith(UPLOAD_FILE_KEY)) {
                     newNodeURI = upload(nextFileItemStream);
-                }
-                else if (nextFileItemStream.getFieldName().equals("inheritPermissionsCheckBox"))
-                {
+                } else if (nextFileItemStream.getFieldName().equals("inheritPermissionsCheckBox")) {
                     inheritParentPermissions = true;
                 }
             }
-        }
-        catch (FileUploadException e)
-        {
+        } catch (FileUploadException e) {
             throw new IOException(e);
         }
 
-        if (inheritParentPermissions)
-        {
+        if (inheritParentPermissions) {
             setInheritedPermissions(newNodeURI);
         }
     }
@@ -197,14 +185,13 @@ public class FileItemServerResource extends StorageItemServerResource
      *
      * @param fileItemStream The upload file item stream.
      * @return The URI to the new node.
+     *
      * @throws IOException If anything goes wrong.
      */
-    VOSURI upload(final FileItemStream fileItemStream) throws Exception
-    {
+    VOSURI upload(final FileItemStream fileItemStream) throws Exception {
         final String filename = fileItemStream.getName();
 
-        if (fileValidator.validateFileName(filename))
-        {
+        if (fileValidator.validateFileName(filename)) {
             final String path = getCurrentItemURI().getPath() + "/" + filename;
             final DataNode dataNode = new DataNode(toURI(path));
 
@@ -217,15 +204,12 @@ public class FileItemServerResource extends StorageItemServerResource
 
             dataNode.setProperties(properties);
 
-            try (final InputStream inputStream = fileItemStream.openStream())
-            {
+            try (final InputStream inputStream = fileItemStream.openStream()) {
                 upload(inputStream, dataNode);
             }
 
             return dataNode.getUri();
-        }
-        else
-        {
+        } else {
             throw new ResourceException(new IllegalArgumentException(
                     String.format("Invalid file name: %s -- File name must match %s.", filename,
                                   fileValidator.getRule())));
@@ -238,58 +222,41 @@ public class FileItemServerResource extends StorageItemServerResource
      * @param inputStream The InputStream to pull from.
      * @param dataNode    The DataNode to upload to.
      */
-    protected void upload(final InputStream inputStream, final DataNode dataNode) throws Exception
-    {
+    protected void upload(final InputStream inputStream, final DataNode dataNode) throws Exception {
         final UploadOutputStreamWrapper outputStreamWrapper =
                 new UploadOutputStreamWrapperImpl(inputStream, BUFFER_SIZE);
 
-        try
-        {
+        try {
             // Due to a bug in VOSpace that returns a 400 while checking
             // for an existing Node, we will work around it by checking manually
             // rather than looking for a NodeNotFoundException as expected, and
             // return the 409 code, while maintaining backward compatibility with the catch below.
             // jenkinsd 2016.07.25
             getNode(dataNode.getUri(), VOS.Detail.min);
-        }
-        catch (ResourceException e)
-        {
-            if (e.getCause() instanceof NodeNotFoundException)
-            {
+        } catch (ResourceException e) {
+            if (e.getCause() instanceof NodeNotFoundException) {
                 createNode(dataNode);
-            }
-            else
-            {
+            } else {
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getCause());
             }
         }
 
-        try
-        {
-            executeSecurely(new PrivilegedExceptionAction<Object>()
-            {
+        try {
+            executeSecurely(new PrivilegedExceptionAction<Object>() {
                 @Override
-                public Object run() throws Exception
-                {
+                public Object run() throws Exception {
                     upload(outputStreamWrapper, dataNode);
                     return null;
                 }
             });
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             final String message;
 
-            if ((e.getCause() != null) && StringUtil.hasText(e.getCause().getMessage()))
-            {
+            if ((e.getCause() != null) && StringUtil.hasText(e.getCause().getMessage())) {
                 message = e.getCause().getMessage();
-            }
-            else if (StringUtil.hasText(e.getMessage()))
-            {
+            } else if (StringUtil.hasText(e.getMessage())) {
                 message = e.getMessage();
-            }
-            else
-            {
+            } else {
                 message = "Error during upload.";
             }
 
@@ -304,8 +271,7 @@ public class FileItemServerResource extends StorageItemServerResource
      * @param dataNode            The node to upload.
      * @throws Exception To capture transfer and upload failures.
      */
-    void upload(final UploadOutputStreamWrapper outputStreamWrapper, final DataNode dataNode) throws Exception
-    {
+    void upload(final UploadOutputStreamWrapper outputStreamWrapper, final DataNode dataNode) throws Exception {
         final RegistryClient registryClient = new RegistryClient();
         final URL baseURL = registryClient
                 .getServiceURL(dataNode.getUri().getServiceURI(), Standards.VOSPACE_TRANSFERS_20, AuthMethod.COOKIE);
@@ -333,10 +299,10 @@ public class FileItemServerResource extends StorageItemServerResource
      *
      * @return Map of field names to File Items, or empty Map.
      * Never null.
+     *
      * @throws Exception If the Upload could not be parsed.
      */
-    private ServletFileUpload parseRepresentation() throws Exception
-    {
+    private ServletFileUpload parseRepresentation() throws Exception {
         // 1/ Create a factory for disk-based file items
         final DiskFileItemFactory factory = new DiskFileItemFactory();
         factory.setSizeThreshold(1000240);
@@ -351,35 +317,28 @@ public class FileItemServerResource extends StorageItemServerResource
      * @param factory Factory used to create the upload.
      * @return RestletFileUpload instance.
      */
-    private ServletFileUpload createFileUpload(final DiskFileItemFactory factory)
-    {
+    private ServletFileUpload createFileUpload(final DiskFileItemFactory factory) {
         return new ServletFileUpload(factory);
     }
 
 
-    private void uploadError(final Status status, final String message)
-    {
+    private void uploadError(final Status status, final String message) {
         writeResponse(status,
-                      new JSONRepresentation()
-                      {
+                      new JSONRepresentation() {
                           @Override
                           public void write(final JSONWriter jsonWriter)
-                                  throws JSONException
-                          {
+                                  throws JSONException {
                               jsonWriter.object().key("error").value(message).endObject();
                           }
                       });
     }
 
-    private void uploadSuccess()
-    {
+    private void uploadSuccess() {
         writeResponse(Status.SUCCESS_CREATED,
-                      new JSONRepresentation()
-                      {
+                      new JSONRepresentation() {
                           @Override
                           public void write(final JSONWriter jsonWriter)
-                                  throws JSONException
-                          {
+                                  throws JSONException {
                               jsonWriter.object().key("code").value(0).endObject();
                           }
                       });

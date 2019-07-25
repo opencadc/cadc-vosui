@@ -116,7 +116,6 @@ public abstract class JSONRepresentation extends JsonRepresentation {
      * by the Restlet connectors automatically.
      *
      * @param writer The characters writer.
-     * @throws IOException
      */
     @Override
     public void write(final Writer writer) {
