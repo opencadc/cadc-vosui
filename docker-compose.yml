@@ -7,7 +7,7 @@ services:
     networks:
       - 'selenium'
   storage.canfar.net:
-    image: opencadc/storage
+    image: opencadc/storage:SNAPSHOT
     ports:
       - '8080:8080'
       - '5555:5555'
