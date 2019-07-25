@@ -190,6 +190,9 @@ public class UserStorageBrowserPage extends AbstractTestWebPage {
     public UserStorageBrowserPage(final WebDriver driver) throws Exception {
         super(driver);
 
+        // Waiting for three seconds is terrible, but I can't find a way to ensure the page is waiting to be reloaded.
+        waitFor(3000L);
+
         waitForElementPresent(NAVBAR_ELEMENTS_BY);
         waitForElementPresent(FOLDER_NAME_HEADER_BY);
         waitForElementVisible(FOLDER_NAME_HEADER_BY);
