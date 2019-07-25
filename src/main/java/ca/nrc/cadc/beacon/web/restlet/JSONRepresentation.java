@@ -78,15 +78,14 @@ import java.io.IOException;
 import java.io.Writer;
 
 
-public abstract class JSONRepresentation extends JsonRepresentation
-{
+public abstract class JSONRepresentation extends JsonRepresentation {
+
     /**
      * Constructor from a JSON object.
      *
      * @param jsonObject The JSON object.
      */
-    public JSONRepresentation(JSONObject jsonObject)
-    {
+    public JSONRepresentation(JSONObject jsonObject) {
         super(jsonObject);
     }
 
@@ -95,16 +94,14 @@ public abstract class JSONRepresentation extends JsonRepresentation
      *
      * @param mediaType The representation's mediaType.
      */
-    public JSONRepresentation(final MediaType mediaType)
-    {
+    public JSONRepresentation(final MediaType mediaType) {
         super(mediaType);
     }
 
     /**
      * Sensible empty constructor.
      */
-    public JSONRepresentation()
-    {
+    public JSONRepresentation() {
         this(MediaType.APPLICATION_JSON);
     }
 
@@ -122,8 +119,7 @@ public abstract class JSONRepresentation extends JsonRepresentation
      * @throws IOException
      */
     @Override
-    public void write(final Writer writer) throws IOException
-    {
+    public void write(final Writer writer) {
         final JSONWriter jsonWriter = new JSONWriter(writer);
         write(jsonWriter);
     }
@@ -137,9 +133,8 @@ public abstract class JSONRepresentation extends JsonRepresentation
      * given {@link java.io.Writer} after writing to it as this will be handled
      * by the Restlet connectors automatically.
      *
-     * @param jsonWriter        The JSONWriter to write to.
-     * @throws JSONException    Any JSON errors.
+     * @param jsonWriter The JSONWriter to write to.
+     * @throws JSONException Any JSON errors.
      */
-    public abstract void write(final JSONWriter jsonWriter)
-            throws JSONException;
+    public abstract void write(final JSONWriter jsonWriter) throws JSONException;
 }

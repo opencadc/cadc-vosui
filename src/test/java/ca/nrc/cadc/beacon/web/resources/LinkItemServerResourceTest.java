@@ -179,7 +179,7 @@ public class LinkItemServerResourceTest
 
     @Test
     public void resolve() throws Exception {
-        final String getNodeRequestQuery = "limit=-1";
+        final String getNodeRequestQuery = "limit=0";
         final Map<String, Object> attributes = new HashMap<>();
 
         attributes.put("path", "curr/dir/MY_LINK");
