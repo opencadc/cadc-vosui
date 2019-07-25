@@ -75,24 +75,21 @@ import ca.nrc.cadc.vos.NodeProperty;
 import ca.nrc.cadc.vos.VOS;
 
 
-public class UploadVerifier
-{
+public class UploadVerifier {
+
     /**
      * Verify that each byte is accounted for on the server side.
      *
      * @param byteCount The count of bytes.
      * @param node      The node to verify.
+     * @throws UploadVerificationFailedException Any upload error, such as bad filename.
      */
     public void verifyByteCount(final long byteCount, final Node node)
-            throws UploadVerificationFailedException
-    {
-        if (byteCount < 0)
-        {
+            throws UploadVerificationFailedException {
+        if (byteCount < 0) {
             throw new IllegalArgumentException(
                     "The given byte count cannot be a negative value.");
-        }
-        else if (node == null)
-        {
+        } else if (node == null) {
             throw new IllegalArgumentException(
                     "The given Node cannot be null.");
         }
@@ -102,10 +99,9 @@ public class UploadVerifier
         final long contentLength = contentLengthProperty == null
                                    ? 0L
                                    : Long.parseLong(
-                contentLengthProperty.getPropertyValue());
+                                           contentLengthProperty.getPropertyValue());
 
-        if (byteCount != contentLength)
-        {
+        if (byteCount != contentLength) {
             throw new UploadVerificationFailedException("** ERROR ** - Upload did not succeed: "
                                                         + String.format("File length counted [%d] does not "
                                                                         + "match what the service said it "
@@ -122,17 +118,14 @@ public class UploadVerifier
      *
      * @param calculatedMD5 The byte array of the calculated MD5.
      * @param node          The node to verify againts.
+     * @throws UploadVerificationFailedException Any upload error, such as bad filename.
      */
     public void verifyMD5(final byte[] calculatedMD5, final Node node)
-            throws UploadVerificationFailedException
-    {
-        if (calculatedMD5 == null)
-        {
+            throws UploadVerificationFailedException {
+        if (calculatedMD5 == null) {
             throw new IllegalArgumentException(
                     "The calculated MD5 cannot be null.");
-        }
-        else if (node == null)
-        {
+        } else if (node == null) {
             throw new IllegalArgumentException(
                     "The given Node cannot be null.");
         }
@@ -143,19 +136,15 @@ public class UploadVerifier
                                        ? null
                                        : MD5Property.getPropertyValue();
 
-        if (!StringUtil.hasLength(serverMD5String))
-        {
+        if (!StringUtil.hasLength(serverMD5String)) {
             throw new UploadVerificationFailedException("** ERROR YOUR UPLOAD DID NOT SUCCEED ** "
                                                         + "MD5 checksum was not produced by "
                                                         + "service!  This was not expected, please "
                                                         + "contact canfarhelp@nrc-cnrc.gc.ca for "
                                                         + "assistance.");
-        }
-        else
-        {
+        } else {
             if (!ca.nrc.cadc.util.HexUtil.toHex(calculatedMD5).equals(
-                    serverMD5String))
-            {
+                    serverMD5String)) {
                 throw new UploadVerificationFailedException(
                         "** ERROR ** - Upload did not succeed: "
                         + "MD5 checksum failed.");

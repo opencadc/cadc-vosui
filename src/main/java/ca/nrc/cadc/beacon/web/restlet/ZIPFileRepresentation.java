@@ -84,21 +84,23 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * Represent a ZIP file output stream for a series of files and folders to download.
- *
  * CURRENTLY NOT USED, BUT HERE FOR PERSERVATION
  * jenkinsd 2017.04.25
  */
-public class ZIPFileRepresentation extends AbstractAuthOutputRepresentation
-{
+public class ZIPFileRepresentation extends AbstractAuthOutputRepresentation {
+
     private final Iterator<DownloadDescriptor> downloadDescriptorIterator;
     private final Subject currentUser;
 
+
     /**
-     * Constructor.
+     * Full constructor.
+     *
+     * @param currentUser                   The currently authenticated user.
+     * @param downloadDescriptorIterator    Iterator for Download items.
      */
     public ZIPFileRepresentation(final Subject currentUser,
-                                 final Iterator<DownloadDescriptor> downloadDescriptorIterator)
-    {
+                                 final Iterator<DownloadDescriptor> downloadDescriptorIterator) {
         super(MediaType.APPLICATION_ZIP);
 
         this.currentUser = currentUser;
@@ -106,22 +108,23 @@ public class ZIPFileRepresentation extends AbstractAuthOutputRepresentation
     }
 
 
+    /**
+     * Write out the files to the given stream.
+     *
+     * @param outputStream      The OutputStream to write to.
+     * @throws IOException      Any writing errors.
+     */
     @Override
-    public void write(final OutputStream outputStream) throws IOException
-    {
+    public void write(final OutputStream outputStream) throws IOException {
         final ZipOutputStream zos = new ZipOutputStream(outputStream);
 
-        while (downloadDescriptorIterator.hasNext())
-        {
+        while (downloadDescriptorIterator.hasNext()) {
             final DownloadDescriptor downloadDescriptor = downloadDescriptorIterator.next();
-            if (downloadDescriptor.url != null)
-            {
+            if (downloadDescriptor.url != null) {
                 final InputStreamWrapper inputStreamWrapper =
-                        new InputStreamWrapper()
-                        {
+                        new InputStreamWrapper() {
                             @Override
-                            public void read(final InputStream inputStream) throws IOException
-                            {
+                            public void read(final InputStream inputStream) throws IOException {
                                 int length;
 
                                 // create byte buffer
@@ -132,8 +135,7 @@ public class ZIPFileRepresentation extends AbstractAuthOutputRepresentation
                                 // data.
                                 zos.putNextEntry(new ZipEntry(downloadDescriptor.destination));
 
-                                while ((length = inputStream.read(buffer)) > 0)
-                                {
+                                while ((length = inputStream.read(buffer)) > 0) {
                                     zos.write(buffer, 0, length);
                                 }
 
