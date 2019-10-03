@@ -68,7 +68,7 @@
 
 package ca.nrc.cadc.beacon.web.view;
 
-import ca.nrc.cadc.ac.GroupURI;
+import org.opencadc.gms.GroupURI;
 import ca.nrc.cadc.beacon.FileSizeRepresentation;
 import ca.nrc.cadc.date.DateUtil;
 import ca.nrc.cadc.vos.VOSURI;

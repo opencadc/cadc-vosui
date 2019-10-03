@@ -1,6 +1,6 @@
 package ca.nrc.cadc.beacon.web.view;
 
-import ca.nrc.cadc.ac.GroupURI;
+import org.opencadc.gms.GroupURI;
 import ca.nrc.cadc.vos.VOSURI;
 
 import java.net.URI;
