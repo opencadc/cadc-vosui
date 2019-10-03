@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.opencadc:cadc-vosui:[1.1.39,)'
+    compile 'org.opencadc:cadc-vosui:[1.1.40,)'
 
     testCompile 'junit:junit:4.+'
     testCompile 'org.opencadc:cadc-web-test:[2.1.1,)'
