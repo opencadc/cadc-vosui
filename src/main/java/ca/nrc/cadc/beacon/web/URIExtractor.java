@@ -68,7 +68,7 @@
 
 package ca.nrc.cadc.beacon.web;
 
-import ca.nrc.cadc.ac.GroupURI;
+import org.opencadc.gms.GroupURI;
 import ca.nrc.cadc.util.StringUtil;
 
 

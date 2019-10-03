@@ -68,7 +68,7 @@
 
 package ca.nrc.cadc.beacon.web;
 
-import ca.nrc.cadc.ac.GroupURI;
+import org.opencadc.gms.GroupURI;
 import ca.nrc.cadc.auth.AuthMethod;
 import ca.nrc.cadc.auth.AuthenticationUtil;
 import ca.nrc.cadc.beacon.web.view.*;
