@@ -1596,7 +1596,7 @@ function fileManager(
       '<div class="col-sm-4" >' +
       '</div>' +
       '<div class="col-sm-7 prompt-link">' +
-      '<a href="https://www.canfar.phys.uvic.ca/canfar/groups" target="_blank">Manage Groups</a>' +
+      '<a href="https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/groups/" target="_blank">Manage Groups</a>' +
       '<input type="text" class="hidden" name="itemPath" id="itemPath" value="' +
       promptData.data('path') +
       '">' +
