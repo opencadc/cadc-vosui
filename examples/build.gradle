@@ -43,7 +43,7 @@ sourceSets {
 
 configurations {
     intTestCompile
-    intTestCompile.extendsFrom(testCompile)
+    intTestCompile.extendsFrom(testImplementation)
 }
 
 idea {
