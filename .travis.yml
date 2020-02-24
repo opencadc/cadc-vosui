@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - jdk_switcher use oraclejdk8
+  - openjdk11
 sudo: required
 services:
   - docker
