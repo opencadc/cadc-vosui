@@ -55,7 +55,7 @@ idea {
 
 ['firefox', 'chrome'].each { driver ->
     task "intTest${driver.capitalize()}"(type: Test) { driverTest ->
-        testClassesDir = sourceSets.intTest.output.classesDir
+        testClassesDirs = sourceSets.intTest.output.classesDirs
         classpath = sourceSets.intTest.runtimeClasspath
         reports {
             html.destination = reporting.file("$name/html")
