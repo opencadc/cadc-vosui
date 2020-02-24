@@ -16,44 +16,17 @@ repositories {
 }
 
 dependencies {
-    compile 'org.opencadc:cadc-vosui:[1.1.41,)'
+    compile 'org.opencadc:cadc-vosui:1.1.42'
 
-    testCompile 'junit:junit:4.+'
+    testCompile 'junit:junit:[4.12,5.0)'
     testCompile 'org.opencadc:cadc-web-test:[2.1.1,)'
-    testCompile 'org.seleniumhq.selenium:selenium-java:3.+'
+    testCompile 'org.seleniumhq.selenium:selenium-java:3.14'
 }
 
-sourceCompatibility = '1.7'
-
-def docker_image_name = 'opencadc/storage'
+sourceCompatibility = '1.8'
 
 war {
     archiveName 'storage.war'
-}
-
-clean {
-    doFirst {
-        exec {
-            executable 'rm'
-            args = ['-rf', './docker']
-        }
-    }
-}
-
-task initDockerize(type: Copy, dependsOn: build) {
-    from 'Dockerfile'
-    from 'LocalAuthority.properties'
-    into 'docker/'
-}
-
-task copyWAR(type: Copy, dependsOn: war) {
-    from 'build/libs/'
-    into 'docker/'
-    include '*.war'
-}
-
-task dockerize(type: Exec, dependsOn: [initDockerize, copyWAR]) {
-    commandLine 'docker', 'build', '-t', docker_image_name, '-f', './docker/Dockerfile', './docker/'
 }
 
 ext {

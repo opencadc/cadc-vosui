@@ -1,4 +1,4 @@
-FROM opencadc/tomcat:8.5-alpine
+FROM opencadc/tomcat:8.5-jdk11-slim
 
 COPY LocalAuthority.properties /root/config/
 COPY build/libs/*.war webapps/
