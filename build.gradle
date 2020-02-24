@@ -25,8 +25,7 @@ dependencies {
     implementation 'org.restlet.jee:org.restlet.ext.freemarker:2.3.12'
     implementation 'org.restlet.jee:org.restlet.ext.json:2.3.12'
     implementation 'commons-fileupload:commons-fileupload:[1.4,)'
-    implementation 'org.apache.commons:commons-configuration2:2.3'
-
+    implementation 'org.apache.commons:commons-configuration2:[2.3,)'
     implementation 'org.opencadc:cadc-web-util:[1.2.4,)'
     implementation 'org.opencadc:cadc-util:[1.2.16,)'
     implementation 'org.opencadc:cadc-registry:[1.5.3,)'
