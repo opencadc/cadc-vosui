@@ -5,7 +5,7 @@
 
 By default, this uses the CANFAR (CADC) VOSpace located at:
 
-<a rel="external" href="https://www.canfar.phys.uvic.ca/vault">https://www.canfar.phys.uvic.ca/vault</a>
+<a rel="external" href="https://ws-cadc.canfar.net/vault">https://ws-cadc.canfar.net/vault</a>
 
 A fully functional UI is deployed at:
 <a rel="external" href="http://www.canfar.net/storage/list">http://www.canfar.net/storage/list/</a>
