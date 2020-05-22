@@ -153,7 +153,7 @@ public class StorageApplication extends Application {
         context.getAttributes().put(ACCESS_CONTROL_CLIENT_KEY, createAccessControlClient());
         context.getAttributes().put(GMS_SERVICE_PROPERTY_KEY, createGMSClient());
         context.getAttributes().put(VOSPACE_SERVICE_ID_KEY, URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY,
-                                                                                               CAVERN_SERVICE_ID)));
+                                                                                               DEFAULT_SERVICE_ID)));
         context.getAttributes().put(FREEMARKER_CONFIG_KEY, createFreemarkerConfig());
         context.getAttributes().put(FILES_META_SERVICE_SERVICE_ID_KEY,
                                     URI.create(configuration.getString(FILES_META_SERVICE_SERVICE_ID_KEY,
@@ -211,7 +211,7 @@ public class StorageApplication extends Application {
     }
 
     private VOSpaceClient createVOSpaceClient() {
-        return new VOSpaceClient(URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY, CAVERN_SERVICE_ID)));
+        return new VOSpaceClient(URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY, DEFAULT_SERVICE_ID)));
     }
 
     private RegistryClient createRegistryClient() {
