@@ -104,8 +104,8 @@ public class FileItemServerResourceTest extends AbstractServerResourceTest<FileI
     @Test
     public void uploadFileItem() throws Exception {
         final Map<String, Object> requestAttributes = new HashMap<>();
-        final VOSURI parentURI = new VOSURI(URI.create("vos://cadc.nrc.ca!vospace/parent/sub"));
-        final VOSURI expectedURI = new VOSURI(URI.create("vos://cadc.nrc.ca!vospace/parent/sub/MYUPLOADFILE.txt"));
+        final VOSURI parentURI = new VOSURI(URI.create("vos://cadc.nrc.ca!vault/parent/sub"));
+        final VOSURI expectedURI = new VOSURI(URI.create("vos://cadc.nrc.ca!vault/parent/sub/MYUPLOADFILE.txt"));
         final DataNode expectedDataNode = new DataNode(expectedURI);
         final String data = "MYUPLOADDATA";
         final byte[] dataBytes = data.getBytes();

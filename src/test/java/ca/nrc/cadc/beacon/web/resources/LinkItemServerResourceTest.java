@@ -187,7 +187,7 @@ public class LinkItemServerResourceTest
         expect(mockServletContext.getContextPath())
             .andReturn("/servletpath").once();
 
-        final URI target = URI.create("vos://cadc.nrc.ca!vospace/other/dir/my/dir");
+        final URI target = URI.create("vos://cadc.nrc.ca!vault/other/dir/my/dir");
         final LinkNode linkNode =
             new LinkNode(new VOSURI(URI.create(
                 StorageItemServerResource.VOSPACE_NODE_URI_PREFIX

@@ -106,7 +106,8 @@ public class StorageApplication extends Application {
     public static final String FREEMARKER_CONFIG_KEY = "org.opencadc.vospace.freemarker-config";
     public static final String SERVLET_CONTEXT_ATTRIBUTE_KEY = "org.restlet.ext.servlet.ServletContext";
     public static final String DEFAULT_CONTEXT_PATH = "/storage/";
-    private static final String DEFAULT_SERVICE_ID = "ivo://cadc.nrc.ca/vospace";
+    private static final String DEFAULT_SERVICE_ID = "ivo://cadc.nrc.ca/vault";
+    private static final String CAVERN_SERVICE_ID = "ivo://canfar.net/cavern";
     private static final String DEFAULT_GMS_SERVICE_ID = "ivo://cadc.nrc.ca/gms";
     public static final String GMS_SERVICE_PROPERTY_KEY = "org.opencadc.gms.service_id";
 
@@ -152,7 +153,7 @@ public class StorageApplication extends Application {
         context.getAttributes().put(ACCESS_CONTROL_CLIENT_KEY, createAccessControlClient());
         context.getAttributes().put(GMS_SERVICE_PROPERTY_KEY, createGMSClient());
         context.getAttributes().put(VOSPACE_SERVICE_ID_KEY, URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY,
-                                                                                               DEFAULT_SERVICE_ID)));
+                                                                                               CAVERN_SERVICE_ID)));
         context.getAttributes().put(FREEMARKER_CONFIG_KEY, createFreemarkerConfig());
         context.getAttributes().put(FILES_META_SERVICE_SERVICE_ID_KEY,
                                     URI.create(configuration.getString(FILES_META_SERVICE_SERVICE_ID_KEY,
@@ -210,7 +211,7 @@ public class StorageApplication extends Application {
     }
 
     private VOSpaceClient createVOSpaceClient() {
-        return new VOSpaceClient(URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY, DEFAULT_SERVICE_ID)));
+        return new VOSpaceClient(URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY, CAVERN_SERVICE_ID)));
     }
 
     private RegistryClient createRegistryClient() {
