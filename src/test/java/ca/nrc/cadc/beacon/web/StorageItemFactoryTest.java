@@ -94,7 +94,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
         final RegistryClient mockRegistryClient = Mockito.mock(RegistryClient.class);
         final DataNode mockDataNode = Mockito.mock(DataNode.class);
         final String contextPath = "/warehouse";
-        final VOSURI vosuri = new VOSURI(URI.create("vos://cadc.nrc.ca~vospace/myroot/path/file.txt"));
+        final VOSURI vosuri = new VOSURI(URI.create("vos://cadc.nrc.ca~vault/myroot/path/file.txt"));
         final String writeGroupURIs = "ivo://cadc.nrc.ca/gms/mygroups?GROUP1";
         final String readGroupURIs = "ivo://cadc.nrc.ca/gms/mygroups?GROUP2 ivo://cadc.nrc.ca/gms/mygroups?GROUP3";
         final URL serviceURL = new URL("https://www.site.com/myservice");
@@ -136,7 +136,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
         final RegistryClient mockRegistryClient = Mockito.mock(RegistryClient.class);
         final DataNode mockDataNode = Mockito.mock(DataNode.class);
         final String contextPath = "/warehouse";
-        final VOSURI vosuri = new VOSURI(URI.create("vos://cadc.nrc.ca~vospace/myroot/path/file.txt"));
+        final VOSURI vosuri = new VOSURI(URI.create("vos://cadc.nrc.ca~vault/myroot/path/file.txt"));
         final String writeGroupURIs = "ivo://cadc.nrc.ca/gms/mygroups?GROUP1";
         final String readGroupURIs = "ivo://cadc.nrc.ca/gms/mygroups?GROUP2 ivo://cadc.nrc.ca/gms/mygroups?GROUP3";
         final URL serviceURL = new URL("https://www.oldsite.com/oldservice");
@@ -162,7 +162,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
         final StorageItem storageItemResult = testSubject.translate(mockDataNode);
         Assert.assertEquals("Wrong target URL.",
                             "https://www.oldsite.com/oldservice?target=vos%3A%2F%2Fcadc.nrc" +
-                                ".ca%7Evospace%2Fmyroot%2Fpath%2Ffile" +
+                                ".ca%7Evault%2Fmyroot%2Fpath%2Ffile" +
                                 ".txt&direction=pullFromVoSpace&protocol=ivo%3A%2F%2Fivoa" +
                                 ".net%2Fvospace%2Fcore%23httpget/vault/myroot/path/file.txt",
                             storageItemResult.getTargetURL());
@@ -184,7 +184,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
         final RegistryClient mockRegistryClient = Mockito.mock(RegistryClient.class);
         final DataNode mockDataNode = Mockito.mock(DataNode.class);
         final String contextPath = "/warehouse";
-        final VOSURI vosuri = new VOSURI(URI.create("vos://cadc.nrc.ca~vospace/myroot/path/file.txt"));
+        final VOSURI vosuri = new VOSURI(URI.create("vos://cadc.nrc.ca~vault/myroot/path/file.txt"));
         final URL serviceURL = new URL("https://www.oldsite.com/oldservice");
 
         Mockito.when(mockDataNode.getPropertyValue(VOS.PROPERTY_URI_GROUPWRITE)).thenReturn("");
@@ -208,7 +208,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
         final StorageItem storageItemResult = testSubject.translate(mockDataNode);
         Assert.assertEquals("Wrong target URL.",
                             "https://www.oldsite.com/oldservice?target=vos%3A%2F%2Fcadc.nrc" +
-                                ".ca%7Evospace%2Fmyroot%2Fpath%2Ffile" +
+                                ".ca%7Evault%2Fmyroot%2Fpath%2Ffile" +
                                 ".txt&direction=pullFromVoSpace&protocol=ivo%3A%2F%2Fivoa" +
                                 ".net%2Fvospace%2Fcore%23httpget/vault/myroot/path/file.txt",
                             storageItemResult.getTargetURL());

@@ -97,7 +97,7 @@ import java.util.Set;
 
 
 public class StorageItemServerResource extends SecureServerResource {
-    static final String VOSPACE_NODE_URI_PREFIX = "vos://cadc.nrc.ca!vospace";
+    static final String VOSPACE_NODE_URI_PREFIX = "vos://cadc.nrc.ca!vault";
     static final String IVO_GMS_PROPERTY_PREFIX = "ivo://cadc.nrc.ca/gms#";
 
 

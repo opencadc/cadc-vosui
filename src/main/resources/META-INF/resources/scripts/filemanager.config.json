@@ -71,7 +71,7 @@
         ]
     },
     "download": {
-        "vos_prefix": "vos://cadc.nrc.ca~vospace",
+        "vos_prefix": "vos://cadc.nrc.ca~vault",
         "connector": "batch-download",
         "methods": {
             "download-url-list": {
@@ -175,5 +175,5 @@
     },
     "url": "https://github.com/simogeo/Filemanager",
     "version": "2.4.0",
-    "vos_prefix": "vos://cadc.nrc.ca~vospace"
+    "vos_prefix": "vos://cadc.nrc.ca~vault"
 }

@@ -89,7 +89,7 @@ public class StorageItemTest
     @Test
     public void testGetOwnerCN() throws Exception
     {
-        final VOSURI testURI = new VOSURI(URI.create("vos://cadc.nrc.ca!vospace/my/node"));
+        final VOSURI testURI = new VOSURI(URI.create("vos://cadc.nrc.ca!vault/my/node"));
 
         StorageItem item1 = new StorageItem(testURI, hashCode(), new Date(),
                         false, false, null, null, "CN=testOwner_1234,OU=ou1,OU=ou2",

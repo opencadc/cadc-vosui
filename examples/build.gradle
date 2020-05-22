@@ -16,44 +16,18 @@ repositories {
 }
 
 dependencies {
-    compile 'org.opencadc:cadc-vosui:[1.1.41,)'
+    implementation 'org.opencadc:cadc-vosui:1.1.43'
 
-    testCompile 'junit:junit:4.+'
-    testCompile 'org.opencadc:cadc-web-test:[2.1.1,)'
-    testCompile 'org.seleniumhq.selenium:selenium-java:3.+'
+    testImplementation 'junit:junit:[4.12,5.0)'
+    testImplementation 'org.apache.commons:commons-lang3:[3.9,4.0)'
+    testImplementation 'org.opencadc:cadc-web-test:[2.1.1,)'
+    testImplementation 'org.seleniumhq.selenium:selenium-java:3.14'
 }
 
-sourceCompatibility = '1.7'
-
-def docker_image_name = 'opencadc/storage'
+sourceCompatibility = '1.8'
 
 war {
     archiveName 'storage.war'
-}
-
-clean {
-    doFirst {
-        exec {
-            executable 'rm'
-            args = ['-rf', './docker']
-        }
-    }
-}
-
-task initDockerize(type: Copy, dependsOn: build) {
-    from 'Dockerfile'
-    from 'LocalAuthority.properties'
-    into 'docker/'
-}
-
-task copyWAR(type: Copy, dependsOn: war) {
-    from 'build/libs/'
-    into 'docker/'
-    include '*.war'
-}
-
-task dockerize(type: Exec, dependsOn: [initDockerize, copyWAR]) {
-    commandLine 'docker', 'build', '-t', docker_image_name, '-f', './docker/Dockerfile', './docker/'
 }
 
 ext {
@@ -69,7 +43,7 @@ sourceSets {
 
 configurations {
     intTestCompile
-    intTestCompile.extendsFrom(testCompile)
+    intTestCompile.extendsFrom(testImplementation)
 }
 
 idea {
@@ -82,7 +56,7 @@ idea {
 
 ['firefox', 'chrome'].each { driver ->
     task "intTest${driver.capitalize()}"(type: Test) { driverTest ->
-        testClassesDir = sourceSets.intTest.output.classesDir
+        testClassesDirs = sourceSets.intTest.output.classesDirs
         classpath = sourceSets.intTest.runtimeClasspath
         reports {
             html.destination = reporting.file("$name/html")

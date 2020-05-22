@@ -207,7 +207,7 @@ public class StorageItemFactory {
 
         final Subject currentAuthenticatedUser = AuthenticationUtil.getCurrentSubject();
         final Set<Principal> principals = (currentAuthenticatedUser == null)
-            ? new HashSet<Principal>() : currentAuthenticatedUser.getPrincipals();
+            ? new HashSet<>() : currentAuthenticatedUser.getPrincipals();
         final boolean writableFlag;
         final VOSURI parentURI = node.getUri().getParentURI();
 
