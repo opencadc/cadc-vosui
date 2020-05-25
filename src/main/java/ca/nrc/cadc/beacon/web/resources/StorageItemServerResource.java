@@ -72,6 +72,7 @@ import ca.nrc.cadc.beacon.web.StorageItemFactory;
 import ca.nrc.cadc.beacon.web.URIExtractor;
 import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
 import ca.nrc.cadc.beacon.web.view.StorageItem;
+import ca.nrc.cadc.net.ResourceNotFoundException;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.vos.client.ClientRecursiveSetNode;
@@ -97,6 +98,7 @@ import java.util.Set;
 
 
 public class StorageItemServerResource extends SecureServerResource {
+
     static final String VOSPACE_NODE_URI_PREFIX = "vos://cadc.nrc.ca!vault";
     static final String IVO_GMS_PROPERTY_PREFIX = "ivo://cadc.nrc.ca/gms#";
 
@@ -141,11 +143,11 @@ public class StorageItemServerResource extends SecureServerResource {
     private void initialize(final VOSpaceClient voSpaceClient) {
         final URI filesMetaServiceID = getContextAttribute(StorageApplication.FILES_META_SERVICE_SERVICE_ID_KEY);
         final URI filesMetaServiceStandardID =
-            getContextAttribute(StorageApplication.FILES_META_SERVICE_STANDARD_ID_KEY);
+                getContextAttribute(StorageApplication.FILES_META_SERVICE_STANDARD_ID_KEY);
         this.storageItemFactory = new StorageItemFactory(URI_EXTRACTOR, getRegistryClient(),
                                                          (getServletContext() == null)
-                                                             ? StorageApplication.DEFAULT_CONTEXT_PATH
-                                                             : getServletContext().getContextPath(),
+                                                         ? StorageApplication.DEFAULT_CONTEXT_PATH
+                                                         : getServletContext().getContextPath(),
                                                          filesMetaServiceID, filesMetaServiceStandardID);
 
         this.voSpaceClient = voSpaceClient;
@@ -177,31 +179,38 @@ public class StorageItemServerResource extends SecureServerResource {
      * @param uri URI to look up.
      * @param <T> Type to translate to.
      * @return Translated Node to StorageItem.
+     *
      * @throws IOException For any problems.
      */
     @SuppressWarnings("unchecked")
-    final <T extends StorageItem> T getStorageItem(final URI uri)
-        throws IOException {
+    final <T extends StorageItem> T getStorageItem(final URI uri) throws IOException {
         try {
             return (T) storageItemFactory.translate(getNode(new VOSURI(uri),
                                                             VOS.Detail.max));
         } catch (ResourceException re) {
-            if (re.getCause() instanceof NodeNotFoundException) {
+            final Throwable cause = re.getCause();
+            if (cause instanceof IllegalStateException) {
+                final Throwable illegalStateCause = cause.getCause();
+                if ((illegalStateCause instanceof NodeNotFoundException)
+                    || (illegalStateCause instanceof ResourceNotFoundException)) {
+                    throw new FileNotFoundException(re.getMessage());
+                } else {
+                    throw new ResourceException(re);
+                }
+            } else if ((cause instanceof NodeNotFoundException) || (cause instanceof ResourceNotFoundException)) {
                 throw new FileNotFoundException(re.getMessage());
             } else {
                 throw new ResourceException(re);
             }
-
         }
-
     }
 
     <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail, final int limit)
-        throws ResourceException {
+            throws ResourceException {
         final String query = "limit=" + limit + ((detail == null)
-            ? ""
-            : "&detail="
-            + detail.name());
+                                                 ? ""
+                                                 : "&detail="
+                                                   + detail.name());
 
         try {
             return executeSecurely(new PrivilegedExceptionAction<T>() {
@@ -230,8 +239,7 @@ public class StorageItemServerResource extends SecureServerResource {
         }
     }
 
-    <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail)
-        throws ResourceException {
+    <T extends Node> T getNode(final VOSURI folderURI, final VOS.Detail detail) throws ResourceException {
         final int pageSize;
 
         if ((detail == VOS.Detail.max) || (detail == VOS.Detail.raw)) {
@@ -300,6 +308,7 @@ public class StorageItemServerResource extends SecureServerResource {
      *
      * @param linkNode The LinkNode to resolve.
      * @return URI of the target.
+     *
      * @throws NodeNotFoundException If the target is not found.
      */
     private URI resolveLink(final LinkNode linkNode) throws NodeNotFoundException {
@@ -456,7 +465,7 @@ public class StorageItemServerResource extends SecureServerResource {
 
         if (keySet.contains("readGroup")) {
             final String parameterValue =
-                StringUtil.hasLength((String) jsonObject.get("readGroup"))
+                    StringUtil.hasLength((String) jsonObject.get("readGroup"))
                     ? IVO_GMS_PROPERTY_PREFIX + jsonObject.get("readGroup")
                     : "";
 
@@ -469,7 +478,7 @@ public class StorageItemServerResource extends SecureServerResource {
 
         if (keySet.contains("writeGroup")) {
             final String parameterValue =
-                StringUtil.hasLength((String) jsonObject.get("writeGroup"))
+                    StringUtil.hasLength((String) jsonObject.get("writeGroup"))
                     ? IVO_GMS_PROPERTY_PREFIX + jsonObject.get("writeGroup")
                     : "";
 

@@ -70,6 +70,7 @@ package ca.nrc.cadc.beacon.web.restlet;
 
 
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
+import ca.nrc.cadc.net.ResourceNotFoundException;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 import org.restlet.Context;
@@ -92,18 +93,14 @@ import java.util.Map;
 /**
  * Translate Exceptions into HTTP Statuses.
  */
-public class VOSpaceStatusService extends StatusService
-{
+public class VOSpaceStatusService extends StatusService {
+
     @Override
-    public Representation toRepresentation(final Status status, final Request request, final Response response)
-    {
-        if (status.getCode() == Status.CLIENT_ERROR_BAD_REQUEST.getCode())
-        {
+    public Representation toRepresentation(final Status status, final Request request, final Response response) {
+        if (status.getCode() == Status.CLIENT_ERROR_BAD_REQUEST.getCode()) {
             response.setStatus(status);
             return new StringRepresentation(status.getReasonPhrase(), MediaType.TEXT_PLAIN);
-        }
-        else
-        {
+        } else {
             final Map<String, Object> dataModel = new HashMap<>();
             final Context curContext = getContext();
 
@@ -118,7 +115,7 @@ public class VOSpaceStatusService extends StatusService
 
             return new TemplateRepresentation("error.ftl",
                                               (FreeMarkerConfiguration) curContext.getAttributes()
-                                                      .get(StorageApplication.FREEMARKER_CONFIG_KEY),
+                                                                                  .get(StorageApplication.FREEMARKER_CONFIG_KEY),
                                               dataModel, MediaType.TEXT_HTML);
         }
     }
@@ -133,42 +130,31 @@ public class VOSpaceStatusService extends StatusService
      * @return The representation of the given status.
      */
     @Override
-    public Status toStatus(final Throwable throwable, final Request request, final Response response)
-    {
+    public Status toStatus(final Throwable throwable, final Request request, final Response response) {
         final Status status;
 
-        if (throwable instanceof ResourceException)
-        {
+        if ((throwable instanceof IllegalStateException) && throwable.getCause() != null) {
+            status = toStatus(throwable.getCause(), request, response);
+        } else if (throwable instanceof ResourceException) {
             final Throwable cause = throwable.getCause();
             status = (cause == null)
                      ? super.toStatus(throwable, request, response) : toStatus(cause, request, response);
-        }
-        else if (throwable instanceof IllegalArgumentException)
-        {
+        } else if (throwable instanceof IllegalArgumentException) {
             status = new Status(Status.CLIENT_ERROR_BAD_REQUEST.getCode(), throwable.getMessage(),
                                 throwable.getMessage());
-        }
-        else if ((throwable instanceof FileNotFoundException) || (throwable instanceof NodeNotFoundException))
-        {
+        } else if ((throwable instanceof FileNotFoundException) || (throwable instanceof NodeNotFoundException)
+                   || (throwable instanceof ResourceNotFoundException)) {
             status = Status.CLIENT_ERROR_NOT_FOUND;
-        }
-        else if (throwable instanceof AccessControlException)
-        {
+        } else if (throwable instanceof AccessControlException) {
             status = Status.CLIENT_ERROR_UNAUTHORIZED;
-        }
-        else if (throwable instanceof NodeAlreadyExistsException)
-        {
+        } else if (throwable instanceof NodeAlreadyExistsException) {
             status = Status.CLIENT_ERROR_CONFLICT;
-        }
-        else if (StringUtil.hasText(throwable.getMessage()))
-        {
+        } else if (StringUtil.hasText(throwable.getMessage())) {
             final String message = throwable.getMessage();
 
             status = (message.contains("(409)"))
                      ? Status.CLIENT_ERROR_CONFLICT : super.toStatus(throwable, request, response);
-        }
-        else
-        {
+        } else {
             status = super.toStatus(throwable, request, response);
         }
 
