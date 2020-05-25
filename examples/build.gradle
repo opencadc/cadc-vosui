@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.opencadc:cadc-vosui:1.1.43'
+    implementation 'org.opencadc:cadc-vosui:1.1.44'
 
     testImplementation 'junit:junit:[4.12,5.0)'
     testImplementation 'org.apache.commons:commons-lang3:[3.9,4.0)'

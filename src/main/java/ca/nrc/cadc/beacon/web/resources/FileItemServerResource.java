@@ -71,6 +71,7 @@ package ca.nrc.cadc.beacon.web.resources;
 import ca.nrc.cadc.auth.AuthMethod;
 import ca.nrc.cadc.beacon.web.*;
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
+import ca.nrc.cadc.net.ResourceNotFoundException;
 import ca.nrc.cadc.reg.Standards;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.util.StringUtil;
@@ -154,8 +155,8 @@ public class FileItemServerResource extends StorageItemServerResource {
     /**
      * Upload the given items from the iterator.
      *
-     * @param fileItemIterator      Iterator of file items to upload.
-     * @throws Exception            Any errors during permission setting or uploading over the network.
+     * @param fileItemIterator Iterator of file items to upload.
+     * @throws Exception Any errors during permission setting or uploading over the network.
      */
     protected void upload(final FileItemIterator fileItemIterator) throws Exception {
         boolean inheritParentPermissions = false;
@@ -234,7 +235,16 @@ public class FileItemServerResource extends StorageItemServerResource {
             // jenkinsd 2016.07.25
             getNode(dataNode.getUri(), VOS.Detail.min);
         } catch (ResourceException e) {
-            if (e.getCause() instanceof NodeNotFoundException) {
+            final Throwable cause = e.getCause();
+            if (cause instanceof IllegalStateException) {
+                final Throwable illegalStateCause = cause.getCause();
+                if ((illegalStateCause instanceof NodeNotFoundException)
+                    || (illegalStateCause instanceof ResourceNotFoundException)) {
+                    createNode(dataNode);
+                } else {
+                    throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getCause());
+                }
+            } else if ((cause instanceof NodeNotFoundException) || (cause instanceof ResourceNotFoundException)) {
                 createNode(dataNode);
             } else {
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e.getCause());
@@ -242,12 +252,9 @@ public class FileItemServerResource extends StorageItemServerResource {
         }
 
         try {
-            executeSecurely(new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() throws Exception {
-                    upload(outputStreamWrapper, dataNode);
-                    return null;
-                }
+            executeSecurely(() -> {
+                upload(outputStreamWrapper, dataNode);
+                return null;
             });
         } catch (Exception e) {
             final String message;
@@ -274,7 +281,8 @@ public class FileItemServerResource extends StorageItemServerResource {
     void upload(final UploadOutputStreamWrapper outputStreamWrapper, final DataNode dataNode) throws Exception {
         final RegistryClient registryClient = new RegistryClient();
         final URL baseURL = registryClient
-                .getServiceURL(dataNode.getUri().getServiceURI(), Standards.VOSPACE_TRANSFERS_20, AuthMethod.COOKIE);
+                                    .getServiceURL(dataNode.getUri().getServiceURI(), Standards.VOSPACE_TRANSFERS_20,
+                                                   AuthMethod.COOKIE);
         final List<Protocol> protocols = new ArrayList<>();
         protocols.add(new Protocol(VOS.PROTOCOL_HTTP_PUT, baseURL.toString(), null));
         final Transfer transfer = new Transfer(dataNode.getUri().getURI(), Direction.pushToVoSpace,

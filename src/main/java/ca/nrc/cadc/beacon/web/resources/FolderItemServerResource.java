@@ -174,17 +174,14 @@ public class FolderItemServerResource extends StorageItemServerResource {
 
         try {
             Subject.doAs(generateVOSpaceUser(),
-                         new PrivilegedExceptionAction<Void>() {
-                             @Override
-                             public Void run() throws Exception {
-                                 final ClientTransfer clientTransfer =
-                                     voSpaceClient.createTransfer(
-                                         transfer);
-                                 clientTransfer.setMonitor(false);
-                                 clientTransfer.runTransfer();
+                         (PrivilegedExceptionAction<Void>) () -> {
+                             final ClientTransfer clientTransfer =
+                                 voSpaceClient.createTransfer(
+                                     transfer);
+                             clientTransfer.setMonitor(false);
+                             clientTransfer.runTransfer();
 
-                                 return null;
-                             }
+                             return null;
                          });
         } catch (PrivilegedActionException e) {
             throw new RuntimeException(e.getMessage());
