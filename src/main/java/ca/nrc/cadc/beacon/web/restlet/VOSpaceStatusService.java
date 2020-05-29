@@ -69,6 +69,7 @@
 package ca.nrc.cadc.beacon.web.restlet;
 
 
+import ca.nrc.cadc.auth.NotAuthenticatedException;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.net.ResourceNotFoundException;
 import ca.nrc.cadc.util.StringUtil;
@@ -146,6 +147,8 @@ public class VOSpaceStatusService extends StatusService {
                    || (throwable instanceof ResourceNotFoundException)) {
             status = Status.CLIENT_ERROR_NOT_FOUND;
         } else if (throwable instanceof AccessControlException) {
+            status = Status.CLIENT_ERROR_FORBIDDEN;
+        } else if (throwable instanceof NotAuthenticatedException) {
             status = Status.CLIENT_ERROR_UNAUTHORIZED;
         } else if (throwable instanceof NodeAlreadyExistsException) {
             status = Status.CLIENT_ERROR_CONFLICT;
