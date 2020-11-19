@@ -79,15 +79,15 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 
 public abstract class StorageItem {
-    private static final Logger log = Logger.getLogger(StorageItem.class);
-
+    private static final Logger LOGGER = Logger.getLogger(StorageItem.class);
     private static final FileSizeRepresentation FILE_SIZE_REPRESENTATION = new FileSizeRepresentation();
     private static final DateFormat DATE_FORMAT =
-        DateUtil.getDateFormat("yyyy-MM-dd ' - ' HH:mm:ss", DateUtil.UTC);
+            DateUtil.getDateFormat("yyyy-MM-dd ' - ' HH:mm:ss", DateUtil.UTC);
     static final String NO_SIZE_DISPLAY = "--";
 
     private final String name;
@@ -201,7 +201,7 @@ public abstract class StorageItem {
                 // X500Name instantiation above can fail, so the 'else' that should
                 // normally return the owner in it's entirety is missed.
                 // if X500Name parsing fails, treat the owner variable as a string.
-                log.debug("owner is not an X500 principal, passing back as string.", iae);
+                LOGGER.debug("owner is not an X500 principal, passing back as string.", iae);
                 ownerStr = owner;
             }
 
@@ -213,9 +213,7 @@ public abstract class StorageItem {
         final StringBuilder uriNames = new StringBuilder();
 
         if (uris != null) {
-            for (final GroupURI uri : uris) {
-                uriNames.append(uri.getName()).append(" ");
-            }
+            Arrays.stream(uris).forEach(u -> uriNames.append(u.getName()).append(" "));
         }
 
         return uriNames.toString().trim();

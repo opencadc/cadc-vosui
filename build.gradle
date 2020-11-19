@@ -9,21 +9,25 @@ plugins {
 repositories {
     mavenLocal()
     jcenter()
+
+    maven {
+        url "https://maven.restlet.talend.com"
+    }
 }
 
 sourceCompatibility = '1.8'
 group = 'org.opencadc'
-version = '1.1.46'
+version = '1.2.0'
 
 dependencies {
-    implementation 'org.freemarker:freemarker:2.3.28'
+    implementation 'org.freemarker:freemarker:2.3.30'
     implementation 'org.apache.logging.log4j:log4j-core:[2.3.0,)'
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl:[2.11.0,)'
     implementation 'com.opencsv:opencsv:4.6'
-    implementation 'org.restlet.jee:org.restlet:2.3.12'
-    implementation 'org.restlet.jee:org.restlet.ext.servlet:2.3.12'
-    implementation 'org.restlet.jee:org.restlet.ext.freemarker:2.3.12'
-    implementation 'org.restlet.jee:org.restlet.ext.json:2.3.12'
+    implementation 'org.restlet.jee:org.restlet:2.4.3'
+    implementation 'org.restlet.jee:org.restlet.ext.servlet:2.4.3'
+    implementation 'org.restlet.jee:org.restlet.ext.freemarker:2.4.3'
+    implementation 'org.restlet.jee:org.restlet.ext.json:2.4.3'
     implementation 'commons-fileupload:commons-fileupload:[1.4,)'
     implementation 'org.apache.commons:commons-configuration2:[2.3,)'
     implementation 'org.opencadc:cadc-web-util:[1.2.4,)'
