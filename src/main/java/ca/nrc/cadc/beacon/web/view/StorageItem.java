@@ -72,6 +72,7 @@ import org.opencadc.gms.GroupURI;
 import ca.nrc.cadc.beacon.FileSizeRepresentation;
 import ca.nrc.cadc.date.DateUtil;
 import ca.nrc.cadc.vos.VOSURI;
+import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -82,6 +83,8 @@ import java.util.Date;
 
 
 public abstract class StorageItem {
+    private static final Logger log = Logger.getLogger(StorageItem.class);
+
     private static final FileSizeRepresentation FILE_SIZE_REPRESENTATION = new FileSizeRepresentation();
     private static final DateFormat DATE_FORMAT =
         DateUtil.getDateFormat("yyyy-MM-dd ' - ' HH:mm:ss", DateUtil.UTC);
@@ -180,19 +183,30 @@ public abstract class StorageItem {
     }
 
     public String getOwnerCN() {
+        String ownerStr;
         if ((owner == null) || uri.isRoot() || uri.getParentURI().isRoot()) {
             return "";
         } else {
-            final X500Name xName = new X500Name(owner);
-            final RDN[] cnList = xName.getRDNs(BCStyle.CN);
+            try {
+                final X500Name xName = new X500Name(owner);
+                final RDN[] cnList = xName.getRDNs(BCStyle.CN);
 
-            if (cnList.length > 0) {
-                // Parse out any part of the cn that is before a '_'
-                return IETFUtils.valueToString(cnList[0].getFirst().getValue()).split("_")[0];
-            } else {
-                return owner;
+                if (cnList.length > 0) {
+                    // Parse out any part of the cn that is before a '_'
+                    ownerStr = IETFUtils.valueToString(cnList[0].getFirst().getValue()).split("_")[0];
+                } else {
+                    ownerStr = owner;
+                }
+            } catch (IllegalArgumentException iae) {
+                // X500Name instantiation above can fail, so the 'else' that should
+                // normally return the owner in it's entirety is missed.
+                // if X500Name parsing fails, treat the owner variable as a string.
+                log.debug("owner is not an X500 principal, passing back as string.", iae);
+                ownerStr = owner;
             }
+
         }
+        return ownerStr;
     }
 
     private String getURINames(final GroupURI[] uris) {

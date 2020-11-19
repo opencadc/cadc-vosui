@@ -68,12 +68,13 @@
 
 package ca.nrc.cadc.beacon.web;
 
+import java.net.URISyntaxException;
 import org.opencadc.gms.GroupURI;
 import ca.nrc.cadc.util.StringUtil;
 
 
 public class URIExtractor {
-    public GroupURI[] extract(final String groupPropertyValue) {
+    public GroupURI[] extract(final String groupPropertyValue) throws URISyntaxException {
         final GroupURI[] uris;
 
         if (StringUtil.hasText(groupPropertyValue)) {
