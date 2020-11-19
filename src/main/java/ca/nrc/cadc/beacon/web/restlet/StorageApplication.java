@@ -107,7 +107,6 @@ public class StorageApplication extends Application {
     public static final String SERVLET_CONTEXT_ATTRIBUTE_KEY = "org.restlet.ext.servlet.ServletContext";
     public static final String DEFAULT_CONTEXT_PATH = "/storage/";
     private static final String DEFAULT_SERVICE_ID = "ivo://cadc.nrc.ca/vault";
-    private static final String CAVERN_SERVICE_ID = "ivo://cadc.nrc.ca/arbutus-cavern";
     private static final String DEFAULT_GMS_SERVICE_ID = "ivo://cadc.nrc.ca/gms";
     public static final String GMS_SERVICE_PROPERTY_KEY = "org.opencadc.gms.service_id";
 
