@@ -113,7 +113,6 @@ public abstract class AbstractStorageItemWriterTest<T extends StorageItemWriter>
         expect(mockStorageItem.getTargetURL()).andReturn(linkURI).once();
         expect(mockStorageItem.isReadable()).andReturn(isReadable).once();
         expect(mockStorageItem.isWritable()).andReturn(isWritable).once();
-        expect(mockStorageItem.getOwner()).andReturn(owner).once();
         expect(mockStorageItem.getOwnerCN()).andReturn(owner).once();
 
         return mockStorageItem;
