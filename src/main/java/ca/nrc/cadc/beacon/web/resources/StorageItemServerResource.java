@@ -111,7 +111,6 @@ public class StorageItemServerResource extends SecureServerResource {
     private String vospaceNodeUriPrefix;
     private String vospaceServiceName;
 
-
     /**
      * Empty constructor needed for Restlet to manage it.  Needs to be public.
      */
@@ -156,7 +155,6 @@ public class StorageItemServerResource extends SecureServerResource {
                                                          filesMetaServiceID, filesMetaServiceStandardID, vospaceServiceName);
 
         this.voSpaceClient = voSpaceClient;
-//        this.vospaceNodeUriPrefix = getContextAttribute(StorageApplication.NODE);
     }
 
 
