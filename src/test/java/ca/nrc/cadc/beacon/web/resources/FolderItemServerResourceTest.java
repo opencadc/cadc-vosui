@@ -106,7 +106,7 @@ public class FolderItemServerResourceTest
     extends AbstractServerResourceTest<FolderItemServerResource> {
     @Test
     public void create() throws Exception {
-        final VOSURI folderURI = new VOSURI(URI.create(StorageItemServerResource.VOSPACE_NODE_URI_PREFIX + "/my/node"));
+        final VOSURI folderURI = new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + "/my/node"));
         final ContainerNode containerNode = new ContainerNode(folderURI);
 
         expect(mockServletContext.getContextPath()).andReturn("/teststorage").once();
@@ -202,9 +202,7 @@ public class FolderItemServerResourceTest
         String expectedQuota = new FileSizeRepresentation()
             .getSizeHumanReadable(quota);
 
-        final VOSURI folderURI = new VOSURI(URI.create(
-            StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
-                + "/my/node"));
+        final VOSURI folderURI = new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + "/my/node"));
         List<NodeProperty> properties = new ArrayList<>();
         properties.add(folderSizeNodeProp);
         NodeProperty prop = new NodeProperty(VOS.PROPERTY_URI_QUOTA, Long
@@ -238,6 +236,9 @@ public class FolderItemServerResourceTest
             ServletContext getServletContext() {
                 return mockServletContext;
             }
+
+            @Override
+            public String getVospaceNodeUriPrefix() { return VOSPACE_NODE_URI_PREFIX; }
 
             @SuppressWarnings("unchecked")
             @Override
@@ -284,13 +285,12 @@ public class FolderItemServerResourceTest
         final String destNodeName = "/my/dest_node";
 
         final VOSURI destination =
-            new VOSURI(URI.create(StorageItemServerResource.VOSPACE_NODE_URI_PREFIX + destNodeName));
+            new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + destNodeName));
         final ContainerNode mockDestinationNode = createMock(ContainerNode.class);
 
         expect(mockDestinationNode.getUri()).andReturn(destination)
                                             .once();
         replay(mockDestinationNode);
-
 
         final Transfer mockTransfer = createMock(Transfer.class);
         replay(mockTransfer);
@@ -316,7 +316,6 @@ public class FolderItemServerResourceTest
             }
         });
 
-
         // Set up return code in response
         mockResponse.setStatus(Status.SUCCESS_OK);
         expectLastCall().once();
@@ -330,7 +329,6 @@ public class FolderItemServerResourceTest
 
         expect(mockServletContext.getContextPath()).andReturn("/teststorage").once();
         replay(mockServletContext);
-
 
 
         testSubject = new FolderItemServerResource(mockVOSpaceClient) {
@@ -368,6 +366,9 @@ public class FolderItemServerResourceTest
             VOSURI getCurrentItemURI() {
                 return destination;
             }
+
+            @Override
+            public String getVospaceNodeUriPrefix() { return VOSPACE_NODE_URI_PREFIX; }
 
             @SuppressWarnings("unchecked")
             @Override

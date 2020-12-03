@@ -72,8 +72,11 @@ package ca.nrc.cadc.beacon.web.resources;
 import ca.nrc.cadc.beacon.web.RegexFileValidator;
 import ca.nrc.cadc.beacon.web.UploadOutputStreamWrapper;
 import ca.nrc.cadc.beacon.web.UploadVerifier;
+import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
+import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.vos.*;
+import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.fileupload.FileItemStream;
 import org.restlet.Context;
 import org.restlet.Request;
@@ -120,8 +123,17 @@ public class FileItemServerResourceTest extends AbstractServerResourceTest<FileI
         expectedDataNode.setProperties(propertyList);
 
         requestAttributes.put("path", "my/file.txt");
+        final ConcurrentMap<String, Object> mockContextAttributes =
+            new ConcurrentHashMap<>();
 
-        expect(mockContext.getAttributes()).andReturn(new ConcurrentHashMap<String, Object>()).times(2);
+        mockContextAttributes
+            .put(StorageApplication.STORAGE_SERVICE_NAME_KEY,
+                "vault");
+        mockContextAttributes
+            .put(StorageApplication.KEY_BASE + ".vault" + StorageApplication.NODE_URI_KEY,
+                "vault");
+
+        expect(mockContext.getAttributes()).andReturn(mockContextAttributes).times(2);
 
         expect(mockRequest.getEntity()).andReturn(new EmptyRepresentation()).once();
 
@@ -159,6 +171,9 @@ public class FileItemServerResourceTest extends AbstractServerResourceTest<FileI
             public Request getRequest() {
                 return mockRequest;
             }
+
+            @Override
+            public String getVospaceNodeUriPrefix() { return VOSPACE_NODE_URI_PREFIX; }
 
             /**
              * Returns the request attributes.

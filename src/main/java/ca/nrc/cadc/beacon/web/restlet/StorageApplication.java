@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2016.                            (c) 2016.
+ *  (c) 2020.                            (c) 2020.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -75,11 +75,13 @@ import ca.nrc.cadc.auth.PrincipalExtractor;
 import ca.nrc.cadc.beacon.web.resources.*;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.reg.client.RegistryClient;
+import ca.nrc.cadc.util.PropertiesReader;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 import ca.nrc.cadc.web.RestletPrincipalExtractor;
 import ca.nrc.cadc.web.SubjectGenerator;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.SystemConfiguration;
+import org.apache.log4j.Logger;
 import org.restlet.*;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
@@ -98,6 +100,9 @@ import java.util.Map;
 
 
 public class StorageApplication extends Application {
+    private static final Logger log =
+        Logger.getLogger(StorageApplication.class);
+
     // Public properties are made available in the Context.
     public static final String VOSPACE_CLIENT_KEY = "org.opencadc.vospace.client";
     public static final String REGISTRY_CLIENT_KEY = "org.opencadc.registry.client";
@@ -106,7 +111,6 @@ public class StorageApplication extends Application {
     public static final String FREEMARKER_CONFIG_KEY = "org.opencadc.vospace.freemarker-config";
     public static final String SERVLET_CONTEXT_ATTRIBUTE_KEY = "org.restlet.ext.servlet.ServletContext";
     public static final String DEFAULT_CONTEXT_PATH = "/storage/";
-    private static final String DEFAULT_SERVICE_ID = "ivo://cadc.nrc.ca/vault";
     private static final String DEFAULT_GMS_SERVICE_ID = "ivo://cadc.nrc.ca/gms";
     public static final String GMS_SERVICE_PROPERTY_KEY = "org.opencadc.gms.service_id";
 
@@ -117,9 +121,14 @@ public class StorageApplication extends Application {
     public static final String DEFAULT_FILES_META_SERVICE_STANDARD_ID =
         "vos://cadc.nrc.ca~vospace/CADC/std/archive#file-1.0";
 
+    // Properties files keys
+    public static final String STORAGE_SERVICE_NAME_KEY = "org.opencadc.vosui.service.name";
+    public static final String NODE_URI_KEY = ".node.resourceid";
+    public static final String KEY_BASE = "org.opencadc.vosui.";
+    public String storageServiceName;
+    private String vospaceResourceID;
 
     private final Configuration configuration = new SystemConfiguration();
-
 
     /**
      * Constructor.
@@ -146,13 +155,31 @@ public class StorageApplication extends Application {
     @Override
     public Restlet createInboundRoot() {
         final Context context = getContext();
+        log.debug("context: " + context);
+
+        // Read properties file org.opencadc.vosui.properties
+        PropertiesReader propReader = new PropertiesReader("org.opencadc.vosui.properties");
+
+        // key used is standard, value pulled from properties file will reflect
+        // the storage name used.
+        // TODO: storageServiceName assumes that only one is defined in the properties file. For now,
+        // the first value will be grabbed so if more than one is declared, the rest are ignored.
+        this.storageServiceName = propReader.getAllProperties().getFirstPropertyValue(STORAGE_SERVICE_NAME_KEY);
+
+        log.info("storage service name: " + STORAGE_SERVICE_NAME_KEY + ": " + storageServiceName);
+        context.getAttributes().put(STORAGE_SERVICE_NAME_KEY, storageServiceName);
+
+        vospaceResourceID = propReader.getAllProperties().getFirstPropertyValue(KEY_BASE + storageServiceName + ".service.resourceid");
+        String nodeResourceID = KEY_BASE + storageServiceName + ".node.resourceid";
+        log.info("node resource id base: " + nodeResourceID);
+        context.getAttributes().put(nodeResourceID, propReader.getAllProperties().getFirstPropertyValue(nodeResourceID));
 
         context.getAttributes().put(VOSPACE_CLIENT_KEY, createVOSpaceClient());
         context.getAttributes().put(REGISTRY_CLIENT_KEY, createRegistryClient());
         context.getAttributes().put(ACCESS_CONTROL_CLIENT_KEY, createAccessControlClient());
         context.getAttributes().put(GMS_SERVICE_PROPERTY_KEY, createGMSClient());
         context.getAttributes().put(VOSPACE_SERVICE_ID_KEY, URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY,
-                                                                                               DEFAULT_SERVICE_ID)));
+                                                                                                    vospaceResourceID)));
         context.getAttributes().put(FREEMARKER_CONFIG_KEY, createFreemarkerConfig());
         context.getAttributes().put(FILES_META_SERVICE_SERVICE_ID_KEY,
                                     URI.create(configuration.getString(FILES_META_SERVICE_SERVICE_ID_KEY,
@@ -210,7 +237,7 @@ public class StorageApplication extends Application {
     }
 
     private VOSpaceClient createVOSpaceClient() {
-        return new VOSpaceClient(URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY, DEFAULT_SERVICE_ID)));
+        return new VOSpaceClient(URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY, this.vospaceResourceID)));
     }
 
     private RegistryClient createRegistryClient() {
@@ -306,4 +333,9 @@ public class StorageApplication extends Application {
 
         component.start();
     }
+
+    public String getCurrentNodeURIKey() {
+        return KEY_BASE + storageServiceName + NODE_URI_KEY;
+    }
+
 }

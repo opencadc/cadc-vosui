@@ -94,32 +94,30 @@ import org.apache.log4j.Logger;
 public class StorageItemFactory {
     private static final Logger log = Logger.getLogger(StorageItemFactory.class);
 
-    // TODO: Make this configurable.
-    // TODO: jenkinsd 2019.01.25
-    private static final String DEFAULT_SERVICE_NAME = "vault";
-
     private final URIExtractor uriExtractor;
     private final RegistryClient registryClient;
     private final String contextPath;
     private final URI filesMetaServiceID;
     private final URI filesMetaServiceStandardID;
+    private final String vospaceServiceName;
 
 
     public StorageItemFactory(final URIExtractor uriExtractor, final RegistryClient registryClient,
                               final String contextPath, final URI filesMetaServiceID,
-                              final URI filesMetaServiceStandardID) {
+                              final URI filesMetaServiceStandardID,
+                              final String vospaceServiceName) {
         this.uriExtractor = uriExtractor;
         this.registryClient = registryClient;
         this.contextPath = contextPath;
         this.filesMetaServiceID = filesMetaServiceID;
         this.filesMetaServiceStandardID = filesMetaServiceStandardID;
+        this.vospaceServiceName = vospaceServiceName;
     }
-
 
     private String getTarget(final DataNode dataNode) {
         final VOSURI dataNodeURI = dataNode.getUri();
 
-        return String.format("%s/%s%s", lookupMetaServiceURLString(dataNodeURI), DEFAULT_SERVICE_NAME,
+        return String.format("%s/%s%s", lookupMetaServiceURLString(dataNodeURI), this.vospaceServiceName,
                              dataNodeURI.getPath());
     }
 

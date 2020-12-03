@@ -92,4 +92,7 @@ abstract class AbstractServerResourceTest<T extends SecureServerResource>
     final ServletContext mockServletContext =
             createMock(ServletContext.class);
     final Context mockContext = createMock(Context.class);
+
+    // for testing only
+    static final String VOSPACE_NODE_URI_PREFIX = "vos://cadc.nrc.ca!vault";
 }

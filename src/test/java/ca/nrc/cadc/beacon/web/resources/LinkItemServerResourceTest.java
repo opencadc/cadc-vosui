@@ -97,9 +97,7 @@ public class LinkItemServerResourceTest
     public void createLink() throws Exception {
         final URI target = URI.create("http://gohere.com/to/see");
         final LinkNode linkNode =
-            new LinkNode(new VOSURI(URI.create(
-                StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
-                    + "/curr/dir/MY_LINK")), target);
+            new LinkNode(new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + "/curr/dir/MY_LINK")), target);
 
         expect(mockServletContext.getContextPath()).andReturn("/to").once();
         expect(mockVOSpaceClient.createNode(linkNode, false)).andReturn(linkNode).once();
@@ -130,6 +128,9 @@ public class LinkItemServerResourceTest
             RegistryClient getRegistryClient() {
                 return mockRegistryClient;
             }
+
+            @Override
+            public String getVospaceNodeUriPrefix() { return VOSPACE_NODE_URI_PREFIX; }
 
             /**
              * Returns the current context.
@@ -189,9 +190,7 @@ public class LinkItemServerResourceTest
 
         final URI target = URI.create("vos://cadc.nrc.ca!vault/other/dir/my/dir");
         final LinkNode linkNode =
-            new LinkNode(new VOSURI(URI.create(
-                StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
-                    + "/curr/dir/MY_LINK")), target);
+            new LinkNode(new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + "/curr/dir/MY_LINK")), target);
 
         final ContainerNode targetContainerNode =
             new ContainerNode(new VOSURI(target));
@@ -222,6 +221,9 @@ public class LinkItemServerResourceTest
             RegistryClient getRegistryClient() {
                 return mockRegistryClient;
             }
+
+            @Override
+            public String getVospaceNodeUriPrefix() { return VOSPACE_NODE_URI_PREFIX; }
 
             /**
              * Returns the current context.

@@ -192,7 +192,7 @@ public class MainPageServerResource extends StorageItemServerResource
             try
             {
                 // Check to see if home directory exists
-                getNode(new VOSURI(VOSPACE_NODE_URI_PREFIX + "/" + httpUsername), VOS.Detail.min);
+                getNode(new VOSURI(getVospaceNodeUriPrefix() + "/" + httpUsername), VOS.Detail.min);
                 dataModel.put("homeDir", httpUsername);
             }
             catch (ResourceException re)
