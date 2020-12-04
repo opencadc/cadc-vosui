@@ -74,13 +74,11 @@ import ca.nrc.cadc.accesscontrol.AccessControlClient;
 import ca.nrc.cadc.auth.PrincipalExtractor;
 import ca.nrc.cadc.beacon.web.resources.*;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
+import ca.nrc.cadc.config.ApplicationConfiguration;
 import ca.nrc.cadc.reg.client.RegistryClient;
-import ca.nrc.cadc.util.PropertiesReader;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 import ca.nrc.cadc.web.RestletPrincipalExtractor;
 import ca.nrc.cadc.web.SubjectGenerator;
-import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.SystemConfiguration;
 import org.apache.log4j.Logger;
 import org.restlet.*;
 import org.restlet.data.Protocol;
@@ -122,13 +120,14 @@ public class StorageApplication extends Application {
         "vos://cadc.nrc.ca~vospace/CADC/std/archive#file-1.0";
 
     // Properties files keys
+    private static final String DEFAULT_CONFIG_FILE_PATH = System.getProperty("user.home") + "/config/org.opencadc.vosui.properties";
     public static final String STORAGE_SERVICE_NAME_KEY = "org.opencadc.vosui.service.name";
     public static final String NODE_URI_KEY = ".node.resourceid";
     public static final String KEY_BASE = "org.opencadc.vosui.";
     public String storageServiceName;
     private String vospaceResourceID;
 
-    private final Configuration configuration = new SystemConfiguration();
+    private final ApplicationConfiguration applicationConfiguration;
 
     /**
      * Constructor.
@@ -141,6 +140,7 @@ public class StorageApplication extends Application {
     public StorageApplication(Context context) {
         super(context);
         setStatusService(new VOSpaceStatusService());
+        this.applicationConfiguration = new ApplicationConfiguration(DEFAULT_CONFIG_FILE_PATH);
     }
 
 
@@ -157,35 +157,30 @@ public class StorageApplication extends Application {
         final Context context = getContext();
         log.debug("context: " + context);
 
-        // Read properties file org.opencadc.vosui.properties
-        PropertiesReader propReader = new PropertiesReader("org.opencadc.vosui.properties");
-
-        // key used is standard, value pulled from properties file will reflect
-        // the storage name used.
         // TODO: storageServiceName assumes that only one is defined in the properties file. For now,
         // the first value will be grabbed so if more than one is declared, the rest are ignored.
-        this.storageServiceName = propReader.getAllProperties().getFirstPropertyValue(STORAGE_SERVICE_NAME_KEY);
+        this.storageServiceName = applicationConfiguration.lookup(STORAGE_SERVICE_NAME_KEY);
 
         log.info("storage service name: " + STORAGE_SERVICE_NAME_KEY + ": " + storageServiceName);
         context.getAttributes().put(STORAGE_SERVICE_NAME_KEY, storageServiceName);
 
-        vospaceResourceID = propReader.getAllProperties().getFirstPropertyValue(KEY_BASE + storageServiceName + ".service.resourceid");
+        vospaceResourceID = applicationConfiguration.lookup(KEY_BASE + storageServiceName + ".service.resourceid");
         String nodeResourceID = KEY_BASE + storageServiceName + ".node.resourceid";
         log.info("node resource id base: " + nodeResourceID);
-        context.getAttributes().put(nodeResourceID, propReader.getAllProperties().getFirstPropertyValue(nodeResourceID));
+        context.getAttributes().put(nodeResourceID, applicationConfiguration.lookup(nodeResourceID));
 
         context.getAttributes().put(VOSPACE_CLIENT_KEY, createVOSpaceClient());
         context.getAttributes().put(REGISTRY_CLIENT_KEY, createRegistryClient());
         context.getAttributes().put(ACCESS_CONTROL_CLIENT_KEY, createAccessControlClient());
         context.getAttributes().put(GMS_SERVICE_PROPERTY_KEY, createGMSClient());
-        context.getAttributes().put(VOSPACE_SERVICE_ID_KEY, URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY,
+        context.getAttributes().put(VOSPACE_SERVICE_ID_KEY, URI.create(applicationConfiguration.lookup(VOSPACE_SERVICE_ID_KEY,
                                                                                                     vospaceResourceID)));
         context.getAttributes().put(FREEMARKER_CONFIG_KEY, createFreemarkerConfig());
         context.getAttributes().put(FILES_META_SERVICE_SERVICE_ID_KEY,
-                                    URI.create(configuration.getString(FILES_META_SERVICE_SERVICE_ID_KEY,
+                                    URI.create(applicationConfiguration.lookup(FILES_META_SERVICE_SERVICE_ID_KEY,
                                                                        DEFAULT_FILES_META_SERVICE_SERVICE_ID)));
         context.getAttributes().put(FILES_META_SERVICE_STANDARD_ID_KEY,
-                                    URI.create(configuration.getString(FILES_META_SERVICE_STANDARD_ID_KEY,
+                                    URI.create(applicationConfiguration.lookup(FILES_META_SERVICE_STANDARD_ID_KEY,
                                                                        DEFAULT_FILES_META_SERVICE_STANDARD_ID)));
 
         final ServletContext servletContext = getServletContext();
@@ -237,7 +232,7 @@ public class StorageApplication extends Application {
     }
 
     private VOSpaceClient createVOSpaceClient() {
-        return new VOSpaceClient(URI.create(configuration.getString(VOSPACE_SERVICE_ID_KEY, this.vospaceResourceID)));
+        return new VOSpaceClient(URI.create(applicationConfiguration.lookup(VOSPACE_SERVICE_ID_KEY, this.vospaceResourceID)));
     }
 
     private RegistryClient createRegistryClient() {
@@ -245,12 +240,12 @@ public class StorageApplication extends Application {
     }
 
     private AccessControlClient createAccessControlClient() {
-        return new AccessControlClient(URI.create(configuration.getString(StorageApplication.GMS_SERVICE_PROPERTY_KEY,
+        return new AccessControlClient(URI.create(applicationConfiguration.lookup(StorageApplication.GMS_SERVICE_PROPERTY_KEY,
                                                                           StorageApplication.DEFAULT_GMS_SERVICE_ID)));
     }
 
     private GMSClient createGMSClient() {
-        return new GMSClient(URI.create(configuration.getString(StorageApplication.GMS_SERVICE_PROPERTY_KEY,
+        return new GMSClient(URI.create(applicationConfiguration.lookup(StorageApplication.GMS_SERVICE_PROPERTY_KEY,
                                                                 StorageApplication.DEFAULT_GMS_SERVICE_ID)));
     }
 
