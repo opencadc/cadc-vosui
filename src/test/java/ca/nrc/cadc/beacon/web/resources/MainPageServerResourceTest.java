@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2016.                            (c) 2016.
+ *  (c) 2020.                            (c) 2020.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -108,10 +108,7 @@ public class MainPageServerResourceTest
         final VOSURI startURI =
                 new VOSURI(URI.create("vos://myhost.com/node/1"));
 
-
-        final VOSURI folderURI = new VOSURI(URI.create(
-                StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
-                        + "/my/node"));
+        final VOSURI folderURI = new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + "/my/node"));
         final ContainerNode containerNode = new ContainerNode(folderURI);
 
         initialRowData.add("child1");
@@ -172,6 +169,8 @@ public class MainPageServerResourceTest
                 return mockContext;
             }
 
+            @Override
+            public String getVospaceNodeUriPrefix() { return VOSPACE_NODE_URI_PREFIX; }
 
             @SuppressWarnings("unchecked")
             @Override

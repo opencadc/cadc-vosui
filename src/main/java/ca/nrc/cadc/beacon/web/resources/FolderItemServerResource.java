@@ -155,7 +155,7 @@ public class FolderItemServerResource extends StorageItemServerResource {
 
             // iterate over each srcNode & call clientTransfer
             for (final String srcNode : srcNodes) {
-                final VOSURI srcURI = new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + srcNode));
+                final VOSURI srcURI = new VOSURI(URI.create(getVospaceNodeUriPrefix() + srcNode));
                 move(srcURI, currentNode.getUri());
             }
 
