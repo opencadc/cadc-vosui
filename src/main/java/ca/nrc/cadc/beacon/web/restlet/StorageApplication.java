@@ -76,6 +76,7 @@ import ca.nrc.cadc.beacon.web.resources.*;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.config.ApplicationConfiguration;
 import ca.nrc.cadc.reg.client.RegistryClient;
+import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 import ca.nrc.cadc.web.RestletPrincipalExtractor;
 import ca.nrc.cadc.web.SubjectGenerator;
@@ -122,8 +123,10 @@ public class StorageApplication extends Application {
     // Properties files keys
     private static final String DEFAULT_CONFIG_FILE_PATH = System.getProperty("user.home") + "/config/org.opencadc.vosui.properties";
     public static final String STORAGE_SERVICE_NAME_KEY = "org.opencadc.vosui.service.name";
-    public static final String NODE_URI_KEY = ".node.resourceid";
     public static final String KEY_BASE = "org.opencadc.vosui.";
+    public static final String NODE_URI_KEY = ".node.resourceid";
+    public static final String USER_HOME_KEY = ".user.home";
+
     public String storageServiceName;
     private String vospaceResourceID;
 
@@ -159,16 +162,31 @@ public class StorageApplication extends Application {
 
         // TODO: storageServiceName assumes that only one is defined in the properties file. For now,
         // the first value will be grabbed so if more than one is declared, the rest are ignored.
-        this.storageServiceName = applicationConfiguration.lookup(STORAGE_SERVICE_NAME_KEY);
+        // Might be this becomes a list to be iterated over to collect multiple configurations
+        try {
+            this.storageServiceName = applicationConfiguration.lookup(STORAGE_SERVICE_NAME_KEY);
 
-        log.info("storage service name: " + STORAGE_SERVICE_NAME_KEY + ": " + storageServiceName);
-        context.getAttributes().put(STORAGE_SERVICE_NAME_KEY, storageServiceName);
+            log.debug("storage service name: " + STORAGE_SERVICE_NAME_KEY + ": " + storageServiceName);
+            context.getAttributes().put(STORAGE_SERVICE_NAME_KEY, storageServiceName);
+            System.out.println("before here");
+            // Values that will vary by configuration
+            vospaceResourceID = applicationConfiguration.lookup(KEY_BASE + storageServiceName + ".service.resourceid");
+            String nodeResourceID = KEY_BASE + storageServiceName + NODE_URI_KEY;
+            log.debug("node resource id base: " + nodeResourceID);
+            context.getAttributes().put(nodeResourceID, applicationConfiguration.lookup(nodeResourceID));
 
-        vospaceResourceID = applicationConfiguration.lookup(KEY_BASE + storageServiceName + ".service.resourceid");
-        String nodeResourceID = KEY_BASE + storageServiceName + ".node.resourceid";
-        log.info("node resource id base: " + nodeResourceID);
-        context.getAttributes().put(nodeResourceID, applicationConfiguration.lookup(nodeResourceID));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Unable to init context. Required configuration missing.", e);
+        }
 
+        String userHomeDir = KEY_BASE + storageServiceName + USER_HOME_KEY;
+        log.debug("user home directory: " + userHomeDir);
+        String userHomeValue = applicationConfiguration.lookup(userHomeDir);
+        if (StringUtil.hasLength(userHomeValue)) {
+            // optional value
+            context.getAttributes().put(userHomeDir, applicationConfiguration.lookup(userHomeDir));
+        }
+        System.out.println("here");
         context.getAttributes().put(VOSPACE_CLIENT_KEY, createVOSpaceClient());
         context.getAttributes().put(REGISTRY_CLIENT_KEY, createRegistryClient());
         context.getAttributes().put(ACCESS_CONTROL_CLIENT_KEY, createAccessControlClient());
@@ -331,6 +349,10 @@ public class StorageApplication extends Application {
 
     public String getCurrentNodeURIKey() {
         return KEY_BASE + storageServiceName + NODE_URI_KEY;
+    }
+
+    public String getCurrentUserHome() {
+        return KEY_BASE + storageServiceName + USER_HOME_KEY;
     }
 
 }

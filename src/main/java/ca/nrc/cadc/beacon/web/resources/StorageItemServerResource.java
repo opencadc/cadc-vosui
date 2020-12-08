@@ -108,6 +108,7 @@ public class StorageItemServerResource extends SecureServerResource {
     StorageItemFactory storageItemFactory;
     VOSpaceClient voSpaceClient;
 
+    private String vospaceUserHome;
     private String vospaceNodeUriPrefix;
     private String vospaceServiceName;
 
@@ -138,8 +139,13 @@ public class StorageItemServerResource extends SecureServerResource {
         super.doInit();
         final Context context = getContext();
         StorageApplication sa = (StorageApplication) getApplication();
+
         String nodeURIKey = sa.getCurrentNodeURIKey();
         this.vospaceNodeUriPrefix = (String) context.getAttributes().get(nodeURIKey);
+
+        String userHomeKey = sa.getCurrentUserHome();
+        this.vospaceUserHome = (String) context.getAttributes().get(userHomeKey);
+
         this.vospaceServiceName = (String) context.getAttributes().get(StorageApplication.STORAGE_SERVICE_NAME_KEY);
         initialize(((VOSpaceClient) context.getAttributes().get(StorageApplication.VOSPACE_CLIENT_KEY)));
     }
@@ -508,5 +514,9 @@ public class StorageItemServerResource extends SecureServerResource {
 
     public String getVospaceNodeUriPrefix() {
         return vospaceNodeUriPrefix;
+    }
+
+    public String getVospaceUserHome() {
+        return vospaceUserHome;
     }
 }

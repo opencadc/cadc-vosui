@@ -32,6 +32,9 @@
                       </form>
                   </li>
 <#if homeDir??>
+  <!-- homeDir is populated if the home directory for that user actually exists -->
+  <#assign homeURL = '${contextPath}list${homeDir}'>
+
                   <li>
                       <a id="homeDir" name="homeDir" type="button" title="Navigate to home directory." href="${homeURL}">
                           <span class="glyphicon glyphicon-home"></span>&nbsp;Home</a></li>

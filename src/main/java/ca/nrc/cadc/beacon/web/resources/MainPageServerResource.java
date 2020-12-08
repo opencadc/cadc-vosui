@@ -73,6 +73,7 @@ import ca.nrc.cadc.beacon.StorageItemWriter;
 import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
 import ca.nrc.cadc.beacon.web.view.FolderItem;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
+import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
 import org.restlet.data.MediaType;
@@ -192,12 +193,27 @@ public class MainPageServerResource extends StorageItemServerResource
             try
             {
                 // Check to see if home directory exists
-                getNode(new VOSURI(getVospaceNodeUriPrefix() + "/" + httpUsername), VOS.Detail.min);
-                dataModel.put("homeDir", httpUsername);
+                String userHomeBase = getVospaceUserHome();
+                if (StringUtil.hasLength(userHomeBase)) {
+                    String userHome;
+                    // Be a bit resilient when it comes to how the
+                    // home directory is declared.
+                    if (userHomeBase.endsWith("/") == true) {
+                        userHome = userHomeBase + httpUsername;
+                    } else {
+                        userHome =  userHomeBase + "/" + httpUsername;
+                    }
+
+                    if (userHomeBase.startsWith("/") == false) {
+                        userHome = "/" + userHome;
+                    }
+                    getNode(new VOSURI(getVospaceNodeUriPrefix() + userHome), VOS.Detail.min);
+                    dataModel.put("homeDir", userHome);
+                }
             }
             catch (ResourceException re)
             {
-                // Ignore this as there is no 'home' VOSpace.
+                // Ignore this as there is no 'home' VOSpace defined in org.opencadc.vosui.properties
             }
         }
 
