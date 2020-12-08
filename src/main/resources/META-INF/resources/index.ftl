@@ -45,15 +45,6 @@
 <#assign startTime = .now?time>
 <#assign isRoot = folder.root>
 
-<#--<!-- was username. homeDir is populated if the home-->
-<#--directory for that user actually exists &ndash;&gt;-->
-<#--<#if homeDir??>-->
-<#--  <#assign homeURL = '${contextPath}list/${username}'>-->
-<#--</#if>-->
-
-
-
-
 <#include "_top_nav.ftl">
 
 <div class="container-fluid">
