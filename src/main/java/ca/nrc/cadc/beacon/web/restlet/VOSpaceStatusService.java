@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2016.                            (c) 2016.
+ *  (c) 2020.                            (c) 2020.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -142,6 +142,9 @@ public class VOSpaceStatusService extends StatusService {
             status = (cause == null)
                      ? super.toStatus(throwable, request, response) : toStatus(cause, request, response);
         } else if (throwable instanceof IllegalArgumentException) {
+            // Prune out any CR or LF that might come from web services, or they'll
+            // get converted to a helpful message about how they need to be removed
+            // further up the chain in the restlet code.
             String thrownMessage = throwable.getMessage();
             if (thrownMessage.contains("\n")) {
                 thrownMessage = thrownMessage.replace("\n", "");

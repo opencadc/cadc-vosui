@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2016.                            (c) 2016.
+ *  (c) 2020.                            (c) 2020.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -78,7 +78,6 @@ import ca.nrc.cadc.vos.client.ClientTransfer;
 import ca.nrc.cadc.vos.client.VOSClientUtil;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 
-import java.io.IOException;
 import java.net.URI;
 import java.security.*;
 import java.util.Set;
@@ -100,9 +99,7 @@ import javax.security.auth.Subject;
 
 public class FolderItemServerResource extends StorageItemServerResource {
     private static Logger log = Logger.getLogger(FolderItemServerResource.class);
-    static {
-        Log4jInit.setLevel("ca.nrc.cadc", Level.DEBUG);
-    }
+
     /**
      * Empty constructor needed for Restlet to manage it.
      */
@@ -112,7 +109,6 @@ public class FolderItemServerResource extends StorageItemServerResource {
     FolderItemServerResource(final VOSpaceClient voSpaceClient) {
         super(voSpaceClient);
     }
-
 
     @Put
     public void create() throws Exception {
@@ -192,11 +188,9 @@ public class FolderItemServerResource extends StorageItemServerResource {
                                      transfer);
                              clientTransfer.setMonitor(true);
                              clientTransfer.runTransfer();
-                            log.debug("transfer run complete");
-                             // TODO: need to put something in to wait for the
-                             // transfer job to finish
+                             log.debug("transfer run complete");
                              VOSClientUtil.checkTransferFailure(clientTransfer);
-                            log.debug("no errors in transfer");
+                             log.debug("no errors in transfer");
                              return null;
                          });
         } catch (PrivilegedActionException e) {
