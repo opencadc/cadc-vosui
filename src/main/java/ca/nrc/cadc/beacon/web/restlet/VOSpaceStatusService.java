@@ -71,6 +71,7 @@ package ca.nrc.cadc.beacon.web.restlet;
 
 import ca.nrc.cadc.auth.NotAuthenticatedException;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
+import ca.nrc.cadc.net.ResourceAlreadyExistsException;
 import ca.nrc.cadc.net.ResourceNotFoundException;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
@@ -141,8 +142,11 @@ public class VOSpaceStatusService extends StatusService {
             status = (cause == null)
                      ? super.toStatus(throwable, request, response) : toStatus(cause, request, response);
         } else if (throwable instanceof IllegalArgumentException) {
-            status = new Status(Status.CLIENT_ERROR_BAD_REQUEST.getCode(), throwable.getMessage(),
-                                throwable.getMessage());
+            String thrownMessage = throwable.getMessage();
+            if (thrownMessage.contains("\n")) {
+                thrownMessage = thrownMessage.replace("\n", "");
+            }
+            status = new Status(Status.CLIENT_ERROR_BAD_REQUEST.getCode(), thrownMessage, thrownMessage);
         } else if ((throwable instanceof FileNotFoundException) || (throwable instanceof NodeNotFoundException)
                    || (throwable instanceof ResourceNotFoundException)) {
             status = Status.CLIENT_ERROR_NOT_FOUND;
@@ -150,7 +154,7 @@ public class VOSpaceStatusService extends StatusService {
             status = Status.CLIENT_ERROR_FORBIDDEN;
         } else if (throwable instanceof NotAuthenticatedException) {
             status = Status.CLIENT_ERROR_UNAUTHORIZED;
-        } else if (throwable instanceof NodeAlreadyExistsException) {
+        } else if (throwable instanceof ResourceAlreadyExistsException ||throwable instanceof NodeAlreadyExistsException) {
             status = Status.CLIENT_ERROR_CONFLICT;
         } else if (StringUtil.hasText(throwable.getMessage())) {
             final String message = throwable.getMessage();
@@ -163,4 +167,5 @@ public class VOSpaceStatusService extends StatusService {
 
         return status;
     }
+
 }

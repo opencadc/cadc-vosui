@@ -71,9 +71,11 @@ package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.beacon.FileSizeRepresentation;
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
+import ca.nrc.cadc.util.Log4jInit;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.vos.VOS.Detail;
 import ca.nrc.cadc.vos.client.ClientTransfer;
+import ca.nrc.cadc.vos.client.VOSClientUtil;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 
 import java.io.IOException;
@@ -81,6 +83,8 @@ import java.net.URI;
 import java.security.*;
 import java.util.Set;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -95,6 +99,10 @@ import javax.security.auth.Subject;
 
 
 public class FolderItemServerResource extends StorageItemServerResource {
+    private static Logger log = Logger.getLogger(FolderItemServerResource.class);
+    static {
+        Log4jInit.setLevel("ca.nrc.cadc", Level.DEBUG);
+    }
     /**
      * Empty constructor needed for Restlet to manage it.
      */
@@ -145,6 +153,7 @@ public class FolderItemServerResource extends StorageItemServerResource {
     @Post("json")
     public void moveToFolder(final JsonRepresentation payload) throws Exception {
         final JSONObject jsonObject = payload.getJsonObject();
+        log.debug("moveToFolder input: " + jsonObject);
 
         final ContainerNode currentNode = getCurrentNode(VOS.Detail.min);
         final Set<String> keySet = jsonObject.keySet();
@@ -156,9 +165,11 @@ public class FolderItemServerResource extends StorageItemServerResource {
             // iterate over each srcNode & call clientTransfer
             for (final String srcNode : srcNodes) {
                 final VOSURI srcURI = new VOSURI(URI.create(getVospaceNodeUriPrefix() + srcNode));
-                move(srcURI, currentNode.getUri());
+                final VOSURI destURI = currentNode.getUri();
+                log.debug("moving " + srcURI.toString() + " to " + destURI.toString());
+                move(srcURI, destURI);
             }
-
+            // move() will throw an exception if there is a problem
             getResponse().setStatus(Status.SUCCESS_OK);
         }
     }
@@ -167,7 +178,8 @@ public class FolderItemServerResource extends StorageItemServerResource {
         return new Transfer(source.getURI(), destination.getURI(), false);
     }
 
-    private void move(final VOSURI source, final VOSURI destination) throws IOException, AccessControlException {
+    private void move(final VOSURI source, final VOSURI destination) throws Exception
+    {
         // According to ivoa.net VOSpace 2.1 spec, a move is handled using
         // a transfer. keepBytes = false. destination URI is the Direction.
         final Transfer transfer = getTransfer(source, destination);
@@ -178,13 +190,18 @@ public class FolderItemServerResource extends StorageItemServerResource {
                              final ClientTransfer clientTransfer =
                                  voSpaceClient.createTransfer(
                                      transfer);
-                             clientTransfer.setMonitor(false);
+                             clientTransfer.setMonitor(true);
                              clientTransfer.runTransfer();
-
+                            log.debug("transfer run complete");
+                             // TODO: need to put something in to wait for the
+                             // transfer job to finish
+                             VOSClientUtil.checkTransferFailure(clientTransfer);
+                            log.debug("no errors in transfer");
                              return null;
                          });
         } catch (PrivilegedActionException e) {
-            throw new RuntimeException(e.getMessage());
+            log.debug("error in transfer.", e);
+            throw e.getException();
         }
     }
 }

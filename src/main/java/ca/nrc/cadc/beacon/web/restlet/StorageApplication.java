@@ -168,7 +168,6 @@ public class StorageApplication extends Application {
 
             log.debug("storage service name: " + STORAGE_SERVICE_NAME_KEY + ": " + storageServiceName);
             context.getAttributes().put(STORAGE_SERVICE_NAME_KEY, storageServiceName);
-            System.out.println("before here");
             // Values that will vary by configuration
             vospaceResourceID = applicationConfiguration.lookup(KEY_BASE + storageServiceName + ".service.resourceid");
             String nodeResourceID = KEY_BASE + storageServiceName + NODE_URI_KEY;
@@ -186,7 +185,6 @@ public class StorageApplication extends Application {
             // optional value
             context.getAttributes().put(userHomeDir, applicationConfiguration.lookup(userHomeDir));
         }
-        System.out.println("here");
         context.getAttributes().put(VOSPACE_CLIENT_KEY, createVOSpaceClient());
         context.getAttributes().put(REGISTRY_CLIENT_KEY, createRegistryClient());
         context.getAttributes().put(ACCESS_CONTROL_CLIENT_KEY, createAccessControlClient());
@@ -199,7 +197,8 @@ public class StorageApplication extends Application {
                                                                        DEFAULT_FILES_META_SERVICE_SERVICE_ID)));
         context.getAttributes().put(FILES_META_SERVICE_STANDARD_ID_KEY,
                                     URI.create(applicationConfiguration.lookup(FILES_META_SERVICE_STANDARD_ID_KEY,
-                                                                       DEFAULT_FILES_META_SERVICE_STANDARD_ID)));
+                                        DEFAULT_FILES_META_SERVICE_STANDARD_ID)));
+
 
         final ServletContext servletContext = getServletContext();
         final String contextPath = (servletContext == null) ? DEFAULT_CONTEXT_PATH : "/";
