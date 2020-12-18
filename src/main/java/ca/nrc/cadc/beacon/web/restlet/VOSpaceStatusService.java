@@ -157,7 +157,8 @@ public class VOSpaceStatusService extends StatusService {
             status = Status.CLIENT_ERROR_FORBIDDEN;
         } else if (throwable instanceof NotAuthenticatedException) {
             status = Status.CLIENT_ERROR_UNAUTHORIZED;
-        } else if (throwable instanceof ResourceAlreadyExistsException ||throwable instanceof NodeAlreadyExistsException) {
+        } else if (throwable instanceof ResourceAlreadyExistsException
+                || throwable instanceof NodeAlreadyExistsException) {
             status = Status.CLIENT_ERROR_CONFLICT;
         } else if (StringUtil.hasText(throwable.getMessage())) {
             final String message = throwable.getMessage();

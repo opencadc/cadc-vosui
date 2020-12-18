@@ -343,6 +343,37 @@ function fileManager(
     }
   }
 
+  var getErrorMsg = function(xhrObject, errorThrown) {
+    var errMsg =''
+
+    // determine base message first for status codes that are common
+    switch (xhrObject.status) {
+      case 400:
+        // responseText for 400 return code is a string. All others are
+        // an html error page.
+        errMsg = lg.INVALID_ACTION
+        break
+      case 401:
+        errMsg = lg.NOT_ALLOWED_SYSTEM
+        break
+      case 403:
+        errMsg = lg.authorization_required
+        break
+      case 500:
+        errMsg = lg.server_error + ': ' + errorThrown
+      default:
+        errMsg = lg.unknown_error
+    }
+
+    errMsg + ' (' + xhrObject.status + ')'
+
+    if (!xhrObject.responseText.match(/html/)) {
+      // Then is a bare string that can be displayed
+      errMsg = errMsg + ': ' + xhrObject.responseText
+    }
+    return errMsg
+  }
+
   $dt.on('select', function(event, dataTablesAPI, type) {
     if (type === ROW_SELECT_TYPE) {
       var selectedRows = $dt.rows({
@@ -1068,29 +1099,17 @@ function fileManager(
             refreshPage()
           },
           error: function(jqXHR, textStatus, errorThrown) {
-            var errMsg = ""
+            var errMsg = ''
 
             switch (jqXHR.status) {
-              case 400:
-                // responseText for 400 return code is a string. All others are
-                // an html error page.
-                errMsg = lg.INVALID_ACTION  + ": "  + jqXHR.responseText
-                break
-              case 401:
-                errMsg = lg.NOT_ALLOWED_SYSTEM
-                break
-              case 403:
-                errMsg = lg.authorization_required
-                break
               case 409:
+                // This is the only case that has individual messaging
                 errMsg = lg.LINK_ALREADY_EXISTS.replace(/%s/g, linkName)
                 break
-              case 500:
-                errMsg = lg.server_error + ": " + errorThrown
               default:
-                errMsg = lg.unknown_error
+                errMsg = getErrorMsg(jqXHR, errorThrown)
             }
-            $.prompt(errMsg + " (" + jqXHR.status + "): ")
+            $.prompt(errMsg)
           }
         })
       } else {
@@ -1218,36 +1237,21 @@ function fileManager(
                 method: 'PUT',
                 contentType: 'application/json',
                 success: function( data, textStatus, jqXHR) {
-                  if (jqXHR.status == 201) {
                   $.prompt(lg.successful_added_folder, {
                     submit: refreshPage
                   })
-                } else { alert(jqXHR.status)}
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                  var errMsg = ""
+                  var errMsg = ''
 
                   switch (jqXHR.status) {
-                    case 400:
-                      // responseText for 400 return code is a string. All others are
-                      // an html error page.
-                      errMsg = lg.INVALID_ACTION + ": "  + jqXHR.responseText
-                      break
-                    case 401:
-                      errMsg = lg.NOT_ALLOWED_SYSTEM
-                      break
-                    case 403:
-                      errMsg = lg.authorization_required
-                      breakd
                     case 409:
                       errMsg = lg.DIRECTORY_ALREADY_EXISTS.replace(/%s/g, formVals['destNode'])
                       break
-                    case 500:
-                      errMsg = lg.server_error + ": " + errorThrown
                     default:
-                      errMsg = lg.unknown_error
+                      errMsg = getErrorMsg(jqXHR, errorThrown)
                   }
-                  $.prompt(errMsg + " (" + jqXHR.status + "): ")
+                  $.prompt(errMsg )
                 }
               })
             } else {
@@ -1435,7 +1439,7 @@ function fileManager(
             contentType: 'application/json',
             data: JSON.stringify(formVals),
             success: function( data, textStatus, jqXHR) {
-              var infoMsg = ""
+              var infoMsg = ''
 
               switch (jqXHR.status) {
                 case 202:
@@ -1448,29 +1452,16 @@ function fileManager(
               $.prompt(infoMsg, {submit: refreshPage})
             },
             error: function(jqXHR, textStatus, errorThrown) {
-              var errMsg = ""
+              var errMsg = ''
 
               switch (jqXHR.status) {
-                case 400:
-                  // responseText for 400 return code is a string. All others are
-                  // an html error page.
-                  errMsg = lg.INVALID_ACTION  + ": "  + jqXHR.responseText
-                  break
-                case 401:
-                  errMsg = lg.NOT_ALLOWED_SYSTEM
-                  break
-                case 403:
-                  errMsg = lg.authorization_required
-                  break
                 case 409:
-                  errMsg = lg.NOT_ALLOWED_SYSTEM.replace(/%s/g, formVals['destNode'])
+                  errMsg = lg.NOT_ALLOWED_SYSTEM.replace(/%s/g, formVals['destNode']) + ' (' + jqXHR.status + ')'
                   break
-                case 500:
-                  errMsg = lg.server_error + ": " + errorThrown
                 default:
-                  errMsg = lg.unknown_error
+                  errMsg = getErrorMsg(jqXHR, errorThrown)
               }
-              $.prompt(errMsg + " (" + jqXHR.status + "): ")
+              $.prompt(errMsg )
             }
           })
         } else {
@@ -1535,18 +1526,8 @@ function fileManager(
           loadEditPermPrompt($iconAnchor)
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          var errMsg = ""
-
-          switch (jqXHR.status) {
-            case 401:
-              errMsg = lg.authorization_required
-              break
-            case 500:
-              errMsg = lg.server_error + ": " + errorThrown
-            default:
-              errMsg = lg.unknown_error
-          }
-          $.prompt(errMsg + " (" + jqXHR.status + "): ")
+          var errMsg = getErrorMsg(jqXHR, errorThrown)
+          $.prompt(errMsg)
         }
       })
     } else {
@@ -1934,33 +1915,20 @@ function fileManager(
             })
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          var errMsg = ""
+          var errMsg = ''
 
           switch (jqXHR.status) {
-            case 400:
-              // responseText for 400 return code is a string. All others are
-              // an html error page.
-              errMsg = lg.INVALID_ACTION  + ": "  + jqXHR.responseText
-              break
-            case 401:
-              errMsg = lg.NOT_ALLOWED_SYSTEM
-              break
-            case  403:
-              errMsg = lg.authorization_required
-              break
             case  404:
-              errMsg = lg.FILE_DOES_NOT_EXIST.replace(/%s/g, formVals['srcNodes'])
+              errMsg = lg.FILE_DOES_NOT_EXIST.replace(/%s/g, formVals['srcNodes']) + ' (' + jqXHR.status + ')'
               break
             case 409:
-              errMsg = lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode'])
+              errMsg = lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode']) + ' (' + jqXHR.status + ')'
               break
-            case 500:
-              errMsg = lg.server_error + ": " + errorThrown
             default:
-              errMsg = lg.unknown_error
+              errMsg = getErrorMsg(jqXHR, errorThrown)
           }
 
-          $.prompt(errMsg + " (" + jqXHR.status + "): ")
+          $.prompt(errMsg )
         }
       })
     } //end if value == true
@@ -1991,30 +1959,17 @@ function fileManager(
           })
         },
         error: function(jqXHR, textStatus, errorThrown) {
-          var errMsg = ""
+          var errMsg = ''
 
           switch (jqXHR.status) {
-            case 400:
-              // responseText for 400 return code is a string. All others are
-              // an html error page.
-              errMsg = lg.INVALID_ACTION + ": "  + jqXHR.responseText
-              break
-            case 401:
-              errMsg = lg.NOT_ALLOWED_SYSTEM
-              break
-            case  403:
-              errMsg = lg.authorization_required
-              break
             case 409:
-              errMsg = lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals['itemName'])
+              errMsg = lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals['itemName']) + ' (' + jqXHR.status + ')'
               break
-            case 500:
-              errMsg = lg.server_error + ": " + errorThrown
             default:
-              errMsg = lg.unknown_error
+              errMsg = getErrorMsg(jqXHR, errorThrown)
           }
 
-          $.prompt(errMsg + " (" + jqXHR.status + "): ")
+          $.prompt(errMsg )
         }
       })
     } //end if value == true
@@ -2384,8 +2339,10 @@ function fileManager(
             successful.push(path)
           },
           error: function(jqXHR, textStatus, errorThrown) {
-            var errMsg = ""
+            var errMsg = ''
 
+            // This switch doesn't use getErrorMsg() because it's
+            // message set is too different
             switch (jqXHR.status) {
               case 401:
               case 403:
@@ -2395,11 +2352,11 @@ function fileManager(
                 unsuccessful[path] = lg.ERROR_NO_SUCH_ITEM
                 break
               case 500:
-                errMsg = unsuccessful[path] = lg.ERROR_SERVER + ": " + errorThrown
+                errMsg = unsuccessful[path] = lg.ERROR_SERVER + ': ' + errorThrown
               default:
                 errMsg = lg.unknown_error
             }
-            $.prompt(errMsg + " (" + jqXHR.status + "): ")
+            $.prompt(errMsg + ' (' + jqXHR.status + ')')
           }
         }).always(function() {
           totalCompleteCount++
@@ -3220,7 +3177,8 @@ function fileManager(
             error: function(file, response) {
               var message = ''
               if (typeof response === 'string') {
-                message = response
+                // parse message based on file.xhr status
+                message = getErrorMsg(file.xhr, '')
               } else if (response.hasOwnProperty('error')) {
                 message = response.error
               } else if (response.hasOwnProperty('message')) {
