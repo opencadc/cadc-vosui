@@ -145,10 +145,7 @@ public class VOSpaceStatusService extends StatusService {
             // Prune out any CR or LF that might come from web services, or they'll
             // get converted to a helpful message about how they need to be removed
             // further up the chain in the restlet code.
-            String thrownMessage = throwable.getMessage();
-            if (thrownMessage.contains("\n")) {
-                thrownMessage = thrownMessage.replace("\n", "");
-            }
+            String thrownMessage = throwable.getMessage().replace("\n", "");
             status = new Status(Status.CLIENT_ERROR_BAD_REQUEST.getCode(), thrownMessage, thrownMessage);
         } else if ((throwable instanceof FileNotFoundException) || (throwable instanceof NodeNotFoundException)
                    || (throwable instanceof ResourceNotFoundException)) {
