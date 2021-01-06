@@ -365,7 +365,7 @@ function fileManager(
         errMsg = lg.unknown_error
     }
 
-    errMsg + ' (' + xhrObject.status + ')'
+    errMsg += ' (' + xhrObject.status + ')'
 
     if (!xhrObject.responseText.match(/html/)) {
       // Then is a bare string that can be displayed
@@ -1887,52 +1887,128 @@ function fileManager(
       bOpName: 'bMoveto',
       bOpTitle: lg.move,
       filter: filterOutFiles,
-      opSuccess: lg.successful_moved,
+      opSuccess: lg.successful_move,
       promptMsg: lg.please_select_folder,
-      submitFunction: doMove
+      submitFunction: handleMove
     }
 
     processItem(params, srcNodeList)
-  } // end moveItem
+  } // end moveItem()
 
-  // Submit function for move usage of collapsible list prompt
-  var doMove = function(event, value, msg, formVals) {
-    if (value === true) {
-      // Target destination for the operation
-      var itemPath = formVals['destNode']
 
-      var url = contextPath + config.options.folderConnector + itemPath
+  var handleMove = function(event, value, msg, formVals) {
+    var isDeleted = false
+    var msg = lg.confirmation_move
+    var curState
+    var nextState = 'moving'
+    var displayMsg
 
-      var dataStr = JSON.stringify(formVals)
-      $.ajax({
-        url: url,
-        method: 'POST',
-        contentType: 'application/json',
-        data: dataStr,
-        success: function( data, textStatus, jqXHR) {
-            $.prompt(lg.successful_moved, {
-              submit: refreshPage
-            })
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          var errMsg = ''
+    // Submit function for move usage of collapsible list prompt
+    var doMove = function(event, value, msg, formVals) {
+      var curState = $.prompt.getCurrentStateName()
+      var nextState = curState
 
-          switch (jqXHR.status) {
-            case  404:
-              errMsg = lg.FILE_DOES_NOT_EXIST.replace(/%s/g, formVals['srcNodes']) + ' (' + jqXHR.status + ')'
-              break
-            case 409:
-              errMsg = lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode']) + ' (' + jqXHR.status + ')'
-              break
-            default:
-              errMsg = getErrorMsg(jqXHR, errorThrown)
+      if (value === true) {
+        // Target destination for the operation
+        var itemPath = formVals['destNode']
+
+        var url = contextPath + config.options.folderConnector + itemPath
+
+        var dataStr = JSON.stringify(formVals)
+        $.ajax({
+          url: url,
+          method: 'POST',
+          contentType: 'application/json',
+          data: dataStr,
+          success: function (data, textStatus, jqXHR) {
+            displayMsg = lg.successful_move
+            nextState = 'successful'
+            $.prompt.goToState(nextState)
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            var errMsg = ''
+
+            switch (jqXHR.status) {
+              case  404:
+                displayMsg = lg.FILE_DOES_NOT_EXIST.replace(/%s/g, formVals['srcNodes']) + ' (' + jqXHR.status + ')'
+                break
+              case 409:
+                displayMsg = lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode']) + ' (' + jqXHR.status + ')'
+                break
+              default:
+                displayMsg = getErrorMsg(jqXHR, errorThrown)
+            }
+            nextState = 'unsuccessful'
+            $.prompt.goToState(nextState)
           }
+        })
 
-          $.prompt(errMsg )
+      } else {
+        nextState = 'cancelled'
+        $.prompt.goToState(nextState)
+      } //end if value == true
+
+      return nextState
+    } // end doMove()
+
+    var btns = []
+    btns.push({
+      title: lg.yes,
+      value: true,
+      classes: 'btn btn-danger'
+    })
+    btns.push({
+      title: lg.no,
+      value: false,
+      classes: 'btn btn-default'
+    })
+
+    $.prompt.disableStateButtons('moving')
+
+    $.prompt({
+      confirmation: {
+        html: msg,
+        buttons: btns,
+        submit: function(e, v, m, f) {
+          if (v === true) {
+            e.preventDefault()
+            $.prompt.nextState(function(event) {
+              event.preventDefault()
+              var curState = doMove(event, value, msg, formVals, )
+              $.prompt.goToState(nextState)
+              return false
+            })
+            return false
+          } else {
+            $.prompt.close()
+          }
         }
-      })
-    } //end if value == true
-  } // end doMove
+      },
+      moving: {
+        html: lg.moving_message
+      },
+      successful: {
+        html: lg.successful_move,
+        buttons: [
+          {
+            title: lg.close,
+            value: false,
+            classes: 'btn btn-success'
+          }
+        ],
+        submit: refreshPage
+      },
+      unsuccessful: {
+        html: function() {
+          return lg.unsuccessful_move + '<br />' + displayMsg + '<br />'
+        }
+      },
+      cancelled: {
+        html:  lg.cancel
+      }
+    })
+  } // end handleMove()
+
 
   // Submit function for link use of collapsible list prompt
   var doLink = function(event, value, msg, formVals) {
