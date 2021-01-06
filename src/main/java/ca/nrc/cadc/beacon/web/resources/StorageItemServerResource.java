@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2016.                            (c) 2016.
+ *  (c) 2020.                            (c) 2020.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -99,9 +99,7 @@ import java.util.Set;
 
 public class StorageItemServerResource extends SecureServerResource {
 
-    static final String VOSPACE_NODE_URI_PREFIX = "vos://cadc.nrc.ca!vault";
     static final String IVO_GMS_PROPERTY_PREFIX = "ivo://cadc.nrc.ca/gms#";
-
 
     // Page size for the initial page display.
     private static final int DEFAULT_DISPLAY_PAGE_SIZE = 35;
@@ -110,6 +108,9 @@ public class StorageItemServerResource extends SecureServerResource {
     StorageItemFactory storageItemFactory;
     VOSpaceClient voSpaceClient;
 
+    private String vospaceUserHome;
+    private String vospaceNodeUriPrefix;
+    private String vospaceServiceName;
 
     /**
      * Empty constructor needed for Restlet to manage it.  Needs to be public.
@@ -137,6 +138,15 @@ public class StorageItemServerResource extends SecureServerResource {
     protected void doInit() throws ResourceException {
         super.doInit();
         final Context context = getContext();
+        StorageApplication sa = (StorageApplication) getApplication();
+
+        String nodeURIKey = sa.getCurrentNodeURIKey();
+        this.vospaceNodeUriPrefix = (String) context.getAttributes().get(nodeURIKey);
+
+        String userHomeKey = sa.getCurrentUserHome();
+        this.vospaceUserHome = (String) context.getAttributes().get(userHomeKey);
+
+        this.vospaceServiceName = (String) context.getAttributes().get(StorageApplication.STORAGE_SERVICE_NAME_KEY);
         initialize(((VOSpaceClient) context.getAttributes().get(StorageApplication.VOSPACE_CLIENT_KEY)));
     }
 
@@ -148,7 +158,7 @@ public class StorageItemServerResource extends SecureServerResource {
                                                          (getServletContext() == null)
                                                          ? StorageApplication.DEFAULT_CONTEXT_PATH
                                                          : getServletContext().getContextPath(),
-                                                         filesMetaServiceID, filesMetaServiceStandardID);
+                                                         filesMetaServiceID, filesMetaServiceStandardID, vospaceServiceName);
 
         this.voSpaceClient = voSpaceClient;
     }
@@ -253,7 +263,7 @@ public class StorageItemServerResource extends SecureServerResource {
 
     VOSURI toURI(final String path) {
         try {
-            return new VOSURI(new URI(VOSPACE_NODE_URI_PREFIX + path));
+            return new VOSURI(new URI(getVospaceNodeUriPrefix() + path));
         } catch (URISyntaxException e) {
             throw new ResourceException(new IllegalArgumentException("Invalid name: " + path));
         }
@@ -500,5 +510,13 @@ public class StorageItemServerResource extends SecureServerResource {
             setNodeSecure(currentNode);
             getResponse().setStatus(Status.SUCCESS_OK);
         }
+    }
+
+    public String getVospaceNodeUriPrefix() {
+        return vospaceNodeUriPrefix;
+    }
+
+    public String getVospaceUserHome() {
+        return vospaceUserHome;
     }
 }

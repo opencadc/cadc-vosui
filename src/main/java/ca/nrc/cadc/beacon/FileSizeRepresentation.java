@@ -70,8 +70,7 @@ package ca.nrc.cadc.beacon;
 
 import java.text.DecimalFormat;
 
-public class FileSizeRepresentation
-{
+public class FileSizeRepresentation {
     private static final String[] SIZE_FORMAT_TYPES = {
             "B", "KB", "MB", "GB", "TB", "PB"
     };
@@ -79,31 +78,22 @@ public class FileSizeRepresentation
     private static final long THRESHOLD = 1024L;
 
 
-    public FileSizeRepresentation()
-    {
+    public FileSizeRepresentation() {
 
     }
 
 
-    public final String getSizeHumanReadable(final long sizeInBytes)
-    {
+    public final String getSizeHumanReadable(final long sizeInBytes) {
         int c = 0;
-        double n = new Long(sizeInBytes).doubleValue();
+        double n = Long.valueOf(sizeInBytes).doubleValue();
 
-        while (true)
-        {
-            if (n < 0.0D)
-            {
+        while (true) {
+            if (n < 0.0D) {
                 return "--";
-            }
-            else if (n < THRESHOLD)
-            {
+            } else if (n < THRESHOLD) {
                 n = Math.round(n * 100.0D) / 100.0D;
-                return new DecimalFormat("#0.00")
-                        .format(n) + " " + SIZE_FORMAT_TYPES[c];
-            }
-            else
-            {
+                return new DecimalFormat("#0.00").format(n) + " " + SIZE_FORMAT_TYPES[c];
+            } else {
                 n /= THRESHOLD;
                 c += 1;
             }

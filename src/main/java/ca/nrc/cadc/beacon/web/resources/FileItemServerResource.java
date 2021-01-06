@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2016.                            (c) 2016.
+ *  (c) 2020.                            (c) 2020.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -69,6 +69,7 @@
 package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.auth.AuthMethod;
+import ca.nrc.cadc.auth.AuthenticationUtil;
 import ca.nrc.cadc.beacon.web.*;
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
 import ca.nrc.cadc.net.ResourceNotFoundException;
@@ -77,12 +78,15 @@ import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.vos.client.ClientTransfer;
+import ca.nrc.cadc.vos.client.VOSClientUtil;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
+import javax.security.auth.Subject;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.restlet.data.MediaType;
@@ -103,6 +107,9 @@ import java.util.List;
 
 
 public class FileItemServerResource extends StorageItemServerResource {
+
+    private static final Logger log =
+        Logger.getLogger(FileItemServerResource.class);
 
     private static final int BUFFER_SIZE = 8192;
     private static final String UPLOAD_FILE_KEY = "upload";
@@ -280,20 +287,34 @@ public class FileItemServerResource extends StorageItemServerResource {
      */
     void upload(final UploadOutputStreamWrapper outputStreamWrapper, final DataNode dataNode) throws Exception {
         final RegistryClient registryClient = new RegistryClient();
+        final Subject subject = AuthenticationUtil.getCurrentSubject();
+        final AuthMethod am = AuthenticationUtil.getAuthMethodFromCredentials(subject);
+
         final URL baseURL = registryClient
-                                    .getServiceURL(dataNode.getUri().getServiceURI(), Standards.VOSPACE_TRANSFERS_20,
-                                                   AuthMethod.COOKIE);
+            .getServiceURL(dataNode.getUri().getServiceURI(),
+                Standards.VOSPACE_TRANSFERS_20, am);
+        log.debug("uploadURL: " + baseURL);
+
         final List<Protocol> protocols = new ArrayList<>();
         protocols.add(new Protocol(VOS.PROTOCOL_HTTP_PUT, baseURL.toString(), null));
+        protocols.add(new Protocol(VOS.PROTOCOL_HTTPS_PUT, baseURL.toString(), null));
+        if (!AuthMethod.ANON.equals(am)) {
+            Protocol httpsAuth = new Protocol(VOS.PROTOCOL_HTTPS_PUT);
+            httpsAuth.setSecurityMethod(Standards.getSecurityMethod(am));
+            protocols.add(httpsAuth);
+        }
+
         final Transfer transfer = new Transfer(dataNode.getUri().getURI(), Direction.pushToVoSpace,
                                                new View(URI.create(VOS.VIEW_DEFAULT)), protocols);
-
         transfer.version = VOS.VOSPACE_21;
 
         final ClientTransfer ct = voSpaceClient.createTransfer(transfer);
         ct.setOutputStreamWrapper(outputStreamWrapper);
 
         ct.runTransfer();
+
+        // Check uws job status
+        VOSClientUtil.checkTransferFailure(ct);
 
         final Node uploadedNode = getNode(dataNode.getUri(), VOS.Detail.properties);
         uploadVerifier.verifyByteCount(outputStreamWrapper.getByteCount(), uploadedNode);

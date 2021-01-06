@@ -71,6 +71,10 @@ package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.beacon.FileSizeRepresentation;
+import ca.nrc.cadc.uws.ErrorSummary;
+import ca.nrc.cadc.uws.ErrorType;
+import ca.nrc.cadc.uws.ExecutionPhase;
+import ca.nrc.cadc.uws.Job;
 import ca.nrc.cadc.vos.*;
 
 import ca.nrc.cadc.vos.client.ClientTransfer;
@@ -106,7 +110,7 @@ public class FolderItemServerResourceTest
     extends AbstractServerResourceTest<FolderItemServerResource> {
     @Test
     public void create() throws Exception {
-        final VOSURI folderURI = new VOSURI(URI.create(StorageItemServerResource.VOSPACE_NODE_URI_PREFIX + "/my/node"));
+        final VOSURI folderURI = new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + "/my/node"));
         final ContainerNode containerNode = new ContainerNode(folderURI);
 
         expect(mockServletContext.getContextPath()).andReturn("/teststorage").once();
@@ -202,9 +206,7 @@ public class FolderItemServerResourceTest
         String expectedQuota = new FileSizeRepresentation()
             .getSizeHumanReadable(quota);
 
-        final VOSURI folderURI = new VOSURI(URI.create(
-            StorageItemServerResource.VOSPACE_NODE_URI_PREFIX
-                + "/my/node"));
+        final VOSURI folderURI = new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + "/my/node"));
         List<NodeProperty> properties = new ArrayList<>();
         properties.add(folderSizeNodeProp);
         NodeProperty prop = new NodeProperty(VOS.PROPERTY_URI_QUOTA, Long
@@ -238,6 +240,9 @@ public class FolderItemServerResourceTest
             ServletContext getServletContext() {
                 return mockServletContext;
             }
+
+            @Override
+            public String getVospaceNodeUriPrefix() { return VOSPACE_NODE_URI_PREFIX; }
 
             @SuppressWarnings("unchecked")
             @Override
@@ -284,23 +289,25 @@ public class FolderItemServerResourceTest
         final String destNodeName = "/my/dest_node";
 
         final VOSURI destination =
-            new VOSURI(URI.create(StorageItemServerResource.VOSPACE_NODE_URI_PREFIX + destNodeName));
+            new VOSURI(URI.create(VOSPACE_NODE_URI_PREFIX + destNodeName));
         final ContainerNode mockDestinationNode = createMock(ContainerNode.class);
 
         expect(mockDestinationNode.getUri()).andReturn(destination)
                                             .once();
         replay(mockDestinationNode);
 
-
         final Transfer mockTransfer = createMock(Transfer.class);
         replay(mockTransfer);
 
+        final ContainerNode mockContainerNode = createMock(ContainerNode.class);
+        expect(mockContainerNode.getUri()).andReturn(new VOSURI("vos://cadc.nrc.ca/TEST")).anyTimes();
+        replay(mockContainerNode);
 
         // Need mock ClientTransfer object as well.
         final ClientTransfer mockClientTransfer = createMock(ClientTransfer.class);
 
         // Override runTransfer & setMonitor methods
-        mockClientTransfer.setMonitor(false);
+        mockClientTransfer.setMonitor(true);
         expectLastCall().andAnswer(new IAnswer<Void>() {
             @Override
             public Void answer() {
@@ -316,9 +323,15 @@ public class FolderItemServerResourceTest
             }
         });
 
+        // Return an empty error message with getServerError() in order to
+        // signal that the move succeeded
+        ErrorSummary es = new ErrorSummary("", ErrorType.TRANSIENT);
+        expect(mockClientTransfer.getServerError()).andReturn(es).once();
+        expect(mockClientTransfer.getPhase()).andReturn(ExecutionPhase.COMPLETED).anyTimes();
 
         // Set up return code in response
         mockResponse.setStatus(Status.SUCCESS_OK);
+
         expectLastCall().once();
         expect(mockContext.getAttributes()).andReturn(new ConcurrentHashMap<String, Object>()).times(2);
 
@@ -330,7 +343,6 @@ public class FolderItemServerResourceTest
 
         expect(mockServletContext.getContextPath()).andReturn("/teststorage").once();
         replay(mockServletContext);
-
 
 
         testSubject = new FolderItemServerResource(mockVOSpaceClient) {
@@ -369,6 +381,9 @@ public class FolderItemServerResourceTest
                 return destination;
             }
 
+            @Override
+            public String getVospaceNodeUriPrefix() { return VOSPACE_NODE_URI_PREFIX; }
+
             @SuppressWarnings("unchecked")
             @Override
             <T extends Node> T getNode(VOSURI folderURI, VOS.Detail detail)
@@ -388,10 +403,14 @@ public class FolderItemServerResourceTest
 
         final JsonRepresentation payload = new JsonRepresentation(sourceJSON);
 
-        testSubject.moveToFolder(payload);
+        try {
+            testSubject.moveToFolder(payload);
+        } catch (Exception expected ) {
+
+        }
 
         verify(mockVOSpaceClient, mockResponse, mockServletContext, mockContext,
-               mockClientTransfer, mockDestinationNode, mockTransfer);
+               mockClientTransfer, mockDestinationNode, mockTransfer, mockContainerNode);
 
     }
 }
