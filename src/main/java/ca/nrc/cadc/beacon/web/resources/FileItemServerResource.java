@@ -78,6 +78,7 @@ import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 import ca.nrc.cadc.vos.client.ClientTransfer;
+import ca.nrc.cadc.vos.client.VOSClientUtil;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 import javax.security.auth.Subject;
 import org.apache.commons.fileupload.FileItemIterator;
@@ -311,6 +312,9 @@ public class FileItemServerResource extends StorageItemServerResource {
         ct.setOutputStreamWrapper(outputStreamWrapper);
 
         ct.runTransfer();
+
+        // Check uws job status
+        VOSClientUtil.checkTransferFailure(ct);
 
         final Node uploadedNode = getNode(dataNode.getUri(), VOS.Detail.properties);
         uploadVerifier.verifyByteCount(outputStreamWrapper.getByteCount(), uploadedNode);

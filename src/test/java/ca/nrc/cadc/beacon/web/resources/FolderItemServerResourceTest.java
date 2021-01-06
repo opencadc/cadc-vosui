@@ -71,6 +71,10 @@ package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.beacon.FileSizeRepresentation;
+import ca.nrc.cadc.uws.ErrorSummary;
+import ca.nrc.cadc.uws.ErrorType;
+import ca.nrc.cadc.uws.ExecutionPhase;
+import ca.nrc.cadc.uws.Job;
 import ca.nrc.cadc.vos.*;
 
 import ca.nrc.cadc.vos.client.ClientTransfer;
@@ -295,12 +299,15 @@ public class FolderItemServerResourceTest
         final Transfer mockTransfer = createMock(Transfer.class);
         replay(mockTransfer);
 
+        final ContainerNode mockContainerNode = createMock(ContainerNode.class);
+        expect(mockContainerNode.getUri()).andReturn(new VOSURI("vos://cadc.nrc.ca/TEST")).anyTimes();
+        replay(mockContainerNode);
 
         // Need mock ClientTransfer object as well.
         final ClientTransfer mockClientTransfer = createMock(ClientTransfer.class);
 
         // Override runTransfer & setMonitor methods
-        mockClientTransfer.setMonitor(false);
+        mockClientTransfer.setMonitor(true);
         expectLastCall().andAnswer(new IAnswer<Void>() {
             @Override
             public Void answer() {
@@ -316,8 +323,15 @@ public class FolderItemServerResourceTest
             }
         });
 
+        // Return an empty error message with getServerError() in order to
+        // signal that the move succeeded
+        ErrorSummary es = new ErrorSummary("", ErrorType.TRANSIENT);
+        expect(mockClientTransfer.getServerError()).andReturn(es).once();
+        expect(mockClientTransfer.getPhase()).andReturn(ExecutionPhase.COMPLETED).anyTimes();
+
         // Set up return code in response
         mockResponse.setStatus(Status.SUCCESS_OK);
+
         expectLastCall().once();
         expect(mockContext.getAttributes()).andReturn(new ConcurrentHashMap<String, Object>()).times(2);
 
@@ -389,10 +403,14 @@ public class FolderItemServerResourceTest
 
         final JsonRepresentation payload = new JsonRepresentation(sourceJSON);
 
-        testSubject.moveToFolder(payload);
+        try {
+            testSubject.moveToFolder(payload);
+        } catch (Exception expected ) {
+
+        }
 
         verify(mockVOSpaceClient, mockResponse, mockServletContext, mockContext,
-               mockClientTransfer, mockDestinationNode, mockTransfer);
+               mockClientTransfer, mockDestinationNode, mockTransfer, mockContainerNode);
 
     }
 }

@@ -343,6 +343,37 @@ function fileManager(
     }
   }
 
+  var getErrorMsg = function(xhrObject, errorThrown) {
+    var errMsg =''
+
+    // determine base message first for status codes that are common
+    switch (xhrObject.status) {
+      case 400:
+        // responseText for 400 return code is a string. All others are
+        // an html error page.
+        errMsg = lg.INVALID_ACTION
+        break
+      case 401:
+        errMsg = lg.NOT_ALLOWED_SYSTEM
+        break
+      case 403:
+        errMsg = lg.authorization_required
+        break
+      case 500:
+        errMsg = lg.server_error + ': ' + errorThrown
+      default:
+        errMsg = lg.unknown_error
+    }
+
+    errMsg += ' (' + xhrObject.status + ')'
+
+    if (!xhrObject.responseText.match(/html/)) {
+      // Then is a bare string that can be displayed
+      errMsg = errMsg + ': ' + xhrObject.responseText
+    }
+    return errMsg
+  }
+
   $dt.on('select', function(event, dataTablesAPI, type) {
     if (type === ROW_SELECT_TYPE) {
       var selectedRows = $dt.rows({
@@ -1051,7 +1082,6 @@ function fileManager(
     var errorMessage
 
     var doLinkCreate = function(_formVals) {
-      var returnValue = null
       var linkName = _formVals['link_name']
 
       if (validFilename(linkName)) {
@@ -1065,38 +1095,26 @@ function fileManager(
           method: 'PUT',
           data: JSON.stringify(_formVals),
           contentType: 'application/json',
-          statusCode: {
-            201: function() {
-              returnValue = true
-            },
-            400: function() {
-              errorMessage = lg.ERROR_SERVER
-              returnValue = false
-            },
-            401: function() {
-              errorMessage = lg.NOT_ALLOWED_SYSTEM
-              returnValue = false
-            },
-            403: function() {
-              errorMessage = lg.NOT_ALLOWED_SYSTEM
-              returnValue = false
-            },
-            409: function() {
-              errorMessage = lg.LINK_ALREADY_EXISTS.replace(/%s/g, linkName)
-              returnValue = false
+          success: function( data, textStatus, jqXHR) {
+            refreshPage()
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            var errMsg = ''
+
+            switch (jqXHR.status) {
+              case 409:
+                // This is the only case that has individual messaging
+                errMsg = lg.LINK_ALREADY_EXISTS.replace(/%s/g, linkName)
+                break
+              default:
+                errMsg = getErrorMsg(jqXHR, errorThrown)
             }
+            $.prompt(errMsg)
           }
         })
-
-        if (returnValue === null) {
-          returnValue = true
-        }
       } else {
         errorMessage = lg.INVALID_ITEM_NAME
-        returnValue = false
       }
-
-      return returnValue
     }
 
     $.prompt.disableStateButtons('link_creation')
@@ -1120,36 +1138,11 @@ function fileManager(
         html: msg,
         submit: function(e, value, message, formVals) {
           if (value === true) {
-            e.preventDefault()
-            $.prompt.nextState(function(event) {
-              event.preventDefault()
-              var nextState = doLinkCreate(formVals)
-                ? 'successful'
-                : 'unsuccessful'
-              $.prompt.goToState(nextState)
-              return false
-            })
+            doLinkCreate(formVals)
           } else {
             return true
           }
         }
-      },
-      link_creation: {
-        html: lg.creating
-      },
-      successful: {
-        html: lg.successful_added_link,
-        buttons: [
-          {
-            title: lg.close,
-            value: false,
-            classes: 'btn btn-success'
-          }
-        ],
-        submit: refreshPage
-      },
-      unsuccessful: {
-        html: errorMessage ? errorMessage : lg.unsuccessful_added_link
       }
     })
   }
@@ -1243,22 +1236,22 @@ function fileManager(
                   encodeURIComponent(fname),
                 method: 'PUT',
                 contentType: 'application/json',
-                statusCode: {
-                  201: function() {
-                    $.prompt(lg.successful_added_folder, {
-                      submit: refreshPage
-                    })
-                  },
-                  400: function() {},
-                  401: function() {
-                    $.prompt(lg.NOT_ALLOWED_SYSTEM)
-                  },
-                  403: function() {
-                    $.prompt(lg.NOT_ALLOWED_SYSTEM)
-                  },
-                  409: function() {
-                    $.prompt(lg.DIRECTORY_ALREADY_EXISTS.replace(/%s/g, fname))
+                success: function( data, textStatus, jqXHR) {
+                  $.prompt(lg.successful_added_folder, {
+                    submit: refreshPage
+                  })
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                  var errMsg = ''
+
+                  switch (jqXHR.status) {
+                    case 409:
+                      errMsg = lg.DIRECTORY_ALREADY_EXISTS.replace(/%s/g, formVals['destNode'])
+                      break
+                    default:
+                      errMsg = getErrorMsg(jqXHR, errorThrown)
                   }
+                  $.prompt(errMsg )
                 }
               })
             } else {
@@ -1445,32 +1438,30 @@ function fileManager(
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(formVals),
-            statusCode: {
-              202: function() {
-                $.prompt(lg.permissions_recursive_submitted, {
-                  submit: refreshPage
-                })
-              },
-              204: function() {
-                $.prompt(lg.permissions_modified, {
-                  submit: refreshPage
-                })
-              },
-              400: function() {
-                $.prompt(lg.NOT_ALLOWED_SYSTEM)
-              },
-              401: function() {
-                $.prompt(lg.NOT_ALLOWED_SYSTEM)
-              },
-              403: function() {
-                $.prompt(lg.NOT_ALLOWED_SYSTEM)
-              },
-              409: function() {
-                $.prompt(lg.NOT_ALLOWED_SYSTEM.replace(/%s/g, fname))
-              },
-              500: function() {
-                $.prompt(lg.server_error)
+            success: function( data, textStatus, jqXHR) {
+              var infoMsg = ''
+
+              switch (jqXHR.status) {
+                case 202:
+                  infoMsg = lg.permissions_recursive_submitted
+                  break
+                case 204:
+                  infoMsg = lg.permissions_modified
+                  break
               }
+              $.prompt(infoMsg, {submit: refreshPage})
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              var errMsg = ''
+
+              switch (jqXHR.status) {
+                case 409:
+                  errMsg = lg.NOT_ALLOWED_SYSTEM.replace(/%s/g, formVals['destNode']) + ' (' + jqXHR.status + ')'
+                  break
+                default:
+                  errMsg = getErrorMsg(jqXHR, errorThrown)
+              }
+              $.prompt(errMsg )
             }
           })
         } else {
@@ -1531,16 +1522,12 @@ function fileManager(
       $.ajax({
         url: contextPath + 'access' + $iconAnchor.data('path'),
         method: 'GET',
-        statusCode: {
-          200: function() {
-            loadEditPermPrompt($iconAnchor)
-          },
-          401: function() {
-            $.prompt(lg.authorization_required)
-          },
-          500: function() {
-            $.prompt(lg.server_error)
-          }
+        success: function( data, textStatus, jqXHR) {
+          loadEditPermPrompt($iconAnchor)
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          var errMsg = getErrorMsg(jqXHR, errorThrown)
+          $.prompt(errMsg)
         }
       })
     } else {
@@ -1900,52 +1887,128 @@ function fileManager(
       bOpName: 'bMoveto',
       bOpTitle: lg.move,
       filter: filterOutFiles,
-      opSuccess: lg.successful_moved,
+      opSuccess: lg.successful_move,
       promptMsg: lg.please_select_folder,
-      submitFunction: doMove
+      submitFunction: handleMove
     }
 
     processItem(params, srcNodeList)
-  } // end moveItem
+  } // end moveItem()
 
-  // Submit function for move usage of collapsible list prompt
-  var doMove = function(event, value, msg, formVals) {
-    if (value === true) {
-      // Target destination for the operation
-      var itemPath = formVals['destNode']
 
-      var url = contextPath + config.options.folderConnector + itemPath
+  var handleMove = function(event, value, msg, formVals) {
+    var isDeleted = false
+    var msg = lg.confirmation_move
+    var curState
+    var nextState = 'moving'
+    var displayMsg
 
-      var dataStr = JSON.stringify(formVals)
-      $.ajax({
-        url: url,
-        method: 'POST',
-        contentType: 'application/json',
-        data: dataStr,
-        statusCode: {
-          204: function() {
-            $.prompt(lg.successful_moved, {
-              submit: refreshPage
+    // Submit function for move usage of collapsible list prompt
+    var doMove = function(event, value, msg, formVals) {
+      var curState = $.prompt.getCurrentStateName()
+      var nextState = curState
+
+      if (value === true) {
+        // Target destination for the operation
+        var itemPath = formVals['destNode']
+
+        var url = contextPath + config.options.folderConnector + itemPath
+
+        var dataStr = JSON.stringify(formVals)
+        $.ajax({
+          url: url,
+          method: 'POST',
+          contentType: 'application/json',
+          data: dataStr,
+          success: function (data, textStatus, jqXHR) {
+            displayMsg = lg.successful_move
+            nextState = 'successful'
+            $.prompt.goToState(nextState)
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            var errMsg = ''
+
+            switch (jqXHR.status) {
+              case  404:
+                displayMsg = lg.FILE_DOES_NOT_EXIST.replace(/%s/g, formVals['srcNodes']) + ' (' + jqXHR.status + ')'
+                break
+              case 409:
+                displayMsg = lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode']) + ' (' + jqXHR.status + ')'
+                break
+              default:
+                displayMsg = getErrorMsg(jqXHR, errorThrown)
+            }
+            nextState = 'unsuccessful'
+            $.prompt.goToState(nextState)
+          }
+        })
+
+      } else {
+        nextState = 'cancelled'
+        $.prompt.goToState(nextState)
+      } //end if value == true
+
+      return nextState
+    } // end doMove()
+
+    var btns = []
+    btns.push({
+      title: lg.yes,
+      value: true,
+      classes: 'btn btn-danger'
+    })
+    btns.push({
+      title: lg.no,
+      value: false,
+      classes: 'btn btn-default'
+    })
+
+    $.prompt.disableStateButtons('moving')
+
+    $.prompt({
+      confirmation: {
+        html: msg,
+        buttons: btns,
+        submit: function(e, v, m, f) {
+          if (v === true) {
+            e.preventDefault()
+            $.prompt.nextState(function(event) {
+              event.preventDefault()
+              var curState = doMove(event, value, msg, formVals, )
+              $.prompt.goToState(nextState)
+              return false
             })
-          },
-          401: function() {
-            $.prompt(lg.NOT_ALLOWED_SYSTEM)
-          },
-          403: function() {
-            $.prompt(lg.authorization_required)
-          },
-          409: function() {
-            $.prompt(
-              lg.FILE_ALREADY_EXISTS.replace(/%s/g, formVals['destNode'])
-            )
-          },
-          500: function() {
-            $.prompt(lg.ERROR_SERVER)
+            return false
+          } else {
+            $.prompt.close()
           }
         }
-      })
-    } //end if value == true
-  } // end doMove
+      },
+      moving: {
+        html: lg.moving_message
+      },
+      successful: {
+        html: lg.successful_move,
+        buttons: [
+          {
+            title: lg.close,
+            value: false,
+            classes: 'btn btn-success'
+          }
+        ],
+        submit: refreshPage
+      },
+      unsuccessful: {
+        html: function() {
+          return lg.unsuccessful_move + '<br />' + displayMsg + '<br />'
+        }
+      },
+      cancelled: {
+        html:  lg.cancel
+      }
+    })
+  } // end handleMove()
+
 
   // Submit function for link use of collapsible list prompt
   var doLink = function(event, value, msg, formVals) {
@@ -1966,26 +2029,23 @@ function fileManager(
         method: 'PUT',
         contentType: 'application/json',
         data: dataStr,
-        statusCode: {
-          201: function() {
-            $.prompt(lg.successful_linked, {
-              submit: refreshPage
-            })
-          },
-          401: function() {
-            $.prompt(lg.NOT_ALLOWED_SYSTEM)
-          },
-          403: function() {
-            $.prompt(lg.authorization_required)
-          },
-          409: function() {
-            $.prompt(
-              lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals['itemName'])
-            )
-          },
-          500: function() {
-            $.prompt(lg.ERROR_SERVER)
+        success: function() {
+          $.prompt(lg.successful_linked, {
+            submit: refreshPage
+          })
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          var errMsg = ''
+
+          switch (jqXHR.status) {
+            case 409:
+              errMsg = lg.LINK_ALREADY_EXISTS.replace(/%s/g, formVals['itemName']) + ' (' + jqXHR.status + ')'
+              break
+            default:
+              errMsg = getErrorMsg(jqXHR, errorThrown)
           }
+
+          $.prompt(errMsg )
         }
       })
     } //end if value == true
@@ -2228,21 +2288,27 @@ function fileManager(
           type: 'DELETE',
           url: contextPath + config.options.itemConnector + path,
           async: false,
-          statusCode: {
-            200: function() {
-              successful.push(path)
-            },
-            401: function() {
-              unsuccessful[path] = lg.ERROR_WRITING_PERM
-            },
-            403: function() {
-              unsuccessful[path] = lg.ERROR_WRITING_PERM
-            },
-            404: function() {
-              unsuccessful[path] = lg.ERROR_NO_SUCH_ITEM
-            },
-            500: function() {
-              unsuccessful[path] = lg.ERROR_SERVER
+          success: function() {
+            successful.push(path)
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            switch (jqXHR.status) {
+              case 400:
+                unsuccessful[path] = lg.INVALID_ACTION
+                break
+              case 401:
+                unsuccessful[path] = lg.ERROR_WRITING_PERM
+                break
+              case  403:
+                unsuccessful[path] = lg.ERROR_WRITING_PERM
+                break
+              case  404:
+                unsuccessful[path] = lg.ERROR_NO_SUCH_ITEM
+                break
+              case 500:
+                unsuccessful[path] = lg.ERROR_SERVER
+              default:
+                unsuccessful[path] = lg.unknown_error
             }
           }
         }).always(function() {
@@ -2345,22 +2411,28 @@ function fileManager(
           type: 'DELETE',
           url: contextPath + config.options.itemConnector + path,
           async: false,
-          statusCode: {
-            200: function() {
-              successful.push(path)
-            },
-            401: function() {
-              unsuccessful[path] = lg.ERROR_WRITING_PERM
-            },
-            403: function() {
-              unsuccessful[path] = lg.ERROR_WRITING_PERM
-            },
-            404: function() {
-              unsuccessful[path] = lg.ERROR_NO_SUCH_ITEM
-            },
-            500: function() {
-              unsuccessful[path] = lg.ERROR_SERVER
+          success: function( data, textStatus, jqXHR) {
+            successful.push(path)
+          },
+          error: function(jqXHR, textStatus, errorThrown) {
+            var errMsg = ''
+
+            // This switch doesn't use getErrorMsg() because it's
+            // message set is too different
+            switch (jqXHR.status) {
+              case 401:
+              case 403:
+                unsuccessful[path] = lg.ERROR_WRITING_PERM
+                break
+              case 404:
+                unsuccessful[path] = lg.ERROR_NO_SUCH_ITEM
+                break
+              case 500:
+                errMsg = unsuccessful[path] = lg.ERROR_SERVER + ': ' + errorThrown
+              default:
+                errMsg = lg.unknown_error
             }
+            $.prompt(errMsg + ' (' + jqXHR.status + ')')
           }
         }).always(function() {
           totalCompleteCount++
@@ -2488,7 +2560,7 @@ function fileManager(
   // Then let user change the content of the file
   // Save action is handled by the method using ajax
   var editItem = function(data) {
-    isEdited = false
+    var isEdited = false
 
     $fileInfo
       .find('div#tools')
@@ -3181,7 +3253,8 @@ function fileManager(
             error: function(file, response) {
               var message = ''
               if (typeof response === 'string') {
-                message = response
+                // parse message based on file.xhr status
+                message = getErrorMsg(file.xhr, '')
               } else if (response.hasOwnProperty('error')) {
                 message = response.error
               } else if (response.hasOwnProperty('message')) {
