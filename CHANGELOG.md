@@ -1,3 +1,10 @@
+# cadc-vosui CHANGELOG
+
+## Apr 15, 2021
+### 1.2.3
+* Gradle updates in preparation for Gradle 7
+* Fixes for Gradle 6.8.3 to work in GitHub Actions using Gradle Wrapper
+
 ## Jan 7, 2021
 ### 1.2.1
 * Minor change: Report error messages from VOSpace web service more effectively to UI.
