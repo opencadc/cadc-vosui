@@ -13,6 +13,9 @@ repositories {
     }
 }
 
+description = 'OpenCADC User Storage Interface'
+def git_url = 'https://github.com/opencadc/cadc-vosui.git'
+
 sourceCompatibility = '1.8'
 group = 'org.opencadc'
 version = '1.2.3'
