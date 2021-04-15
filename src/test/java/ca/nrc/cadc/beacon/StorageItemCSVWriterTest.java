@@ -81,12 +81,10 @@ import static org.junit.Assert.*;
 import static org.easymock.EasyMock.*;
 
 
-public class StorageItemCSVWriterTest
-        extends AbstractStorageItemWriterTest<StorageItemCSVWriter>
-{
+public class StorageItemCSVWriterTest extends AbstractStorageItemWriterTest<StorageItemCSVWriter> {
+
     @Test
-    public void write() throws Exception
-    {
+    public void write() throws Exception {
         final Writer writer = new StringWriter();
         testSubject = new StorageItemCSVWriter(writer);
 
@@ -94,8 +92,7 @@ public class StorageItemCSVWriterTest
                 mockStorageItem("node1", "18.86MB", null, "read_group_1",
                                 "2007-09-18 - 01:13", false, false,
                                 FolderItem.class, "folder_css",
-                                new VOSURI(URI.create(
-                                        "vos://ca.nrc.cadc!vault/ME/NODE_DIR")),
+                                new VOSURI(URI.create("vos://ca.nrc.cadc!vault/ME/NODE_DIR")),
                                 "/list/ME/NODE_DIR", true, true, "test_owner");
 
         replay(mockFolderItem);
@@ -105,7 +102,9 @@ public class StorageItemCSVWriterTest
         verify(mockFolderItem);
 
         assertEquals("Wrong CSV Line.",
-                     "\"\",\"node1\",\"18.86MB\",\"2007-09-18 - 01:13\",,\"read_group_1\",\"false\",\"false\",\"folder_css\",\"/ME/NODE_DIR\",\"vos://ca.nrc.cadc!vault/ME/NODE_DIR\",\"/list/ME/NODE_DIR\",\"true\",\"true\",\"test_owner\"\n",
+                     "\"\",\"node1\",\"18.86MB\",\"2007-09-18 - 01:13\",,\"read_group_1\",\"false\",\"false\"," +
+                     "\"folder_css\",\"/ME/NODE_DIR\",\"vos://ca.nrc.cadc!vault/ME/NODE_DIR\",\"/list/ME/NODE_DIR\"," +
+                     "\"true\",\"true\",\"test_owner\"\n",
                      writer.toString());
     }
 }

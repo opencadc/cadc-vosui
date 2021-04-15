@@ -1,20 +1,16 @@
----
----
-
 #### User Storage User Interface
-A fully functional UI is deployed at:
-<a rel="external" href="https://www.canfar.net/storage/list">https://www.canfar.net/storage/list/</a>
+### 1.2.3
 
-<a href="https://travis-ci.org/opencadc/cadc-vosui"><img src="https://travis-ci.org/opencadc/cadc-vosui.svg?branch=master" /></a>
 
+A fully functional UI is deployed on CANFAR: https://www.canfar.net/storage/list/
 
 ### Building
 
 Running:
 
-`gradle clean build`
+`gradlew -i clean build`
 
-Will produce a `jar` file in the `build/libs` directory that can be used to run a local Java container using the `gradle run` command.
+Will produce a `jar` file in the `build/libs` directory that can be used to run a local Java container using the `gradlew -i run` command.
 
 
 ### Configuration
@@ -63,13 +59,13 @@ The hostnames included in this property are all of the servers involved in your 
 
 For an embedded Jetty container, you can just run:
 
-`gradle run`
+`gradlew -i run`
 
 To produce a running embedded Jetty container running on port `8080`, with a debug port on `5555`.
 
 Pass your own Registry settings into the `JAVA_OPTS` environment variable to use your own VOSpace service:
 
-`gradle -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5555 -Djava.security.egd=file:/dev/./urandom -Djsse.enableSNIExtension=false -Dca.nrc.cadc.reg.client.RegistryClient.host=<your host for IVOA Registry host> run`
+`gradlew -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5555 -Djava.security.egd=file:/dev/./urandom -Djsse.enableSNIExtension=false -Dca.nrc.cadc.reg.client.RegistryClient.host=<your host for IVOA Registry host> run`
 
 To specify the Service ID (often called Resource ID) of your services.  The User Storage Interface relies on two services:
 

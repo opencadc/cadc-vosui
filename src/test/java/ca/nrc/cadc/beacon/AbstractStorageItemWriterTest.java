@@ -75,8 +75,8 @@ import static org.easymock.EasyMock.*;
 
 
 public abstract class AbstractStorageItemWriterTest<T extends StorageItemWriter>
-        extends AbstractUnitTest<T>
-{
+        extends AbstractUnitTest<T> {
+
     <T2 extends StorageItem> T2 mockStorageItem(final String name,
                                                 final String sizeHumanReadable,
                                                 final String writeGroups,
@@ -91,8 +91,7 @@ public abstract class AbstractStorageItemWriterTest<T extends StorageItemWriter>
                                                 final boolean isReadable,
                                                 final Boolean isWritable,
                                                 final String owner)
-            throws Exception
-    {
+            throws Exception {
         final T2 mockStorageItem = createMock(type);
 
         expect(mockStorageItem.getName()).andReturn(name).once();
@@ -101,9 +100,9 @@ public abstract class AbstractStorageItemWriterTest<T extends StorageItemWriter>
         expect(mockStorageItem.getLastModifiedHumanReadable()).andReturn(
                 dateHumanReadable).once();
         expect(mockStorageItem.getWriteGroupNames()).andReturn(writeGroups).
-                once();
+                                                                                   once();
         expect(mockStorageItem.getReadGroupNames()).andReturn(readGroups).
-                once();
+                                                                                 once();
 
         // Hidden on main UI.
         expect(mockStorageItem.isPublic()).andReturn(isPublic).once();

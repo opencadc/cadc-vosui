@@ -87,42 +87,34 @@ import java.io.Writer;
 import java.util.*;
 
 
-public class MainPageServerResource extends StorageItemServerResource
-{
+public class MainPageServerResource extends StorageItemServerResource {
+
     @Get
-    public Representation represent() throws Exception
-    {
+    public Representation represent() throws Exception {
         final ContainerNode currentNode = getCurrentNode(getCurrentPath().equals("/")
                                                          ? VOS.Detail.raw : VOS.Detail.max);
         return representContainerNode(currentNode);
     }
 
 
-    private Representation representContainerNode(final ContainerNode containerNode) throws Exception
-    {
+    private Representation representContainerNode(final ContainerNode containerNode) throws Exception {
         final List<Node> childNodes = containerNode.getNodes();
-        final Iterator<String> initialRows = new Iterator<String>()
-        {
+        final Iterator<String> initialRows = new Iterator<String>() {
             final Iterator<Node> childNodeIterator = childNodes.iterator();
 
             @Override
-            public boolean hasNext()
-            {
+            public boolean hasNext() {
                 return childNodeIterator.hasNext();
             }
 
             @Override
-            public String next()
-            {
+            public String next() {
                 final Writer writer = new StringWriter();
                 final StorageItemWriter storageItemWriter = new StorageItemCSVWriter(writer);
 
-                try
-                {
+                try {
                     storageItemWriter.write(storageItemFactory.translate(childNodeIterator.next()));
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
 
@@ -146,8 +138,7 @@ public class MainPageServerResource extends StorageItemServerResource
              * {@link UnsupportedOperationException} and performs no other action.
              */
             @Override
-            public void remove()
-            {
+            public void remove() {
                 childNodeIterator.remove();
             }
         };
@@ -158,15 +149,13 @@ public class MainPageServerResource extends StorageItemServerResource
         return representFolderItem(folderItem, initialRows, startNextPageURI);
     }
 
-    FreeMarkerConfiguration getFreeMarkerConfiguration()
-    {
+    FreeMarkerConfiguration getFreeMarkerConfiguration() {
         return getContextAttribute(StorageApplication.FREEMARKER_CONFIG_KEY);
     }
 
     Representation representFolderItem(final FolderItem folderItem, final Iterator<String> initialRows,
                                        final VOSURI startNextPageURI)
-            throws Exception
-    {
+            throws Exception {
         final Map<String, Object> dataModel = new HashMap<>();
         final AccessControlClient accessControlClient =
                 getContextAttribute(StorageApplication.ACCESS_CONTROL_CLIENT_KEY);
@@ -178,35 +167,29 @@ public class MainPageServerResource extends StorageItemServerResource
         dataModel.put("folderWritable", folderItem.isWritable());
         dataModel.put("folder", folderItem);
 
-        if (startNextPageURI != null)
-        {
+        if (startNextPageURI != null) {
             dataModel.put("startURI", startNextPageURI.toString());
         }
 
         // HttpPrincipal username will be pulled from current user
         final String httpUsername = accessControlClient.getCurrentHttpPrincipalUsername(getCurrentUser());
 
-        if (httpUsername != null)
-        {
+        if (httpUsername != null) {
             dataModel.put("username", httpUsername);
 
-            try
-            {
+            try {
                 // Check to see if home directory exists
                 String userHomeBase = getVospaceUserHome();
                 if (StringUtil.hasLength(userHomeBase)) {
-                    String userHome;
                     // Be a bit resilient when it comes to how the
                     // home directory is declared.
-                    if (userHomeBase.endsWith("/") == true) {
-                        userHome = userHomeBase + httpUsername;
-                    } else {
-                        userHome =  userHomeBase + "/" + httpUsername;
-                    }
+                    String userHome = userHomeBase.endsWith("/") ? userHomeBase + httpUsername
+                                                                 : userHomeBase + "/" + httpUsername;
 
-                    if (userHomeBase.startsWith("/") == false) {
+                    if (!userHomeBase.startsWith("/")) {
                         userHome = "/" + userHome;
                     }
+
                     getNode(new VOSURI(getVospaceNodeUriPrefix() + userHome), VOS.Detail.min);
                     dataModel.put("homeDir", userHome);
                 }

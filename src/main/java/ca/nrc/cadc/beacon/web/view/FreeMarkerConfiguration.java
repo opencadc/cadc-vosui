@@ -86,7 +86,7 @@ public class FreeMarkerConfiguration extends Configuration
      */
     public FreeMarkerConfiguration()
     {
-        super(Configuration.VERSION_2_3_25);
+        super(Configuration.VERSION_2_3_30);
 
         setLocalizedLookup(false);
     }
