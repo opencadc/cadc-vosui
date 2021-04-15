@@ -2,11 +2,6 @@
 ---
 
 #### User Storage User Interface
-
-By default, this uses the CANFAR (CADC) VOSpace located at:
-
-<a rel="external" href="https://ws-cadc.canfar.net/vault">https://ws-cadc.canfar.net/vault</a>
-
 A fully functional UI is deployed at:
 <a rel="external" href="https://www.canfar.net/storage/list">https://www.canfar.net/storage/list/</a>
 
@@ -20,6 +15,34 @@ Running:
 `gradle clean build`
 
 Will produce a `jar` file in the `build/libs` directory that can be used to run a local Java container using the `gradle run` command.
+
+
+### Configuration
+Both the VOSpace implementation and the Files web service User Storage uses must be configured before
+running this UI.
+
+#### VOSpace implementation 
+To configure the VOSpace implementation User Storage should use, the org.opencadc.vosui.properties file should 
+contain the following entries:
+
+`org.opencadc.vosui.service.name = <service_name>`
+
+`# The resource id of the VOSpace web service to use`
+`org.opencadc.vosui.<service_name>.service.resourceid = <URI that identifies the VOSPace web service>`
+
+`# Base URI to use as node identifier`
+`org.opencadc.vosui.<service_name>.node.resourceid = <URI that is the base of node identifiers>`
+
+`# Base home directory for authenticated users`
+`org.opencadc.vosui.<service_name>.user.home = <relative path, starting with '/'>`
+
+Note: replace <service_name> with the name of the VOSpace implementation in all cases, ie `vault` or `cavern`.
+
+#### File service implementation 
+To configure the File service org.opencadc.vosui.properties should contain the following entry:
+
+`# Files service for returning content`
+`org.opencadc.vospace.files_meta_service_id = <URI resource ID of Files service>`
 
 
 ### Running
@@ -50,13 +73,14 @@ Pass your own Registry settings into the `JAVA_OPTS` environment variable to use
 
 To specify the Service ID (often called Resource ID) of your services.  The User Storage Interface relies on two services:
 
-
- - VOSpace
+ - A VOSpace web service (e.g. `vault` or `cavern`)
  - Group Management Service (Access Control)
+ 
+See the 'Configuration' section for how to set up access to a VOSpace implementation. 
 
-To specify the Service ID for each service, add the appropriate System property for those, too e.g.:
+To specify the Service ID for Group Management, add the appropriate System property, e.g.:
 
-`... -Dorg.opencadc.vospace.service_id=ivo://<your domain>/<vospace service name> -Dorg.opencadc.gms.service_id=ivo://<your domain>/<gms service name> ...`
+`... -Dorg.opencadc.gms.service_id=ivo://<your domain>/<gms service name> ...`
 
 
 Or, from the `examples` directory, deploy the `war` file in `build/libs` into a Java container such as Tomcat.
