@@ -2,6 +2,9 @@ plugins {
     id 'java'
     id 'application'
     id 'maven-publish'
+
+    // Remove the `maven` plugin when using Gradle >= 7
+    id 'maven'
 }
 
 repositories {
@@ -43,6 +46,24 @@ dependencies {
     testImplementation 'org.opencadc:cadc-web-test:[2.1.0,3.0.0)'
     testImplementation 'org.easymock:easymock:[4.2, 5.0)'
     testImplementation 'org.mockito:mockito-core:[3.9.0,4.0.0)'
+}
+
+// Minimal publishing required to run publishToMavenLocal in preparation for Gradle 7.
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
 }
 
 mainClassName = "ca.nrc.cadc.beacon.web.restlet.StorageApplication"
