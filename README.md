@@ -6,9 +6,19 @@ A fully functional UI is deployed on CANFAR: https://www.canfar.net/storage/list
 
 ### Building
 
-Running:
+#### Installing:
 
-`gradlew -i clean build`
+`./gradlew -i clean build install`
+
+OR
+
+`./gradlew -i clean build publishToMavenLocal`
+
+ **Note**: The `publishToMavenLocal` support was added in preparation for Gradle 7.  If you use Gradle 7, remove the `id 'maven'` plugin first.
+
+#### Running:
+
+`./gradlew -i clean build`
 
 Will produce a `jar` file in the `build/libs` directory that can be used to run a local Java container using the `gradlew -i run` command.
 
