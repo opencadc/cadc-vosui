@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2020.                            (c) 2020.
+ *  (c) 2021.                            (c) 2021.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -72,13 +72,11 @@ import ca.nrc.cadc.ac.client.GMSClient;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
 
 import ca.nrc.cadc.auth.PrincipalExtractor;
-import ca.nrc.cadc.beacon.web.config.VOSpaceServiceConfig;
 import ca.nrc.cadc.beacon.web.config.VOSpaceServiceConfigMgr;
 import ca.nrc.cadc.beacon.web.resources.*;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.config.ApplicationConfiguration;
 import ca.nrc.cadc.reg.client.RegistryClient;
-import ca.nrc.cadc.vos.client.VOSpaceClient;
 import ca.nrc.cadc.web.RestletPrincipalExtractor;
 import ca.nrc.cadc.web.SubjectGenerator;
 import org.apache.log4j.Logger;
@@ -123,7 +121,6 @@ public class StorageApplication extends Application {
 
     private final ApplicationConfiguration applicationConfiguration;
     private final VOSpaceServiceConfigMgr vospaceServiceConfigMgr;
-    public String storageServiceName;
 
     /**
      * Constructor.
@@ -349,14 +346,6 @@ public class StorageApplication extends Application {
 
         component.start();
     }
-
-//    public String getCurrentNodeURIKey() {
-//        return VOSpaceServiceConfigMgr.KEY_BASE + storageServiceName + VOSpaceServiceConfigMgr.NODE_URI_KEY;
-//    }
-//
-//    public String getCurrentUserHome() {
-//        return VOSpaceServiceConfigMgr.KEY_BASE + storageServiceName + VOSpaceServiceConfigMgr.USER_HOME_KEY;
-//    }
 
     public VOSpaceServiceConfigMgr getVospaceServiceConfigMgr() {
         return vospaceServiceConfigMgr;

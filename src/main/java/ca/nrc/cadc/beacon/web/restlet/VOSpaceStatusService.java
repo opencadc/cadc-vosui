@@ -105,7 +105,7 @@ public class VOSpaceStatusService extends StatusService {
         } else {
             final Map<String, Object> dataModel = new HashMap<>();
             final Context curContext = getContext();
-            
+
             final String pathInRequest = (String) request.getAttributes().get("path");
             final String requestedResource = "/" + ((pathInRequest == null) ? "" : pathInRequest);
 
