@@ -180,8 +180,7 @@ public class StorageItemServerResource extends SecureServerResource {
         String ret = null;
 
         if (StringUtil.hasLength(vospaceService)) {
-            // TODO: do some to-lower-case magic here
-            if (getVOSpaceServiceList().contains(vospaceService)) {
+            if (getVOSpaceServiceList().contains(vospaceService.toLowerCase())) {
                 ret = vospaceService;
             } else {
                 String errMsg = "service not found in vosui configuration: " + vospaceService;

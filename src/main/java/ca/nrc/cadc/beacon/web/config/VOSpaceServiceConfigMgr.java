@@ -83,11 +83,9 @@ public class VOSpaceServiceConfigMgr {
 
     private String defaultServiceName;
     public String currentServiceName;
-    private List<String> serviceList = new ArrayList<String>();
+    private List<String> serviceList = new ArrayList<>();
 
     // Properties files keys
-    private static final String DEFAULT_CONFIG_FILE_PATH = System.getProperty("user.home") + "/config/org.opencadc.vosui.properties";
-    // system-side property keys
     public static final String VOSPACE_SERVICE_NAME_KEY = "org.opencadc.vosui.service.name";
     public static final String VOSPACE_DEFAULT_SERVICE_NAME_KEY = "org.opencadc.vosui.service.default";
 
@@ -100,20 +98,14 @@ public class VOSpaceServiceConfigMgr {
     public static final String SERVICE_RESOURCEID_KEY = ".service.resourceid";
 
     public VOSpaceServiceConfigMgr(ApplicationConfiguration appConfig) {
-        this.serviceConfigMap = new TreeMap<String, VOSpaceServiceConfig>();
+        this.serviceConfigMap = new TreeMap<>();
         this.loadConfig(appConfig);
-    }
-
-    public void reloadConfig(){
-        // Re-read the config file to grab new configuration during run time
-        ApplicationConfiguration appConfig = new ApplicationConfiguration(DEFAULT_CONFIG_FILE_PATH);
-        loadConfig(appConfig);
     }
 
     public void loadConfig(ApplicationConfiguration appConfig) {
         if (serviceConfigMap.size() != 0) {
-            this.serviceConfigMap = new TreeMap<String, VOSpaceServiceConfig>();
-            this.serviceList = new ArrayList<String>();
+            this.serviceConfigMap = new TreeMap<>();
+            this.serviceList = new ArrayList<>();
         }
 
         try {

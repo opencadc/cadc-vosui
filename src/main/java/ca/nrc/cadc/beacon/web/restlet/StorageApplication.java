@@ -104,16 +104,13 @@ public class StorageApplication extends Application {
         Logger.getLogger(StorageApplication.class);
 
     // Public properties are made available in the Context.
-    public static final String VOSPACE_CLIENT_KEY = "org.opencadc.vospace.client";
     public static final String REGISTRY_CLIENT_KEY = "org.opencadc.registry.client";
     public static final String ACCESS_CONTROL_CLIENT_KEY = "org.opencadc.ac.client";
-    public static final String VOSPACE_SERVICE_ID_KEY = "org.opencadc.vospace.service_id";
     public static final String FREEMARKER_CONFIG_KEY = "org.opencadc.vospace.freemarker-config";
     public static final String SERVLET_CONTEXT_ATTRIBUTE_KEY = "org.restlet.ext.servlet.ServletContext";
     public static final String DEFAULT_CONTEXT_PATH = "/storage/";
     private static final String DEFAULT_GMS_SERVICE_ID = "ivo://cadc.nrc.ca/gms";
     public static final String GMS_SERVICE_PROPERTY_KEY = "org.opencadc.gms.service_id";
-    public static final String VOSPACE_SERVICE_MGR_KEY = "vospace.service.mgr";
 
     // For those wishing to make use of the meta files service for a more readable download link on files.
     public static final String FILES_META_SERVICE_SERVICE_ID_KEY = "org.opencadc.vospace.files_meta_service_id";
@@ -122,13 +119,11 @@ public class StorageApplication extends Application {
     public static final String DEFAULT_FILES_META_SERVICE_STANDARD_ID =
         "vos://cadc.nrc.ca~vospace/CADC/std/archive#file-1.0";
 
-    // Properties files keys  - TODO may move to config mgr class
     private static final String DEFAULT_CONFIG_FILE_PATH = System.getProperty("user.home") + "/config/org.opencadc.vosui.properties";
-
-    public String storageServiceName;
 
     private final ApplicationConfiguration applicationConfiguration;
     private final VOSpaceServiceConfigMgr vospaceServiceConfigMgr;
+    public String storageServiceName;
 
     /**
      * Constructor.
@@ -355,13 +350,13 @@ public class StorageApplication extends Application {
         component.start();
     }
 
-    public String getCurrentNodeURIKey() {
-        return VOSpaceServiceConfigMgr.KEY_BASE + storageServiceName + VOSpaceServiceConfigMgr.NODE_URI_KEY;
-    }
-
-    public String getCurrentUserHome() {
-        return VOSpaceServiceConfigMgr.KEY_BASE + storageServiceName + VOSpaceServiceConfigMgr.USER_HOME_KEY;
-    }
+//    public String getCurrentNodeURIKey() {
+//        return VOSpaceServiceConfigMgr.KEY_BASE + storageServiceName + VOSpaceServiceConfigMgr.NODE_URI_KEY;
+//    }
+//
+//    public String getCurrentUserHome() {
+//        return VOSpaceServiceConfigMgr.KEY_BASE + storageServiceName + VOSpaceServiceConfigMgr.USER_HOME_KEY;
+//    }
 
     public VOSpaceServiceConfigMgr getVospaceServiceConfigMgr() {
         return vospaceServiceConfigMgr;
