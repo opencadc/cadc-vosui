@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2020.                            (c) 2020.
+ *  (c) 2021.                            (c) 2021.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -70,7 +70,6 @@ package ca.nrc.cadc.beacon.web.restlet;
 
 
 import ca.nrc.cadc.auth.NotAuthenticatedException;
-import ca.nrc.cadc.beacon.web.config.VOSpaceServiceConfigMgr;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.net.ResourceAlreadyExistsException;
 import ca.nrc.cadc.net.ResourceNotFoundException;
@@ -106,13 +105,11 @@ public class VOSpaceStatusService extends StatusService {
         } else {
             final Map<String, Object> dataModel = new HashMap<>();
             final Context curContext = getContext();
-
-
+            
             final String pathInRequest = (String) request.getAttributes().get("path");
             final String requestedResource = "/" + ((pathInRequest == null) ? "" : pathInRequest);
 
             dataModel.put("errorMessage", status.toString());
-
 
             // requestedFolder in login.ftl will allow login to this node
             // in case this is a permissions issue
