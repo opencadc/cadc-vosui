@@ -171,6 +171,19 @@ public class MainPageServerResource extends StorageItemServerResource {
             dataModel.put("startURI", startNextPageURI.toString());
         }
 
+        // Add the current VOSpace service name so that navigation links can be rendered correctly
+        String vospaceSvcName = getCurrentVOSpaceService();
+        if (StringUtil.hasLength(vospaceSvcName)) {
+            dataModel.put("vospaceSvcPath", vospaceSvcName + "/");
+            dataModel.put("vospaceSvcName", vospaceSvcName);
+        } else {
+            dataModel.put("vospaceSvcPath", "/");
+            dataModel.put("vospaceSvcName", "");
+        }
+
+        // Used to populate VOSpace service dropdown
+        dataModel.put("vospaceServices", getVOSpaceServiceList());
+
         // HttpPrincipal username will be pulled from current user
         final String httpUsername = accessControlClient.getCurrentHttpPrincipalUsername(getCurrentUser());
 

@@ -113,7 +113,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
         testSubject = new StorageItemFactory(uriExtractor, mockRegistryClient, contextPath,
                                              URI.create(StorageApplication.DEFAULT_FILES_META_SERVICE_SERVICE_ID),
                                              URI.create(StorageApplication.DEFAULT_FILES_META_SERVICE_STANDARD_ID),
-                            "vault");
+                            "vault", "vos");
 
         final StorageItem storageItemResult = testSubject.translate(mockDataNode);
         Assert.assertEquals("Wrong target URL.",
@@ -159,7 +159,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
         testSubject = new StorageItemFactory(uriExtractor, mockRegistryClient, contextPath,
                                              URI.create(StorageApplication.DEFAULT_FILES_META_SERVICE_SERVICE_ID),
                                              URI.create(StorageApplication.DEFAULT_FILES_META_SERVICE_STANDARD_ID),
-                            "vault");
+                            "vault", "vos");
 
         final StorageItem storageItemResult = testSubject.translate(mockDataNode);
         Assert.assertEquals("Wrong target URL.",
@@ -206,7 +206,7 @@ public class StorageItemFactoryTest extends AbstractUnitTest<StorageItemFactory>
         testSubject = new StorageItemFactory(uriExtractor, mockRegistryClient, contextPath,
                                              URI.create(StorageApplication.DEFAULT_FILES_META_SERVICE_SERVICE_ID),
                                              URI.create(StorageApplication.DEFAULT_FILES_META_SERVICE_STANDARD_ID),
-                            "vault");
+                            "vault", "vos");
 
         final StorageItem storageItemResult = testSubject.translate(mockDataNode);
         Assert.assertEquals("Wrong target URL.",

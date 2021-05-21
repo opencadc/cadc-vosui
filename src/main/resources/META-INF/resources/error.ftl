@@ -53,7 +53,7 @@
     Unable to fulfil request: ${errorMessage}
     <div class="returnTo">
       </br>
-      Return to <a title="Home" href='${contextPath}list/'>User Storage Root
+      Return to <a title="Root" href='${contextPath}${vospaceSvcPath}list/'>User Storage Root
       folder</a>
     </div>
   </div>

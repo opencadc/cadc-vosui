@@ -70,6 +70,7 @@ package ca.nrc.cadc.beacon.web.restlet;
 
 
 import ca.nrc.cadc.auth.NotAuthenticatedException;
+import ca.nrc.cadc.beacon.web.config.VOSpaceServiceConfigMgr;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.net.ResourceAlreadyExistsException;
 import ca.nrc.cadc.net.ResourceNotFoundException;
@@ -106,14 +107,25 @@ public class VOSpaceStatusService extends StatusService {
             final Map<String, Object> dataModel = new HashMap<>();
             final Context curContext = getContext();
 
+
             final String pathInRequest = (String) request.getAttributes().get("path");
             final String requestedResource = "/" + ((pathInRequest == null) ? "" : pathInRequest);
 
             dataModel.put("errorMessage", status.toString());
 
+
             // requestedFolder in login.ftl will allow login to this node
             // in case this is a permissions issue
             dataModel.put("requestedFolder", requestedResource);
+
+            // Add the current VOSpace service name so that navigation links can be rendered correctly
+            StorageApplication sa = (StorageApplication) StorageApplication.getCurrent();
+            String vospaceSvcName = sa.getVospaceServiceConfigMgr().currentServiceName;
+            if (StringUtil.hasLength(vospaceSvcName)) {
+                dataModel.put("vospaceSvcPath", vospaceSvcName + "/");
+            } else {
+                dataModel.put("vospaceSvcPath", "/");
+            }
 
             return new TemplateRepresentation("error.ftl",
                                               (FreeMarkerConfiguration) curContext.getAttributes()

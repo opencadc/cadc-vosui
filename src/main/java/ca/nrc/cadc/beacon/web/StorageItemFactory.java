@@ -99,25 +99,30 @@ public class StorageItemFactory {
     private final String contextPath;
     private final URI filesMetaServiceID;
     private final URI filesMetaServiceStandardID;
-    private final String vospaceServiceName;
+    private final String vospaceServiceType;
+    private final String vospaceServiceProperName;
 
 
     public StorageItemFactory(final URIExtractor uriExtractor, final RegistryClient registryClient,
                               final String contextPath, final URI filesMetaServiceID,
                               final URI filesMetaServiceStandardID,
-                              final String vospaceServiceName) {
+                              final String vospaceServiceType,
+                              final String vospaceServiceProperName) {
         this.uriExtractor = uriExtractor;
         this.registryClient = registryClient;
         this.contextPath = contextPath;
         this.filesMetaServiceID = filesMetaServiceID;
         this.filesMetaServiceStandardID = filesMetaServiceStandardID;
-        this.vospaceServiceName = vospaceServiceName;
+        this.vospaceServiceType = vospaceServiceType;
+        this.vospaceServiceProperName = vospaceServiceProperName;
     }
 
     private String getTarget(final DataNode dataNode) {
+        // Note: for now, this remains as using the service type, until the /files endpoint
+        //changes to use the proper names
         final VOSURI dataNodeURI = dataNode.getUri();
 
-        return String.format("%s/%s%s", lookupMetaServiceURLString(dataNodeURI), this.vospaceServiceName,
+        return String.format("%s/%s%s", lookupMetaServiceURLString(dataNodeURI), this.vospaceServiceType,
                              dataNodeURI.getPath());
     }
 
@@ -139,11 +144,25 @@ public class StorageItemFactory {
     }
 
     private String getTarget(final ContainerNode containerNode) {
-        return contextPath + (contextPath.endsWith("/") ? "" : "/") + "list" + containerNode.getUri().getPath();
+        String target = "";
+        if (StringUtil.hasLength(vospaceServiceProperName)) {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceProperName + "/list"
+                + containerNode.getUri().getPath();
+        } else {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + "list" + containerNode.getUri().getPath();
+        }
+        return target;
     }
 
     private String getTarget(final LinkNode linkNode) {
-        return contextPath + (contextPath.endsWith("/") ? "" : "/") + "link" + linkNode.getUri().getPath();
+        String target = "";
+        if (StringUtil.hasLength(vospaceServiceProperName)) {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceProperName + "/link"
+                + linkNode.getUri().getPath();
+        } else {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + "link" + linkNode.getUri().getPath();
+        }
+        return target;
     }
 
     /**

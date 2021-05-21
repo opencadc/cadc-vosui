@@ -70,6 +70,8 @@ package ca.nrc.cadc.beacon.web.resources;
 
 import ca.nrc.cadc.beacon.web.StorageItemFactory;
 import ca.nrc.cadc.beacon.web.URIExtractor;
+import ca.nrc.cadc.beacon.web.config.VOSpaceServiceConfig;
+import ca.nrc.cadc.beacon.web.config.VOSpaceServiceConfigMgr;
 import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
 import ca.nrc.cadc.beacon.web.view.StorageItem;
 import ca.nrc.cadc.net.ResourceNotFoundException;
@@ -81,17 +83,14 @@ import org.json.JSONObject;
 import org.restlet.Context;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
-import org.restlet.representation.Representation;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
-
 
 import javax.security.auth.Subject;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.*;
 import java.util.List;
 import java.util.Set;
@@ -110,7 +109,9 @@ public class StorageItemServerResource extends SecureServerResource {
 
     private String vospaceUserHome;
     private String vospaceNodeUriPrefix;
-    private String vospaceServiceName;
+    private String vospaceServiceType;
+    private String vospaceServiceProperName;
+    protected VOSpaceServiceConfigMgr vospaceServiceServiceMgr;
 
     /**
      * Empty constructor needed for Restlet to manage it.  Needs to be public.
@@ -137,20 +138,24 @@ public class StorageItemServerResource extends SecureServerResource {
     @Override
     protected void doInit() throws ResourceException {
         super.doInit();
-        final Context context = getContext();
         StorageApplication sa = (StorageApplication) getApplication();
+        this.vospaceServiceServiceMgr = sa.getVospaceServiceConfigMgr();
 
-        String nodeURIKey = sa.getCurrentNodeURIKey();
-        this.vospaceNodeUriPrefix = (String) context.getAttributes().get(nodeURIKey);
+        this.vospaceServiceProperName = getCurrentVOSpaceService();
+        this.vospaceServiceServiceMgr.currentServiceName = this.vospaceServiceProperName;
 
-        String userHomeKey = sa.getCurrentUserHome();
-        this.vospaceUserHome = (String) context.getAttributes().get(userHomeKey);
+        VOSpaceServiceConfig vospaceServiceConfig = this.vospaceServiceServiceMgr.getServiceConfig(vospaceServiceProperName);
+        this.vospaceNodeUriPrefix = vospaceServiceConfig.getNodeResourceID().toString();
 
-        this.vospaceServiceName = (String) context.getAttributes().get(StorageApplication.STORAGE_SERVICE_NAME_KEY);
-        initialize(((VOSpaceClient) context.getAttributes().get(StorageApplication.VOSPACE_CLIENT_KEY)));
+        this.vospaceUserHome = vospaceServiceConfig.homeDir;
+
+        this.vospaceServiceType = vospaceServiceConfig.getServiceType();
+
+        initialize(new VOSpaceClient(vospaceServiceConfig.getResourceID()));
     }
 
     private void initialize(final VOSpaceClient voSpaceClient) {
+
         final URI filesMetaServiceID = getContextAttribute(StorageApplication.FILES_META_SERVICE_SERVICE_ID_KEY);
         final URI filesMetaServiceStandardID =
                 getContextAttribute(StorageApplication.FILES_META_SERVICE_STANDARD_ID_KEY);
@@ -158,16 +163,42 @@ public class StorageItemServerResource extends SecureServerResource {
                                                          (getServletContext() == null)
                                                          ? StorageApplication.DEFAULT_CONTEXT_PATH
                                                          : getServletContext().getContextPath(),
-                                                         filesMetaServiceID, filesMetaServiceStandardID, vospaceServiceName);
+                                                         filesMetaServiceID, filesMetaServiceStandardID,
+                                                         vospaceServiceType, vospaceServiceProperName);
 
         this.voSpaceClient = voSpaceClient;
     }
 
 
-    String getCurrentPath() {
+    String getCurrentPath()  {
         final String pathInRequest = getRequestAttribute("path");
         return "/" + ((pathInRequest == null) ? "" : pathInRequest);
     }
+
+    String getCurrentVOSpaceService() {
+        final String vospaceService = getRequestAttribute("svc");
+        String ret = null;
+
+        if (StringUtil.hasLength(vospaceService)) {
+            // TODO: do some to-lower-case magic here
+            if (getVOSpaceServiceList().contains(vospaceService)) {
+                ret = vospaceService;
+            } else {
+                String errMsg = "service not found in vosui configuration: " + vospaceService;
+                throw new IllegalArgumentException(errMsg);
+            }
+        } else {
+            // no svc parameter found - return the current default
+            ret = vospaceServiceServiceMgr.getDefaultServiceName();
+        }
+
+        return ret;
+    }
+
+    List<String> getVOSpaceServiceList() {
+        return this.vospaceServiceServiceMgr.getServiceList();
+    }
+
 
     VOSURI getCurrentItemURI() {
         return toURI(getCurrentPath());
@@ -519,4 +550,5 @@ public class StorageItemServerResource extends SecureServerResource {
     public String getVospaceUserHome() {
         return vospaceUserHome;
     }
+
 }

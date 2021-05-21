@@ -81,7 +81,7 @@ public class RestletPrincipalExtractor implements PrincipalExtractor
                                                                     .getResourceRef()
                                                                     .toUrl()));
                     }
-                    catch (IOException | InvalidDelegationTokenException e)
+                    catch (IOException | InvalidSignedTokenException e)
                     {
                         log.info("Cannot use SSO Cookie. Reason: "
                                  + e.getMessage());
@@ -112,11 +112,11 @@ public class RestletPrincipalExtractor implements PrincipalExtractor
         return principals;
     }
 
-    @Override
-    public DelegationToken getDelegationToken()
-    {
-        return null;
-    }
+//    @Override
+//    public DelegationToken getDelegationToken()
+//    {
+//        return null;
+//    }
 
     /**
      * Add the HTTP Principal, if it exists.
@@ -178,7 +178,6 @@ public class RestletPrincipalExtractor implements PrincipalExtractor
      *
      * @return
      */
-    @Override
     public List<SSOCookieCredential> getSSOCookieCredentials() {
         init();
         return Collections.singletonList(cookieCredential);
