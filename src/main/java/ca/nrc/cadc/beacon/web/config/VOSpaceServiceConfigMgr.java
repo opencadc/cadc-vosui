@@ -101,7 +101,6 @@ public class VOSpaceServiceConfigMgr {
 
     public VOSpaceServiceConfigMgr(ApplicationConfiguration appConfig) {
         this.serviceConfigMap = new TreeMap<String, VOSpaceServiceConfig>();
-        this.defaultServiceName = appConfig.lookup(VOSPACE_DEFAULT_SERVICE_NAME_KEY);
         this.loadConfig(appConfig);
     }
 
@@ -112,19 +111,14 @@ public class VOSpaceServiceConfigMgr {
     }
 
     public void loadConfig(ApplicationConfiguration appConfig) {
-        // tidy up existing map
-        // read in config file values into map
-        // This allows the values to be updated during run time
-
-
-        // TODO: this isn't a great condition for checking whether the map
-        //  is already configured, but there you go for now
         if (serviceConfigMap.size() != 0) {
             this.serviceConfigMap = new TreeMap<String, VOSpaceServiceConfig>();
             this.serviceList = new ArrayList<String>();
         }
 
         try {
+            this.defaultServiceName = appConfig.lookup(VOSPACE_DEFAULT_SERVICE_NAME_KEY);
+
             // Get all VOSpace services named in the config file
             this.serviceList = Arrays.asList(appConfig.lookupAll(VOSPACE_SERVICE_NAME_KEY));
 
@@ -167,15 +161,6 @@ public class VOSpaceServiceConfigMgr {
 
     public String getDefaultServiceName() {
         return defaultServiceName;
-    }
-
-    public VOSpaceServiceConfig getDefaultServiceConfig() {
-        // TODO: this is assuming defaultServiceName has been defined
-        return this.serviceConfigMap.get(defaultServiceName);
-    }
-
-    public TreeMap<String, VOSpaceServiceConfig> getServiceConfigMap() {
-        return this.serviceConfigMap;
     }
 
     public List<String> getServiceList() {
