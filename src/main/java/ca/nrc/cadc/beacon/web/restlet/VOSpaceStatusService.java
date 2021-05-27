@@ -118,11 +118,7 @@ public class VOSpaceStatusService extends StatusService {
             // Add the current VOSpace service name so that navigation links can be rendered correctly
             StorageApplication sa = (StorageApplication) StorageApplication.getCurrent();
             String vospaceSvcName = sa.getVospaceServiceConfigMgr().currentServiceName;
-            if (StringUtil.hasLength(vospaceSvcName)) {
-                dataModel.put("vospaceSvcPath", vospaceSvcName + "/");
-            } else {
-                dataModel.put("vospaceSvcPath", "/");
-            }
+            dataModel.put("vospaceSvcPath", vospaceSvcName + "/");
 
             return new TemplateRepresentation("error.ftl",
                                               (FreeMarkerConfiguration) curContext.getAttributes()

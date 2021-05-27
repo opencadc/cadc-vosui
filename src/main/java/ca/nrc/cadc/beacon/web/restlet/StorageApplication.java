@@ -218,7 +218,7 @@ public class StorageApplication extends Application {
 
         // Allow for an empty path to be the root.
         final TemplateRoute svcListRouteNoPath = router.attach(contextPath +  "{svc}/list", MainPageServerResource.class);
-        final TemplateRoute svcListRoute2 = router.attach(contextPath +  "{svc}/list/", MainPageServerResource.class);
+        final TemplateRoute svcListRouteNoPath2 = router.attach(contextPath +  "{svc}/list/", MainPageServerResource.class);
 
         // Generic endpoint for files, folders, or links.
         final TemplateRoute svcItemRoute = router.attach(contextPath + "{svc}/item/{path}",
@@ -245,7 +245,7 @@ public class StorageApplication extends Application {
         svcListRoute.getTemplate().getVariables().putAll(routeVariables);
         svcListRoute.getTemplate().getVariables().putAll(routeVariables);
         svcListRouteNoPath.getTemplate().getVariables().putAll(routeVariables);
-        svcListRoute2.getTemplate().getVariables().putAll(routeVariables);
+        svcListRouteNoPath2.getTemplate().getVariables().putAll(routeVariables);
         svcRawRoute.getTemplate().getVariables().putAll(routeVariables);
         svcNodeRoute.getTemplate().getVariables().putAll(routeVariables);
 

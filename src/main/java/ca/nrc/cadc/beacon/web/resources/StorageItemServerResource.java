@@ -177,7 +177,7 @@ public class StorageItemServerResource extends SecureServerResource {
 
     String getCurrentVOSpaceService() {
         final String vospaceService = getRequestAttribute("svc");
-        String ret = null;
+        final String ret;
 
         if (StringUtil.hasLength(vospaceService)) {
             if (getVOSpaceServiceList().contains(vospaceService.toLowerCase())) {

@@ -67,68 +67,87 @@
  */
 package ca.nrc.cadc.beacon.web.config;
 
-import ca.nrc.cadc.util.StringUtil;
+import ca.nrc.cadc.beacon.AbstractUnitTest;
 import java.net.URI;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class VOSpaceServiceConfig {
-    private String name;
-    private String properName;
-    private String serviceType;
-    private URI resourceID;
-    private URI nodeResourceID;
+public class VOSpaceServiceConfigTest extends AbstractUnitTest<VOSpaceServiceConfigTest> {
 
-    // Default provided, can be overridden
-    public String homeDir;
+    final URI testVOSpaceNodeURI = URI.create("vos://cadc.nrc.ca!vault/my/node");
+    final URI testVOSpaceServiceURI = URI.create("vos://cadc.nrc.ca!vault/my/node");
+    final String serviceName = "serviceName";
+    final String serviceProperName = "properName";
+    final String serviceType = "serviceType";
 
-    public VOSpaceServiceConfig(String name, String properName,
-                                String serviceType, URI resourceID,
-                                URI nodeResourceID) {
+    @Test
+    public void testVOspaceServiceConfig() throws Exception {
 
-        // Validation for required properties
-        if (!StringUtil.hasLength(name)) {
-            throw new IllegalArgumentException("VOSpace service name required");
+        VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, serviceProperName,
+            serviceType, testVOSpaceServiceURI,
+            testVOSpaceNodeURI);
+
+        // Values will be stored or not. No need to test quality
+        Assert.assertNotNull(config1);
+    }
+
+    @Test
+    public void testBadVOspaceServiceConfig() throws Exception {
+
+        try {
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig("", serviceProperName,
+                serviceType, testVOSpaceServiceURI,
+                testVOSpaceNodeURI);
+
+            // Values will be stored
+            Assert.fail("ctor should have reported error for service name");
+        } catch (Exception expected) {
+            // pass
         }
-        if (!StringUtil.hasLength(properName)) {
-            throw new IllegalArgumentException("VOSpace service properName required");
-        }
-        if (!StringUtil.hasLength(serviceType)) {
-            throw new IllegalArgumentException("VOSpace service type (ie 'cavern' or 'vault') required");
-        }
-        if (resourceID == null) {
-            throw new IllegalArgumentException("VOSpace service resource ID required");
-        }
 
-        if (nodeResourceID == null) {
-            throw new IllegalArgumentException("VOSpace node resource ID required");
+        try {
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, "",
+                serviceType, testVOSpaceServiceURI,
+                testVOSpaceNodeURI);
+
+            // Values will be stored
+            Assert.fail("ctor should have reported error for service proper name");
+        } catch (Exception expected) {
+            // pass
         }
 
-        this.name = name;
-        this.properName = properName;
-        this.serviceType = serviceType;
-        this.resourceID = resourceID;
-        this.nodeResourceID = nodeResourceID;
+        try {
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, serviceProperName,
+                "", testVOSpaceServiceURI,
+                testVOSpaceNodeURI);
 
-        // Set default for optional properties
-        this.homeDir = "/";
+            // Values will be stored
+            Assert.fail("ctor should have reported error for service type");
+        } catch (Exception expected) {
+            // pass
+        }
+
+        try {
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, serviceProperName,
+                serviceType, null,
+                testVOSpaceNodeURI);
+
+            // Values will be stored
+            Assert.fail("ctor should have reported error for service resourceID");
+        } catch (Exception expected) {
+            // pass
+        }
+
+        try {
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, serviceProperName,
+                serviceType, testVOSpaceServiceURI,
+                null);
+
+            // Values will be stored
+            Assert.fail("ctor should have reported error for node resourceID");
+        } catch (Exception expected) {
+            // pass
+        }
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public URI getResourceID() {
-        return resourceID;
-    }
-
-    public URI getNodeResourceID() {
-        return nodeResourceID;
-    }
-
-    public String getProperName() {
-        return properName;
-    }
-
-    public String getServiceType() {
-        return serviceType;
-    }
 }

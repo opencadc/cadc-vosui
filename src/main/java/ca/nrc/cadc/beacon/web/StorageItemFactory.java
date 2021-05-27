@@ -144,7 +144,7 @@ public class StorageItemFactory {
     }
 
     private String getTarget(final ContainerNode containerNode) {
-        String target = "";
+        final String target;
         if (StringUtil.hasLength(vospaceServiceProperName)) {
             target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceProperName + "/list"
                 + containerNode.getUri().getPath();
@@ -155,7 +155,7 @@ public class StorageItemFactory {
     }
 
     private String getTarget(final LinkNode linkNode) {
-        String target = "";
+        final String target;
         if (StringUtil.hasLength(vospaceServiceProperName)) {
             target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceProperName + "/link"
                 + linkNode.getUri().getPath();
