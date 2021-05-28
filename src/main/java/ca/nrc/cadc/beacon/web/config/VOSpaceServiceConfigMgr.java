@@ -139,10 +139,7 @@ public class VOSpaceServiceConfigMgr {
             } else {
                 vospaceResourceID = URI.create(vospaceResourceIDStr);
             }
-            // TODO: remove commented code before submit
-//                URI vospaceResourceID = appConfig.lookupServiceURI(KEY_BASE + storageServiceName + SERVICE_RESOURCEID_KEY, new URI(""));
 
-//                URI nodeResourceID = appConfig.lookupServiceURI(KEY_BASE + storageServiceName + NODE_URI_KEY, new URI(""));
             String nodeResourceIDStr = appConfig.lookup(KEY_BASE + storageServiceName + NODE_URI_KEY);
             URI nodeResourceID;
             if (!StringUtil.hasLength(nodeResourceIDStr)) {

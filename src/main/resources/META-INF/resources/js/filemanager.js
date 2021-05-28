@@ -19,7 +19,8 @@ function fileManager(
   _totalDataCount,
   lg,
   contextPath,
-  useDefaultLogin
+  useDefaultLogin,
+  vospaceServicePath
 ) {
   // function to retrieve GET params
   $.urlParam = function(name) {
@@ -92,7 +93,7 @@ function fileManager(
 
   var stringUtil = new org.opencadc.StringUtil()
   var folderPath = _folderPath
-  var url = contextPath + config.options.pageConnector + _folderPath
+  var url = contextPath + vospaceServicePath + config.options.pageConnector + _folderPath
   var defaultPageSize = 400
 
   var requestData = {}
@@ -543,7 +544,7 @@ function fileManager(
 
   // Sets paths to connectors based on language selection.
   var fileConnector =
-    contextPath + config.options.fileConnector ||
+    contextPath + vospaceServicePath + config.options.fileConnector ||
     'connectors/' + config.options.lang + '/filemanager.' + config.options.lang
 
   // Read capabilities from config files if exists
@@ -1230,6 +1231,7 @@ function fileManager(
               $.ajax({
                 url:
                   contextPath +
+                  vospaceServicePath +
                   config.options.folderConnector +
                   getCurrentPath() +
                   '/' +
@@ -1431,7 +1433,7 @@ function fileManager(
         if (writeGroupValid === true && readGroupValid === true) {
           var itemPath = formVals['itemPath']
 
-          var url = contextPath + config.options.itemConnector + itemPath
+          var url = contextPath + vospaceServicePath + config.options.itemConnector + itemPath
 
           $.ajax({
             url: url,
@@ -1520,7 +1522,7 @@ function fileManager(
       // authenticate, pass in URI
       // url: contextPath + "ac/authenticate" + "?uri=" + iconAnchor.getAttribute("uri"),
       $.ajax({
-        url: contextPath + 'access' + $iconAnchor.data('path'),
+        url: contextPath + vospaceServicePath + 'access' + $iconAnchor.data('path'),
         method: 'GET',
         success: function( data, textStatus, jqXHR) {
           loadEditPermPrompt($iconAnchor)
@@ -1630,6 +1632,7 @@ function fileManager(
       },
       loaded: function() {
         // Get the group names list for populating the dropdown first
+        // /groups endpoint does NOT need vospaceServicePath
         $.ajax({
           type: 'GET',
           url: contextPath + 'groups',
@@ -1912,7 +1915,7 @@ function fileManager(
         // Target destination for the operation
         var itemPath = formVals['destNode']
 
-        var url = contextPath + config.options.folderConnector + itemPath
+        var url = contextPath + vospaceServicePath + config.options.folderConnector + itemPath
 
         var dataStr = JSON.stringify(formVals)
         $.ajax({
@@ -2016,6 +2019,7 @@ function fileManager(
       // for link
       var url =
         contextPath +
+        vospaceServicePath +
         config.options.linkConnector +
         $('#currentpath').val() +
         '/' +
@@ -2058,7 +2062,7 @@ function fileManager(
     var fullName = ''
     var itemTree = new ItemTree()
     var itemLayer
-    var pageUrl = contextPath + config.options.pageConnector
+    var pageUrl = contextPath + vospaceServicePath + config.options.pageConnector
     var itemRequest = {}
     itemRequest.pageSize = defaultPageSize
     var spinningWheel = $.parseHTML(
@@ -2081,7 +2085,7 @@ function fileManager(
             // we have no sub-folders for
             // this node, get them
             fullName = nameWithPath
-            pageUrl = contextPath + config.options.pageConnector + node.path
+            pageUrl = contextPath + vospaceServicePath + config.options.pageConnector + node.path
             itemRequest.startURI = null
             buildItemLayer(itemRequest, updateItemTree)
           }
@@ -2286,7 +2290,7 @@ function fileManager(
 
         $.ajax({
           type: 'DELETE',
-          url: contextPath + config.options.itemConnector + path,
+          url: contextPath + vospaceServicePath + config.options.itemConnector + path,
           async: false,
           success: function() {
             successful.push(path)
@@ -2409,7 +2413,7 @@ function fileManager(
 
         $.ajax({
           type: 'DELETE',
-          url: contextPath + config.options.itemConnector + path,
+          url: contextPath + vospaceServicePath + config.options.itemConnector + path,
           async: false,
           success: function( data, textStatus, jqXHR) {
             successful.push(path)
@@ -3017,18 +3021,21 @@ function fileManager(
         method: 'GET',
         url:
           contextPath +
+          vospaceServicePath +
           config.options.folderConnector +
           '/' +
           currPath.split('/')[1],
         dataType: 'json',
         async: false,
         success: function(data) {
-          var htmlString = stringUtil.format(
-            '<strong>{1}</strong> remaining of <strong>{2}</strong> ' +
+          if (typeof data.msg === 'undefined') {
+            var htmlString = stringUtil.format(
+              '<strong>{1}</strong> remaining of <strong>{2}</strong> ' +
               '<span class="request-more-link">(<a title="E-mail support@canfar.net to request more" href="mailto:support@canfar.net">Request more from support@canfar.net</a>)</span>',
-            [data.size, data.quota]
-          )
-          $('div.quota').html(htmlString)
+              [data.size, data.quota]
+            )
+            $('div.quota').html(htmlString)
+          }
         }
       })
     }
@@ -3220,7 +3227,7 @@ function fileManager(
           $('div#multiple-uploads').dropzone({
             paramName: 'upload',
             previewTemplate: previewItemTemplate,
-            url: contextPath + config.options.fileConnector + path,
+            url: contextPath + vospaceServicePath + config.options.fileConnector + path,
             method: 'PUT',
             maxFiles: null,
             addRemoveLinks: true,

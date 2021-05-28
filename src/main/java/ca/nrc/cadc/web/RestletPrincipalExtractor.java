@@ -77,9 +77,7 @@ import org.restlet.util.Series;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -95,7 +93,6 @@ public class RestletPrincipalExtractor implements PrincipalExtractor
     private boolean initialized = false;
 
     private SSOCookieCredential cookieCredential;
-    private Principal cookiePrincipal; // principal extracted from cookie
 
     /**
      * Hidden no-arg constructor for testing.
@@ -138,8 +135,6 @@ public class RestletPrincipalExtractor implements PrincipalExtractor
 
                     try
                     {
-                        cookiePrincipal = ssoCookieManager.parse(
-                                ssoCookie.getValue()).getUser();
                         cookieCredential = new
                                 SSOCookieCredential(ssoCookie.getValue(),
                                                     NetUtil.getDomainName(
@@ -173,73 +168,24 @@ public class RestletPrincipalExtractor implements PrincipalExtractor
 
         final Set<Principal> principals = new HashSet<>();
 
-        addHTTPPrincipal(principals);
+        // For now, the UI only needs to deal with the cookie principal.
+        addCookiePrincipal(principals);
 
         return principals;
     }
 
-    /**
-     * Add the HTTP Principal, if it exists.
-     */
-    private void addHTTPPrincipal(final Set<Principal> principals)
+    private void addCookiePrincipal(final Set<Principal> principals)
     {
         init();
 
-        final String httpUser = getAuthenticatedUsername();
-
-        // only add one HttpPrincipal, precedence order
-        if (StringUtil.hasText(httpUser)) // user from HTTP AUTH
+        if (cookieCredential != null)
         {
-            principals.add(new HttpPrincipal(httpUser));
-        }
-
-        if (cookiePrincipal != null) // user from cookie
-        {
-            principals.add(cookiePrincipal);
+            principals.add(new CookiePrincipal("CADC_SSO", cookieCredential.getSsoCookieValue()));
         }
     }
-
-
-    /**
-     * Obtain the Username submitted with the Request.
-     *
-     * @return String username, or null if none found.
-     */
-    private String getAuthenticatedUsername()
-    {
-        final String username;
-
-        if (!getRequest().getClientInfo().getPrincipals().isEmpty())
-        {
-            // Put in to support Safari not injecting a Challenge Response.
-            // Grab the first principal's name as the username.
-            // update: this is *always* right and works with realms; the previous
-            // call to getRequest().getChallengeResponse().getIdentifier() would
-            // return whatever username the caller provided in a non-authenticating call
-            username = getRequest().getClientInfo().getPrincipals().get(0)
-                    .getName();
-        }
-        else
-        {
-            username = null;
-        }
-
-        return username;
-    }
-
 
     public Request getRequest()
     {
         return request;
-    }
-
-    /**
-     * Create and return a SSOCookieCredential from the request
-     *
-     * @return
-     */
-    public List<SSOCookieCredential> getSSOCookieCredentials() {
-        init();
-        return Collections.singletonList(cookieCredential);
     }
 }
