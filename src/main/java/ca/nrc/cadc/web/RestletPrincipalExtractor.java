@@ -180,7 +180,8 @@ public class RestletPrincipalExtractor implements PrincipalExtractor
 
         if (cookieCredential != null)
         {
-            principals.add(new CookiePrincipal("CADC_SSO", cookieCredential.getSsoCookieValue()));
+            principals.add(new CookiePrincipal(SSOCookieManager.DEFAULT_SSO_COOKIE_NAME,
+                cookieCredential.getSsoCookieValue()));
         }
     }
 
