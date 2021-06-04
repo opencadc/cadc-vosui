@@ -1,5 +1,10 @@
 # cadc-vosui CHANGELOG
 
+## June 4, 2021
+### 1.2.4
+* Support for multiple VOSpace Services
+* Retains support for existing URLs
+
 ## Apr 15, 2021
 ### 1.2.3
 * Gradle updates in preparation for Gradle 7

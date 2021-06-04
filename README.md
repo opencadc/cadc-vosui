@@ -1,6 +1,5 @@
 #### User Storage User Interface
-### 1.2.3
-
+### 1.2.4
 
 A fully functional UI is deployed on CANFAR: https://www.canfar.net/storage/list/
 
@@ -25,11 +24,11 @@ Will produce a `jar` file in the `build/libs` directory that can be used to run 
 
 ### Configuration
 Both the VOSpace implementation and the Files web service User Storage uses must be configured before
-running this UI.
+running this UI. Multiple VOSpace implementations are supported. A default must be defined.
 
 #### VOSpace implementation 
-To configure the VOSpace implementation User Storage should use, the org.opencadc.vosui.properties file should 
-contain the following entries:
+To configure VOSpace implementations User Storage should use, the org.opencadc.vosui.properties file should 
+contain one set the following entries for *each* service:
 
 `org.opencadc.vosui.service.name = <service_name>`
 
@@ -42,7 +41,11 @@ contain the following entries:
 `# Base home directory for authenticated users`
 `org.opencadc.vosui.<service_name>.user.home = <relative path, starting with '/'>`
 
-Note: replace <service_name> with the name of the VOSpace implementation in all cases, ie `vault` or `cavern`.
+Note: replace <service_name> with the name of the VOSpace implementation in all cases, ie `vault` or `arc`.
+
+The default VOSpace service must be explicitly named in the config file as well:
+
+`org.opencadc.vosui.service.default  = <default service_name>`
 
 #### File service implementation 
 To configure the File service org.opencadc.vosui.properties should contain the following entry:
