@@ -109,8 +109,7 @@ public class StorageItemServerResource extends SecureServerResource {
 
     private String vospaceUserHome;
     private String vospaceNodeUriPrefix;
-    private String vospaceServiceType;
-    private String vospaceServiceProperName;
+    private String vospaceServiceName;
     protected VOSpaceServiceConfigMgr vospaceServiceServiceMgr;
 
     /**
@@ -141,15 +140,13 @@ public class StorageItemServerResource extends SecureServerResource {
         StorageApplication sa = (StorageApplication) getApplication();
         this.vospaceServiceServiceMgr = sa.getVospaceServiceConfigMgr();
 
-        this.vospaceServiceProperName = getCurrentVOSpaceService();
-        this.vospaceServiceServiceMgr.currentServiceName = this.vospaceServiceProperName;
+        this.vospaceServiceName = getCurrentVOSpaceService();
+        this.vospaceServiceServiceMgr.currentServiceName = this.vospaceServiceName;
 
-        VOSpaceServiceConfig vospaceServiceConfig = this.vospaceServiceServiceMgr.getServiceConfig(vospaceServiceProperName);
+        VOSpaceServiceConfig vospaceServiceConfig = this.vospaceServiceServiceMgr.getServiceConfig(this.vospaceServiceName);
         this.vospaceNodeUriPrefix = vospaceServiceConfig.getNodeResourceID().toString();
 
         this.vospaceUserHome = vospaceServiceConfig.homeDir;
-
-        this.vospaceServiceType = vospaceServiceConfig.getServiceType();
 
         initialize(new VOSpaceClient(vospaceServiceConfig.getResourceID()));
     }
@@ -164,11 +161,9 @@ public class StorageItemServerResource extends SecureServerResource {
                                                          ? StorageApplication.DEFAULT_CONTEXT_PATH
                                                          : getServletContext().getContextPath(),
                                                          filesMetaServiceID, filesMetaServiceStandardID,
-                                                         vospaceServiceType, vospaceServiceProperName);
-
+                                                          vospaceServiceName);
         this.voSpaceClient = voSpaceClient;
     }
-
 
     String getCurrentPath()  {
         final String pathInRequest = getRequestAttribute("path");
@@ -197,7 +192,6 @@ public class StorageItemServerResource extends SecureServerResource {
     List<String> getVOSpaceServiceList() {
         return this.vospaceServiceServiceMgr.getServiceList();
     }
-
 
     VOSURI getCurrentItemURI() {
         return toURI(getCurrentPath());

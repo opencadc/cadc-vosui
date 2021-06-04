@@ -72,39 +72,26 @@ import java.net.URI;
 
 public class VOSpaceServiceConfig {
     private String name;
-    private String properName;
-    private String serviceType;
     private URI resourceID;
     private URI nodeResourceID;
 
     // Default provided, can be overridden
     public String homeDir;
 
-    public VOSpaceServiceConfig(String name, String properName,
-                                String serviceType, URI resourceID,
-                                URI nodeResourceID) {
+    public VOSpaceServiceConfig(String name, URI resourceID, URI nodeResourceID) {
 
         // Validation for required properties
         if (!StringUtil.hasLength(name)) {
             throw new IllegalArgumentException("VOSpace service name required");
         }
-        if (!StringUtil.hasLength(properName)) {
-            throw new IllegalArgumentException("VOSpace service properName required");
-        }
-        if (!StringUtil.hasLength(serviceType)) {
-            throw new IllegalArgumentException("VOSpace service type (ie 'cavern' or 'vault') required");
-        }
         if (resourceID == null) {
             throw new IllegalArgumentException("VOSpace service resource ID required");
         }
-
         if (nodeResourceID == null) {
             throw new IllegalArgumentException("VOSpace node resource ID required");
         }
 
         this.name = name;
-        this.properName = properName;
-        this.serviceType = serviceType;
         this.resourceID = resourceID;
         this.nodeResourceID = nodeResourceID;
 
@@ -124,11 +111,4 @@ public class VOSpaceServiceConfig {
         return nodeResourceID;
     }
 
-    public String getProperName() {
-        return properName;
-    }
-
-    public String getServiceType() {
-        return serviceType;
-    }
 }

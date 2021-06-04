@@ -121,17 +121,6 @@ public class VOSpaceServiceConfigMgr {
         for (String storageServiceName: this.serviceList) {
             log.debug("adding vospace service to map: " + VOSPACE_SERVICE_NAME_KEY + ": " + serviceList.toString());
 
-            // Validate entries, report errors as they are found
-            String properName = appConfig.lookup(KEY_BASE + storageServiceName + SERVICE_PROPER_NAME_KEY);
-            if (!StringUtil.hasLength(properName)) {
-                throw new IllegalArgumentException("Required value " + KEY_BASE + storageServiceName + SERVICE_PROPER_NAME_KEY + " not found in application config.");
-            }
-
-            String serviceType = appConfig.lookup(KEY_BASE + storageServiceName + SERVICE_TYPE_KEY);
-            if (!StringUtil.hasLength(serviceType)) {
-                throw new IllegalArgumentException("Required value " + KEY_BASE + storageServiceName + SERVICE_TYPE_KEY + " not found in application config.");
-            }
-
             String vospaceResourceIDStr = appConfig.lookup(KEY_BASE + storageServiceName + SERVICE_RESOURCEID_KEY);
             URI vospaceResourceID;
             if (!StringUtil.hasLength(vospaceResourceIDStr)) {
@@ -150,7 +139,7 @@ public class VOSpaceServiceConfigMgr {
 
             // At this point, the values have been validated
             VOSpaceServiceConfig newConfig = new VOSpaceServiceConfig(storageServiceName,
-                properName, serviceType, vospaceResourceID, nodeResourceID);
+                vospaceResourceID, nodeResourceID);
 
             String userHomeDir = KEY_BASE + storageServiceName + USER_HOME_KEY;
             log.debug("user home directory: " + userHomeDir);

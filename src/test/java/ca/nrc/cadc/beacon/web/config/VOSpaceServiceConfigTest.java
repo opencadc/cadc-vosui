@@ -77,15 +77,12 @@ public class VOSpaceServiceConfigTest extends AbstractUnitTest<VOSpaceServiceCon
     final URI testVOSpaceNodeURI = URI.create("vos://cadc.nrc.ca!vault/my/node");
     final URI testVOSpaceServiceURI = URI.create("vos://cadc.nrc.ca!vault/my/node");
     final String serviceName = "serviceName";
-    final String serviceProperName = "properName";
-    final String serviceType = "serviceType";
 
     @Test
     public void testVOspaceServiceConfig() throws Exception {
 
-        VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, serviceProperName,
-            serviceType, testVOSpaceServiceURI,
-            testVOSpaceNodeURI);
+        VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName,
+            testVOSpaceServiceURI, testVOSpaceNodeURI);
 
         // Values will be stored or not. No need to test quality
         Assert.assertNotNull(config1);
@@ -93,57 +90,32 @@ public class VOSpaceServiceConfigTest extends AbstractUnitTest<VOSpaceServiceCon
 
     @Test
     public void testBadVOspaceServiceConfig() throws Exception {
-
         try {
-            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig("", serviceProperName,
-                serviceType, testVOSpaceServiceURI,
-                testVOSpaceNodeURI);
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig("",
+                testVOSpaceServiceURI, testVOSpaceNodeURI);
 
-            // Values will be stored
+            // Values will be stored as passed in, no need to test quality
             Assert.fail("ctor should have reported error for service name");
         } catch (Exception expected) {
             // pass
         }
 
-        try {
-            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, "",
-                serviceType, testVOSpaceServiceURI,
-                testVOSpaceNodeURI);
-
-            // Values will be stored
-            Assert.fail("ctor should have reported error for service proper name");
-        } catch (Exception expected) {
-            // pass
-        }
 
         try {
-            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, serviceProperName,
-                "", testVOSpaceServiceURI,
-                testVOSpaceNodeURI);
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName,
+                null, testVOSpaceNodeURI);
 
-            // Values will be stored
-            Assert.fail("ctor should have reported error for service type");
-        } catch (Exception expected) {
-            // pass
-        }
-
-        try {
-            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, serviceProperName,
-                serviceType, null,
-                testVOSpaceNodeURI);
-
-            // Values will be stored
+            // Values will be stored as passed in, no need to test quality
             Assert.fail("ctor should have reported error for service resourceID");
         } catch (Exception expected) {
             // pass
         }
 
         try {
-            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName, serviceProperName,
-                serviceType, testVOSpaceServiceURI,
-                null);
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName,
+                testVOSpaceServiceURI, null);
 
-            // Values will be stored
+            // Values will be stored as passed in, no need to test quality
             Assert.fail("ctor should have reported error for node resourceID");
         } catch (Exception expected) {
             // pass

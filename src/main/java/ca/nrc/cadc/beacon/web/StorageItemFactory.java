@@ -79,7 +79,6 @@ import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 
-
 import javax.security.auth.Subject;
 import java.net.URI;
 import java.security.Principal;
@@ -99,30 +98,27 @@ public class StorageItemFactory {
     private final String contextPath;
     private final URI filesMetaServiceID;
     private final URI filesMetaServiceStandardID;
-    private final String vospaceServiceType;
-    private final String vospaceServiceProperName;
+    private final String vospaceServiceName;
 
 
     public StorageItemFactory(final URIExtractor uriExtractor, final RegistryClient registryClient,
                               final String contextPath, final URI filesMetaServiceID,
                               final URI filesMetaServiceStandardID,
-                              final String vospaceServiceType,
-                              final String vospaceServiceProperName) {
+                              final String vospaceServiceName) {
         this.uriExtractor = uriExtractor;
         this.registryClient = registryClient;
         this.contextPath = contextPath;
         this.filesMetaServiceID = filesMetaServiceID;
         this.filesMetaServiceStandardID = filesMetaServiceStandardID;
-        this.vospaceServiceType = vospaceServiceType;
-        this.vospaceServiceProperName = vospaceServiceProperName;
+        this.vospaceServiceName = vospaceServiceName;
     }
 
     private String getTarget(final DataNode dataNode) {
-        // Note: for now, this remains as using the service type, until the /files endpoint
-        //changes to use the proper names
+        // This is used for the /files endpoint, for viewing files in the browser
+        // (Downloading is a different mechanism)
         final VOSURI dataNodeURI = dataNode.getUri();
 
-        return String.format("%s/%s%s", lookupMetaServiceURLString(dataNodeURI), this.vospaceServiceType,
+        return String.format("%s/%s%s", lookupMetaServiceURLString(dataNodeURI), this.vospaceServiceName,
                              dataNodeURI.getPath());
     }
 
@@ -145,8 +141,8 @@ public class StorageItemFactory {
 
     private String getTarget(final ContainerNode containerNode) {
         final String target;
-        if (StringUtil.hasLength(vospaceServiceProperName)) {
-            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceProperName + "/list"
+        if (StringUtil.hasLength(this.vospaceServiceName)) {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceName + "/list"
                 + containerNode.getUri().getPath();
         } else {
             target = contextPath + (contextPath.endsWith("/") ? "" : "/") + "list" + containerNode.getUri().getPath();
@@ -156,8 +152,8 @@ public class StorageItemFactory {
 
     private String getTarget(final LinkNode linkNode) {
         final String target;
-        if (StringUtil.hasLength(vospaceServiceProperName)) {
-            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceProperName + "/link"
+        if (StringUtil.hasLength(this.vospaceServiceName)) {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceName + "/link"
                 + linkNode.getUri().getPath();
         } else {
             target = contextPath + (contextPath.endsWith("/") ? "" : "/") + "link" + linkNode.getUri().getPath();
