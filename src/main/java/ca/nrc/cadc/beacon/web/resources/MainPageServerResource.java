@@ -173,8 +173,10 @@ public class MainPageServerResource extends StorageItemServerResource {
 
         // Add the current VOSpace service name so that navigation links can be rendered correctly
         String vospaceSvcName = getCurrentVOSpaceService();
+        String nodePrefixURI = getVospaceNodeUriPrefix();
         dataModel.put("vospaceSvcPath", vospaceSvcName + "/");
         dataModel.put("vospaceSvcName", vospaceSvcName);
+        dataModel.put("vospaceNodePrefixURI", nodePrefixURI);
 
         // Used to populate VOSpace service dropdown
         dataModel.put("vospaceServices", getVOSpaceServiceList());

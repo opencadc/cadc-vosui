@@ -20,7 +20,8 @@ function fileManager(
   lg,
   contextPath,
   useDefaultLogin,
-  vospaceServicePath
+  vospaceServicePath,
+  vosNodePrefixURI
 ) {
   // function to retrieve GET params
   $.urlParam = function(name) {
@@ -80,6 +81,11 @@ function fileManager(
   if (config.options.logger) {
     var start = new Date().getTime()
   }
+  
+  // Set vos_prefix value based on value passed in
+  // Default is found in filemanager.config.json
+  config.vos_prefix = vosNodePrefixURI
+  config.download.vos_prefix = vosNodePrefixURI
 
   var ROW_SELECT_TYPE = 'row'
   var lockedIcon = '<span class="glyphicon glyphicon-lock"></span>'
