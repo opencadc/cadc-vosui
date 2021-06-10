@@ -38,7 +38,7 @@
                   <ul class="dropdown-menu">
                       <#list vospaceServices as vospaceSvc>
                         <li>
-                          <a href="${contextPath}${vospaceSvc}/list" role="button">
+                          <a id="vos_${vospaceSvc}" href="${contextPath}${vospaceSvc}/list" role="button">
                               ${vospaceSvc}</a>
                         </li>
                       </#list>
