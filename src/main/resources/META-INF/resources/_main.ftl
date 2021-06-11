@@ -31,9 +31,22 @@
                                  aria-controls="beacon" placeholder="Search Name..." type="search" />
                       </form>
                   </li>
+                <li class="dropdown divider-vertical">
+                  <a title="Select VOSpace Service" class="dropdown-toggle" role="button" id="svcdropdown" name="svcdropdown"
+                     aria-expanded="false" data-toggle="dropdown">
+                    <span class="glyphicon glyphicon-hdd"></span> ${vospaceSvcName} <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                      <#list vospaceServices as vospaceSvc>
+                        <li>
+                          <a id="vos_${vospaceSvc}" href="${contextPath}${vospaceSvc}/list" role="button">
+                              ${vospaceSvc}</a>
+                        </li>
+                      </#list>
+                  </ul>
+                </li>
 <#if homeDir??>
   <!-- homeDir is populated if the home directory for that user actually exists -->
-  <#assign homeURL = '${contextPath}list${homeDir}'>
+  <#assign homeURL = '${contextPath}${vospaceSvcPath}list${homeDir}'>
 
                   <li>
                       <a id="homeDir" name="homeDir" type="button" title="Navigate to home directory." href="${homeURL}">
@@ -41,16 +54,17 @@
 </#if>
 <#if !isRoot>
                 <li>
-                  <a id="level-up" name="level-up" href="${contextPath}list${folder.parentPath}" role="button" title="Up one level">
+                  <a id="level-up" name="level-up" href="${contextPath}${vospaceSvcPath}list${folder.parentPath}" role="button" title="Up one level">
                     <span class="glyphicon glyphicon-level-up"></span>&nbsp;Up</a></li>
                 <li>
-                  <a id="root" name="root" type="button" title="Navigate to main root." href="${contextPath}list/">
+                  <a id="root" name="root" type="button" title="Navigate to main root." href="${contextPath}${vospaceSvcPath}list/">
                     <span class="glyphicon glyphicon-folder-close"></span>&nbsp;Root</a></li>
 
                 <li class="dropdown divider-vertical<#if !folderWritable> disabled</#if>">
                   <a title="Add" class="dropdown-toggle<#if !folderWritable> disabled</#if>" <#if !folderWritable>disabled="disabled"</#if>role="button" id="newdropdown" name="newdropdown" aria-expanded="false" data-toggle="dropdown">
                     <span class="glyphicon glyphicon-plus"></span>&nbsp;Add&nbsp;<span class="caret"></span></a>
                   <ul class="dropdown-menu">
+
                     <li>
                       <a id="newfolder" name="newfolder">
                         <span class="glyphicon glyphicon-folder-open"></span>&nbsp;Folder</a></li>

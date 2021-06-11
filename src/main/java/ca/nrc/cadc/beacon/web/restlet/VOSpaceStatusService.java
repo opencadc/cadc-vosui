@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2020.                            (c) 2020.
+ *  (c) 2021.                            (c) 2021.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -114,6 +114,11 @@ public class VOSpaceStatusService extends StatusService {
             // requestedFolder in login.ftl will allow login to this node
             // in case this is a permissions issue
             dataModel.put("requestedFolder", requestedResource);
+
+            // Add the current VOSpace service name so that navigation links can be rendered correctly
+            StorageApplication sa = (StorageApplication) StorageApplication.getCurrent();
+            String vospaceSvcName = sa.getVospaceServiceConfigMgr().currentServiceName;
+            dataModel.put("vospaceSvcPath", vospaceSvcName + "/");
 
             return new TemplateRepresentation("error.ftl",
                                               (FreeMarkerConfiguration) curContext.getAttributes()

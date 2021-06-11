@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2020.                            (c) 2020.
+ *  (c) 2021.                            (c) 2021.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -72,12 +72,11 @@ import ca.nrc.cadc.ac.client.GMSClient;
 import ca.nrc.cadc.accesscontrol.AccessControlClient;
 
 import ca.nrc.cadc.auth.PrincipalExtractor;
+import ca.nrc.cadc.beacon.web.config.VOSpaceServiceConfigMgr;
 import ca.nrc.cadc.beacon.web.resources.*;
 import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
 import ca.nrc.cadc.config.ApplicationConfiguration;
 import ca.nrc.cadc.reg.client.RegistryClient;
-import ca.nrc.cadc.util.StringUtil;
-import ca.nrc.cadc.vos.client.VOSpaceClient;
 import ca.nrc.cadc.web.RestletPrincipalExtractor;
 import ca.nrc.cadc.web.SubjectGenerator;
 import org.apache.log4j.Logger;
@@ -103,10 +102,8 @@ public class StorageApplication extends Application {
         Logger.getLogger(StorageApplication.class);
 
     // Public properties are made available in the Context.
-    public static final String VOSPACE_CLIENT_KEY = "org.opencadc.vospace.client";
     public static final String REGISTRY_CLIENT_KEY = "org.opencadc.registry.client";
     public static final String ACCESS_CONTROL_CLIENT_KEY = "org.opencadc.ac.client";
-    public static final String VOSPACE_SERVICE_ID_KEY = "org.opencadc.vospace.service_id";
     public static final String FREEMARKER_CONFIG_KEY = "org.opencadc.vospace.freemarker-config";
     public static final String SERVLET_CONTEXT_ATTRIBUTE_KEY = "org.restlet.ext.servlet.ServletContext";
     public static final String DEFAULT_CONTEXT_PATH = "/storage/";
@@ -120,17 +117,10 @@ public class StorageApplication extends Application {
     public static final String DEFAULT_FILES_META_SERVICE_STANDARD_ID =
         "vos://cadc.nrc.ca~vospace/CADC/std/archive#file-1.0";
 
-    // Properties files keys
     private static final String DEFAULT_CONFIG_FILE_PATH = System.getProperty("user.home") + "/config/org.opencadc.vosui.properties";
-    public static final String STORAGE_SERVICE_NAME_KEY = "org.opencadc.vosui.service.name";
-    public static final String KEY_BASE = "org.opencadc.vosui.";
-    public static final String NODE_URI_KEY = ".node.resourceid";
-    public static final String USER_HOME_KEY = ".user.home";
-
-    public String storageServiceName;
-    private String vospaceResourceID;
 
     private final ApplicationConfiguration applicationConfiguration;
+    private final VOSpaceServiceConfigMgr vospaceServiceConfigMgr;
 
     /**
      * Constructor.
@@ -144,6 +134,7 @@ public class StorageApplication extends Application {
         super(context);
         setStatusService(new VOSpaceStatusService());
         this.applicationConfiguration = new ApplicationConfiguration(DEFAULT_CONFIG_FILE_PATH);
+        this.vospaceServiceConfigMgr = new VOSpaceServiceConfigMgr(this.applicationConfiguration);
     }
 
 
@@ -160,37 +151,10 @@ public class StorageApplication extends Application {
         final Context context = getContext();
         log.debug("context: " + context);
 
-        // TODO: storageServiceName assumes that only one is defined in the properties file. For now,
-        // the first value will be grabbed so if more than one is declared, the rest are ignored.
-        // Might be this becomes a list to be iterated over to collect multiple configurations
-        try {
-            this.storageServiceName = applicationConfiguration.lookup(STORAGE_SERVICE_NAME_KEY);
-
-            log.debug("storage service name: " + STORAGE_SERVICE_NAME_KEY + ": " + storageServiceName);
-            context.getAttributes().put(STORAGE_SERVICE_NAME_KEY, storageServiceName);
-            // Values that will vary by configuration
-            vospaceResourceID = applicationConfiguration.lookup(KEY_BASE + storageServiceName + ".service.resourceid");
-            String nodeResourceID = KEY_BASE + storageServiceName + NODE_URI_KEY;
-            log.debug("node resource id base: " + nodeResourceID);
-            context.getAttributes().put(nodeResourceID, applicationConfiguration.lookup(nodeResourceID));
-
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to init context. Required configuration missing.", e);
-        }
-
-        String userHomeDir = KEY_BASE + storageServiceName + USER_HOME_KEY;
-        log.debug("user home directory: " + userHomeDir);
-        String userHomeValue = applicationConfiguration.lookup(userHomeDir);
-        if (StringUtil.hasLength(userHomeValue)) {
-            // optional value
-            context.getAttributes().put(userHomeDir, applicationConfiguration.lookup(userHomeDir));
-        }
-        context.getAttributes().put(VOSPACE_CLIENT_KEY, createVOSpaceClient());
+        // These values don't change per page load
         context.getAttributes().put(REGISTRY_CLIENT_KEY, createRegistryClient());
         context.getAttributes().put(ACCESS_CONTROL_CLIENT_KEY, createAccessControlClient());
         context.getAttributes().put(GMS_SERVICE_PROPERTY_KEY, createGMSClient());
-        context.getAttributes().put(VOSPACE_SERVICE_ID_KEY, URI.create(applicationConfiguration.lookup(VOSPACE_SERVICE_ID_KEY,
-                                                                                                    vospaceResourceID)));
         context.getAttributes().put(FREEMARKER_CONFIG_KEY, createFreemarkerConfig());
         context.getAttributes().put(FILES_META_SERVICE_SERVICE_ID_KEY,
                                     URI.create(applicationConfiguration.lookup(FILES_META_SERVICE_SERVICE_ID_KEY,
@@ -198,7 +162,6 @@ public class StorageApplication extends Application {
         context.getAttributes().put(FILES_META_SERVICE_STANDARD_ID_KEY,
                                     URI.create(applicationConfiguration.lookup(FILES_META_SERVICE_STANDARD_ID_KEY,
                                         DEFAULT_FILES_META_SERVICE_STANDARD_ID)));
-
 
         final ServletContext servletContext = getServletContext();
         final String contextPath = (servletContext == null) ? DEFAULT_CONTEXT_PATH : "/";
@@ -208,32 +171,36 @@ public class StorageApplication extends Application {
 
         router.attach(contextPath + "groups", GroupNameServerResource.class);
 
-        router.attach(contextPath + "page", PageServerResource.class);
-        final TemplateRoute pageRoute = router.attach(contextPath + "page/{path}",
-                                                      PageServerResource.class);
+        final Map<String, Variable> routeVariables = new HashMap<>();
+        routeVariables.put("svc", new Variable(Variable.TYPE_ALPHA_DIGIT));
+        routeVariables.put("path", new Variable(Variable.TYPE_URI_PATH));
 
+        // Build a set of links for each configured storage service
+
+        // backward-compatible routes (pre use of {svc}
         // Allow for an empty path to be the root.
         router.attach(contextPath + "list", MainPageServerResource.class);
         router.attach(contextPath + "list/", MainPageServerResource.class);
 
+        router.attach(contextPath + "page", PageServerResource.class);
+        final TemplateRoute pageRoute = router.attach(contextPath + "page/{path}",
+            PageServerResource.class);
+
         // Generic endpoint for files, folders, or links.
         final TemplateRoute itemRoute = router.attach(contextPath + "item/{path}",
-                                                      StorageItemServerResource.class);
+            StorageItemServerResource.class);
         final TemplateRoute folderRoute = router.attach(contextPath + "folder/{path}",
-                                                        FolderItemServerResource.class);
+            FolderItemServerResource.class);
         final TemplateRoute fileRoute = router.attach(contextPath + "file/{path}",
-                                                      FileItemServerResource.class);
+            FileItemServerResource.class);
         final TemplateRoute linkRoute = router.attach(contextPath + "link/{path}",
-                                                      LinkItemServerResource.class);
+            LinkItemServerResource.class);
         final TemplateRoute listRoute = router.attach(contextPath + "list/{path}",
-                                                      MainPageServerResource.class);
+            MainPageServerResource.class);
         final TemplateRoute nodeRoute = router.attach(contextPath + "access/{path}",
-                                                      NodeServerResource.class);
+            NodeServerResource.class);
         final TemplateRoute rawRoute = router.attach(contextPath + "raw/{path}",
-                                                     MainPageServerResource.class);
-
-        final Map<String, Variable> routeVariables = new HashMap<>();
-        routeVariables.put("path", new Variable(Variable.TYPE_URI_PATH));
+            MainPageServerResource.class);
 
         itemRoute.getTemplate().getVariables().putAll(routeVariables);
         folderRoute.getTemplate().getVariables().putAll(routeVariables);
@@ -244,12 +211,46 @@ public class StorageApplication extends Application {
         rawRoute.getTemplate().getVariables().putAll(routeVariables);
         nodeRoute.getTemplate().getVariables().putAll(routeVariables);
 
+        // Support for routes with {svc} in URL
+        router.attach(contextPath + "{svc}/page", PageServerResource.class);
+        final TemplateRoute svcPageRoute = router.attach(contextPath + "{svc}/page/{path}",
+            PageServerResource.class);
+
+        // Allow for an empty path to be the root.
+        final TemplateRoute svcListRouteNoPath = router.attach(contextPath +  "{svc}/list", MainPageServerResource.class);
+        final TemplateRoute svcListRouteNoPath2 = router.attach(contextPath +  "{svc}/list/", MainPageServerResource.class);
+
+        // Generic endpoint for files, folders, or links.
+        final TemplateRoute svcItemRoute = router.attach(contextPath + "{svc}/item/{path}",
+            StorageItemServerResource.class);
+        final TemplateRoute svcFolderRoute = router.attach(contextPath + "{svc}/folder/{path}",
+            FolderItemServerResource.class);
+        final TemplateRoute svcFileRoute = router.attach(contextPath + "{svc}/file/{path}",
+            FileItemServerResource.class);
+        final TemplateRoute svcLinkRoute = router.attach(contextPath + "{svc}/link/{path}",
+            LinkItemServerResource.class);
+        final TemplateRoute svcListRoute = router.attach(contextPath + "{svc}/list/{path}",
+            MainPageServerResource.class);
+        final TemplateRoute svcNodeRoute = router.attach(contextPath + "{svc}/access/{path}",
+            NodeServerResource.class);
+        final TemplateRoute svcRawRoute = router.attach(contextPath + "{svc}/raw/{path}",
+            MainPageServerResource.class);
+
+        // Set route variables to all the templates
+        svcItemRoute.getTemplate().getVariables().putAll(routeVariables);
+        svcFolderRoute.getTemplate().getVariables().putAll(routeVariables);
+        svcLinkRoute.getTemplate().getVariables().putAll(routeVariables);
+        svcPageRoute.getTemplate().getVariables().putAll(routeVariables);
+        svcFileRoute.getTemplate().getVariables().putAll(routeVariables);
+        svcListRoute.getTemplate().getVariables().putAll(routeVariables);
+        svcListRoute.getTemplate().getVariables().putAll(routeVariables);
+        svcListRouteNoPath.getTemplate().getVariables().putAll(routeVariables);
+        svcListRouteNoPath2.getTemplate().getVariables().putAll(routeVariables);
+        svcRawRoute.getTemplate().getVariables().putAll(routeVariables);
+        svcNodeRoute.getTemplate().getVariables().putAll(routeVariables);
+
         router.setContext(getContext());
         return router;
-    }
-
-    private VOSpaceClient createVOSpaceClient() {
-        return new VOSpaceClient(URI.create(applicationConfiguration.lookup(VOSPACE_SERVICE_ID_KEY, this.vospaceResourceID)));
     }
 
     private RegistryClient createRegistryClient() {
@@ -346,12 +347,8 @@ public class StorageApplication extends Application {
         component.start();
     }
 
-    public String getCurrentNodeURIKey() {
-        return KEY_BASE + storageServiceName + NODE_URI_KEY;
-    }
-
-    public String getCurrentUserHome() {
-        return KEY_BASE + storageServiceName + USER_HOME_KEY;
+    public VOSpaceServiceConfigMgr getVospaceServiceConfigMgr() {
+        return vospaceServiceConfigMgr;
     }
 
 }

@@ -65,128 +65,61 @@
  *
  ************************************************************************
  */
-package ca.nrc.cadc.web;
+package ca.nrc.cadc.beacon.web.config;
 
-import ca.nrc.cadc.auth.*;
-import ca.nrc.cadc.net.NetUtil;
-import ca.nrc.cadc.util.StringUtil;
-import org.apache.log4j.Logger;
-import org.restlet.Request;
-import org.restlet.data.Cookie;
-import org.restlet.util.Series;
+import ca.nrc.cadc.beacon.AbstractUnitTest;
+import java.net.URI;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Set;
+public class VOSpaceServiceConfigTest extends AbstractUnitTest<VOSpaceServiceConfigTest> {
 
-/**
- * Principal Extractor implementation using a Restlet Request.
- * * Created by hjeeves on 2017-01-11.
- */
-public class RestletPrincipalExtractor implements PrincipalExtractor
-{
-    private static final Logger log =
-            Logger.getLogger(RestletPrincipalExtractor.class);
+    final URI testVOSpaceNodeURI = URI.create("vos://cadc.nrc.ca!vault/my/node");
+    final URI testVOSpaceServiceURI = URI.create("vos://cadc.nrc.ca!vault/my/node");
+    final String serviceName = "serviceName";
 
-    private final Request request;
-    private boolean initialized = false;
+    @Test
+    public void testVOspaceServiceConfig() throws Exception {
 
-    private SSOCookieCredential cookieCredential;
+        VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName,
+            testVOSpaceServiceURI, testVOSpaceNodeURI);
 
-    /**
-     * Hidden no-arg constructor for testing.
-     */
-    RestletPrincipalExtractor()
-    {
-        this.request = null;
+        // Values will be stored or not. No need to test quality
+        Assert.assertNotNull(config1);
     }
 
-    /**
-     * Create this extractor from the given Restlet Request.
-     *
-     * @param req The Restlet Request.
-     */
-    public RestletPrincipalExtractor(final Request req)
-    {
-        this.request = req;
-    }
+    @Test
+    public void testBadVOspaceServiceConfig() throws Exception {
+        try {
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig("",
+                testVOSpaceServiceURI, testVOSpaceNodeURI);
 
-    private void init()
-    {
-        if (!initialized)
-        {
-            final Series<Cookie> requestCookies = getRequest().getCookies();
-            final Series<Cookie> cookies = new Series<>(Cookie.class);
-
-            if (requestCookies != null)
-            {
-                cookies.addAll(requestCookies);
-            }
-
-            for (final Cookie ssoCookie : cookies)
-            {
-                if (SSOCookieManager.DEFAULT_SSO_COOKIE_NAME.equals(
-                        ssoCookie.getName())
-                    && StringUtil.hasText(ssoCookie.getValue()))
-                {
-                    final SSOCookieManager ssoCookieManager =
-                            new SSOCookieManager();
-
-                    try
-                    {
-                        cookieCredential = new
-                                SSOCookieCredential(ssoCookie.getValue(),
-                                                    NetUtil.getDomainName(
-                                                            getRequest()
-                                                                    .getResourceRef()
-                                                                    .toUrl()));
-                    }
-                    catch (IOException | InvalidSignedTokenException e)
-                    {
-                        log.info("Cannot use SSO Cookie. Reason: "
-                                 + e.getMessage());
-                    }
-
-                }
-            }
+            // Values will be stored as passed in, no need to test quality
+            Assert.fail("ctor should have reported error for service name");
+        } catch (Exception expected) {
+            // pass
         }
 
-        initialized = true;
-    }
 
-    @Override
-    public X509CertificateChain getCertificateChain()
-    {
-        return null;
-    }
+        try {
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName,
+                null, testVOSpaceNodeURI);
 
-    @Override
-    public Set<Principal> getPrincipals()
-    {
-        init();
+            // Values will be stored as passed in, no need to test quality
+            Assert.fail("ctor should have reported error for service resourceID");
+        } catch (Exception expected) {
+            // pass
+        }
 
-        final Set<Principal> principals = new HashSet<>();
+        try {
+            VOSpaceServiceConfig config1 = new VOSpaceServiceConfig(serviceName,
+                testVOSpaceServiceURI, null);
 
-        // For now, the UI only needs to deal with the cookie principal.
-        addCookiePrincipal(principals);
-
-        return principals;
-    }
-
-    private void addCookiePrincipal(final Set<Principal> principals)
-    {
-        init();
-
-        if (cookieCredential != null)
-        {
-            principals.add(new CookiePrincipal(SSOCookieManager.DEFAULT_SSO_COOKIE_NAME,
-                cookieCredential.getSsoCookieValue()));
+            // Values will be stored as passed in, no need to test quality
+            Assert.fail("ctor should have reported error for node resourceID");
+        } catch (Exception expected) {
+            // pass
         }
     }
 
-    public Request getRequest()
-    {
-        return request;
-    }
 }

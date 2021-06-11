@@ -115,6 +115,10 @@ public class MainPageServerResourceTest
         initialRowData.add("child2");
         initialRowData.add("child3");
 
+        final List<String> vospaceServiceList = new ArrayList<>();
+        vospaceServiceList.add("vos");
+        vospaceServiceList.add("arc");
+
         String httpUsername = "CADCtest";
 
         final AccessControlClient mockAccessControlClient =
@@ -171,6 +175,12 @@ public class MainPageServerResourceTest
 
             @Override
             public String getVospaceNodeUriPrefix() { return VOSPACE_NODE_URI_PREFIX; }
+
+            @Override
+            public String getCurrentVOSpaceService() { return "vos"; }
+
+            @Override
+            List<String> getVOSpaceServiceList() { return vospaceServiceList; }
 
             @SuppressWarnings("unchecked")
             @Override

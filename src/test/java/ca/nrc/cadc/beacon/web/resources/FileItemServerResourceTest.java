@@ -72,8 +72,7 @@ package ca.nrc.cadc.beacon.web.resources;
 import ca.nrc.cadc.beacon.web.RegexFileValidator;
 import ca.nrc.cadc.beacon.web.UploadOutputStreamWrapper;
 import ca.nrc.cadc.beacon.web.UploadVerifier;
-import ca.nrc.cadc.beacon.web.restlet.StorageApplication;
-import ca.nrc.cadc.beacon.web.view.FreeMarkerConfiguration;
+import ca.nrc.cadc.beacon.web.config.VOSpaceServiceConfigMgr;
 import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.vos.*;
 import java.util.concurrent.ConcurrentMap;
@@ -127,10 +126,10 @@ public class FileItemServerResourceTest extends AbstractServerResourceTest<FileI
             new ConcurrentHashMap<>();
 
         mockContextAttributes
-            .put(StorageApplication.STORAGE_SERVICE_NAME_KEY,
+            .put(VOSpaceServiceConfigMgr.VOSPACE_SERVICE_NAME_KEY,
                 "vault");
         mockContextAttributes
-            .put(StorageApplication.KEY_BASE + ".vault" + StorageApplication.NODE_URI_KEY,
+            .put(VOSpaceServiceConfigMgr.KEY_BASE + ".vault" + VOSpaceServiceConfigMgr.NODE_URI_KEY,
                 "vault");
 
         expect(mockContext.getAttributes()).andReturn(mockContextAttributes).times(2);

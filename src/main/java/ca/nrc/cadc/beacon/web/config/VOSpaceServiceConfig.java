@@ -65,128 +65,50 @@
  *
  ************************************************************************
  */
-package ca.nrc.cadc.web;
+package ca.nrc.cadc.beacon.web.config;
 
-import ca.nrc.cadc.auth.*;
-import ca.nrc.cadc.net.NetUtil;
 import ca.nrc.cadc.util.StringUtil;
-import org.apache.log4j.Logger;
-import org.restlet.Request;
-import org.restlet.data.Cookie;
-import org.restlet.util.Series;
+import java.net.URI;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Set;
+public class VOSpaceServiceConfig {
+    private String name;
+    private URI resourceID;
+    private URI nodeResourceID;
 
-/**
- * Principal Extractor implementation using a Restlet Request.
- * * Created by hjeeves on 2017-01-11.
- */
-public class RestletPrincipalExtractor implements PrincipalExtractor
-{
-    private static final Logger log =
-            Logger.getLogger(RestletPrincipalExtractor.class);
+    // Default provided, can be overridden
+    public String homeDir;
 
-    private final Request request;
-    private boolean initialized = false;
+    public VOSpaceServiceConfig(String name, URI resourceID, URI nodeResourceID) {
 
-    private SSOCookieCredential cookieCredential;
-
-    /**
-     * Hidden no-arg constructor for testing.
-     */
-    RestletPrincipalExtractor()
-    {
-        this.request = null;
-    }
-
-    /**
-     * Create this extractor from the given Restlet Request.
-     *
-     * @param req The Restlet Request.
-     */
-    public RestletPrincipalExtractor(final Request req)
-    {
-        this.request = req;
-    }
-
-    private void init()
-    {
-        if (!initialized)
-        {
-            final Series<Cookie> requestCookies = getRequest().getCookies();
-            final Series<Cookie> cookies = new Series<>(Cookie.class);
-
-            if (requestCookies != null)
-            {
-                cookies.addAll(requestCookies);
-            }
-
-            for (final Cookie ssoCookie : cookies)
-            {
-                if (SSOCookieManager.DEFAULT_SSO_COOKIE_NAME.equals(
-                        ssoCookie.getName())
-                    && StringUtil.hasText(ssoCookie.getValue()))
-                {
-                    final SSOCookieManager ssoCookieManager =
-                            new SSOCookieManager();
-
-                    try
-                    {
-                        cookieCredential = new
-                                SSOCookieCredential(ssoCookie.getValue(),
-                                                    NetUtil.getDomainName(
-                                                            getRequest()
-                                                                    .getResourceRef()
-                                                                    .toUrl()));
-                    }
-                    catch (IOException | InvalidSignedTokenException e)
-                    {
-                        log.info("Cannot use SSO Cookie. Reason: "
-                                 + e.getMessage());
-                    }
-
-                }
-            }
+        // Validation for required properties
+        if (!StringUtil.hasLength(name)) {
+            throw new IllegalArgumentException("VOSpace service name required");
+        }
+        if (resourceID == null) {
+            throw new IllegalArgumentException("VOSpace service resource ID required");
+        }
+        if (nodeResourceID == null) {
+            throw new IllegalArgumentException("VOSpace node resource ID required");
         }
 
-        initialized = true;
+        this.name = name;
+        this.resourceID = resourceID;
+        this.nodeResourceID = nodeResourceID;
+
+        // Set default for optional properties
+        this.homeDir = "/";
     }
 
-    @Override
-    public X509CertificateChain getCertificateChain()
-    {
-        return null;
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public Set<Principal> getPrincipals()
-    {
-        init();
-
-        final Set<Principal> principals = new HashSet<>();
-
-        // For now, the UI only needs to deal with the cookie principal.
-        addCookiePrincipal(principals);
-
-        return principals;
+    public URI getResourceID() {
+        return resourceID;
     }
 
-    private void addCookiePrincipal(final Set<Principal> principals)
-    {
-        init();
-
-        if (cookieCredential != null)
-        {
-            principals.add(new CookiePrincipal(SSOCookieManager.DEFAULT_SSO_COOKIE_NAME,
-                cookieCredential.getSsoCookieValue()));
-        }
+    public URI getNodeResourceID() {
+        return nodeResourceID;
     }
 
-    public Request getRequest()
-    {
-        return request;
-    }
 }

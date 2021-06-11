@@ -79,7 +79,6 @@ import ca.nrc.cadc.reg.client.RegistryClient;
 import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.*;
 
-
 import javax.security.auth.Subject;
 import java.net.URI;
 import java.security.Principal;
@@ -115,6 +114,8 @@ public class StorageItemFactory {
     }
 
     private String getTarget(final DataNode dataNode) {
+        // This is used for the /files endpoint, for viewing files in the browser
+        // (Downloading is a different mechanism)
         final VOSURI dataNodeURI = dataNode.getUri();
 
         return String.format("%s/%s%s", lookupMetaServiceURLString(dataNodeURI), this.vospaceServiceName,
@@ -139,11 +140,25 @@ public class StorageItemFactory {
     }
 
     private String getTarget(final ContainerNode containerNode) {
-        return contextPath + (contextPath.endsWith("/") ? "" : "/") + "list" + containerNode.getUri().getPath();
+        final String target;
+        if (StringUtil.hasLength(this.vospaceServiceName)) {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceName + "/list"
+                + containerNode.getUri().getPath();
+        } else {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + "list" + containerNode.getUri().getPath();
+        }
+        return target;
     }
 
     private String getTarget(final LinkNode linkNode) {
-        return contextPath + (contextPath.endsWith("/") ? "" : "/") + "link" + linkNode.getUri().getPath();
+        final String target;
+        if (StringUtil.hasLength(this.vospaceServiceName)) {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + this.vospaceServiceName + "/link"
+                + linkNode.getUri().getPath();
+        } else {
+            target = contextPath + (contextPath.endsWith("/") ? "" : "/") + "link" + linkNode.getUri().getPath();
+        }
+        return target;
     }
 
     /**
