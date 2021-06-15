@@ -166,7 +166,10 @@ public class VOSpaceServiceConfigMgr {
     }
 
     public List<String> getServiceList() {
-        return this.serviceList;
+        final List<String> listToSort = new ArrayList<>(this.serviceList);
+        Collections.sort(listToSort);
+        Collections.reverse(listToSort);
+        return listToSort;
     }
 
 }
