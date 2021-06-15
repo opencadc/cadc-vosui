@@ -119,7 +119,7 @@ public class VOSpaceServiceConfigMgr {
         this.serviceList = Arrays.asList(appConfig.lookupAll(VOSPACE_SERVICE_NAME_KEY));
 
         for (String storageServiceName: this.serviceList) {
-            log.debug("adding vospace service to map: " + VOSPACE_SERVICE_NAME_KEY + ": " + serviceList.toString());
+            log.debug("adding vospace service to map: " + VOSPACE_SERVICE_NAME_KEY + ": " + storageServiceName);
 
             String vospaceResourceIDStr = appConfig.lookup(KEY_BASE + storageServiceName + SERVICE_RESOURCEID_KEY);
             URI vospaceResourceID;
@@ -142,9 +142,9 @@ public class VOSpaceServiceConfigMgr {
                 vospaceResourceID, nodeResourceID);
 
             String userHomeDir = KEY_BASE + storageServiceName + USER_HOME_KEY;
-            log.debug("user home directory: " + userHomeDir);
             String userHomeValue = appConfig.lookup(userHomeDir);
             if (StringUtil.hasLength(userHomeDir)) {
+                log.debug("user home directory: " + userHomeDir + ": " + userHomeValue);
                 newConfig.homeDir = userHomeValue;
             }
 
@@ -166,9 +166,11 @@ public class VOSpaceServiceConfigMgr {
     }
 
     public List<String> getServiceList() {
-        Collections.sort(this.serviceList);
-        Collections.reverse(this.serviceList);
-        return this.serviceList;
+        final List<String> listToSort = new ArrayList<>(this.serviceList);
+        Collections.sort(listToSort);
+        Collections.reverse(listToSort);
+        log.debug("sorted service list: " + listToSort.toString());
+        return listToSort;
     }
 
 }
