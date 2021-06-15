@@ -166,8 +166,6 @@ public class VOSpaceServiceConfigMgr {
     }
 
     public List<String> getServiceList() {
-        Collections.sort(this.serviceList);
-        Collections.reverse(this.serviceList);
         return this.serviceList;
     }
 
