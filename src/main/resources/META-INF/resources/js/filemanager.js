@@ -120,8 +120,13 @@ function fileManager(
   })
 
   var selectInput = {
-    style: 'os',
-    selector: 'td:first-child.select-checkbox'
+    // CADC-10478: had been 'os' prior, 'multi' allows rows
+    // to function same as Advanced Search - click selects,
+    // without clearing previous selections. 'multi+shift'
+    // allows shift+click and command+click options to still
+    // function.
+    style: 'multi+shift',
+    selector: 'td:first-child.select-checkbox',
   }
 
   var $fileInfo = $('#fileInfo')
@@ -3515,4 +3520,5 @@ function fileManager(
   $(window).load(function() {
     setDimensions()
   })
+
 }
