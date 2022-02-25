@@ -2529,46 +2529,131 @@ function fileManager(
   $(document).on('click', '.download-dropdown-menu > li > a', function() {
     var $thisLink = $(this)
 
-    var downloadMethod = config.download.methods[$thisLink.attr('class')]
-    var form = document.createElement('form')
-    var formAction = '/downloadManager/download'
-    // var formAction = contextPath + config.download.connector;
-    form.setAttribute('method', 'POST')
-    form.setAttribute('action', formAction)
 
-    var methodHiddenField = document.createElement('input')
-    methodHiddenField.setAttribute('type', 'hidden')
-    methodHiddenField.setAttribute('name', 'method')
-    methodHiddenField.setAttribute('value', downloadMethod.id)
 
-    form.appendChild(methodHiddenField)
+    if ($thisLink.attr('class') === 'download-zip-file') {
+      var form = document.createElement('form')
+      //var formAction = '/downloadManager/download'
+      //// var formAction = contextPath + config.download.connector;
+      form.setAttribute('method', 'POST')
+      form.setAttribute('action', formAction)
+      var postData = {}
+      postData.responseformat = "application/zip"
+      var targetStr = ""
 
-    //Move the submit function to another variable
-    //so that it doesn't get overwritten.
-    form._submit_function_ = form.submit
+      $.each(
+        $dt
+          .rows({
+            selected: true
+          })
+          .data(),
+        function (key, itemData) {
+          targetStr += itemData[10] + ","
+        }
+      )
+      targetStr = targetStr.substr(0, targetStr.length -1 )
+      postData.target = targetStr
 
-    $.each(
-      $dt
-        .rows({
-          selected: true
-        })
-        .data(),
-      function(key, itemData) {
-        var hiddenField = document.createElement('input')
-        hiddenField.setAttribute('type', 'hidden')
-        hiddenField.setAttribute('name', 'uri')
-        hiddenField.setAttribute(
-          'value',
-          config.download.vos_prefix + itemData[9]
-        )
+      alert(JSON.stringify(postData))
 
-        form.appendChild(hiddenField)
-      }
-    )
+      $.ajax({
+        method: 'POST',
+        url:
+          contextPath +
+          vospaceServicePath +
+          config.options.packageConnector,
+        data: JSON.stringify(postData),
+        contentType: 'application/json',
+        success: function( data, textStatus, jqXHR) {
+          var infoMsg = data.msg;
 
-    document.body.appendChild(form)
+          window.location.url = data.endpoint;
 
-    form._submit_function_()
+          switch (jqXHR.status) {
+              case 202:
+                infoMsg = lg.permissions_recursive_submitted
+                break
+              case 204:
+                infoMsg = lg.permissions_modified
+                break
+            }
+          $.prompt(infoMsg, {submit: refreshPage})
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          var errMsg = ''
+
+          switch (jqXHR.status) {
+            case 409:
+              errMsg = lg.NOT_ALLOWED_SYSTEM.replace(/%s/g, formVals['destNode']) + ' (' + jqXHR.status + ')'
+              break
+            default:
+              errMsg = getErrorMsg(jqXHR, errorThrown)
+          }
+          $.prompt(errMsg)
+        }
+      })
+
+
+
+
+
+      //$.ajax({
+      //  method: 'POST',
+      //  url:
+      //    contextPath +
+      //    vospaceServicePath +
+      //    config.options.packageConnector,
+      //  dataType: 'json',
+      //  data: postData,
+      //  async: false,
+      //  success: function(data) {
+      //    alert("did something package-ey")
+      //  }
+      //})
+
+
+    } else {
+      var downloadMethod = config.download.methods[$thisLink.attr('class')]
+      var form = document.createElement('form')
+      var formAction = '/downloadManager/download'
+      // var formAction = contextPath + config.download.connector;
+      form.setAttribute('method', 'POST')
+      form.setAttribute('action', formAction)
+
+      var methodHiddenField = document.createElement('input')
+      methodHiddenField.setAttribute('type', 'hidden')
+      methodHiddenField.setAttribute('name', 'method')
+      methodHiddenField.setAttribute('value', downloadMethod.id)
+
+      form.appendChild(methodHiddenField)
+
+      //Move the submit function to another variable
+      //so that it doesn't get overwritten.
+      form._submit_function_ = form.submit
+
+      $.each(
+        $dt
+          .rows({
+            selected: true
+          })
+          .data(),
+        function (key, itemData) {
+          var hiddenField = document.createElement('input')
+          hiddenField.setAttribute('type', 'hidden')
+          hiddenField.setAttribute('name', 'uri')
+          hiddenField.setAttribute(
+            'value',
+            config.download.vos_prefix + itemData[9]
+          )
+
+          form.appendChild(hiddenField)
+        }
+      )
+
+      document.body.appendChild(form)
+
+      form._submit_function_()
+    }
   })
 
   // Display an 'edit' link for editable files

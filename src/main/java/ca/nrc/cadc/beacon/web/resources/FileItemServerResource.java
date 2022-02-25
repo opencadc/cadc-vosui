@@ -304,8 +304,9 @@ public class FileItemServerResource extends StorageItemServerResource {
             protocols.add(httpsAuth);
         }
 
-        final Transfer transfer = new Transfer(dataNode.getUri().getURI(), Direction.pushToVoSpace,
-                                               new View(URI.create(VOS.VIEW_DEFAULT)), protocols);
+        final Transfer transfer = new Transfer(dataNode.getUri().getURI(), Direction.pushToVoSpace);
+        transfer.setView(new View(URI.create(VOS.VIEW_DEFAULT)));
+        transfer.getProtocols().addAll(protocols);
         transfer.version = VOS.VOSPACE_21;
 
         final ClientTransfer ct = voSpaceClient.createTransfer(transfer);
