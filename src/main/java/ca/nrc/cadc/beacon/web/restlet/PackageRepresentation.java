@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2016.                            (c) 2016.
+ *  (c) 2022.                            (c) 2022.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -80,12 +80,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.security.PrivilegedExceptionAction;
-import javax.security.auth.Subject;
 import org.restlet.data.MediaType;
 import org.restlet.representation.OutputRepresentation;
 
-
+/**
+ * Potential class for downloading packages. Depending on how front end solution
+ * to accessing /vault/pkg is accepted, this class may be needed. (If not, it can be
+ * deleted as part of the code review.)
+ */
 public class PackageRepresentation extends OutputRepresentation
 {
     URL packageURL;
@@ -99,51 +101,39 @@ public class PackageRepresentation extends OutputRepresentation
     {
         super(mediaType);
         this.packageURL = pkgURL;
-
-
     }
 
     @Override
-    public void write(OutputStream outStream)
-        throws IOException {
+    public void write(OutputStream outStream) throws IOException {
 
-//        try {
-            // may not be able to split things out to send errors
-            // sanely to the front end.
-            // do the HttpGet on the endpoint in here
-//            MultiBufferIO multiBufferIO = new MultiBufferIO();
-//            multiBufferIO.copy(getIOStream, outStream);
+        try {
+            HttpGet get = new HttpGet(packageURL, true);
+            get.prepare();
 
-                    try {
-                        HttpGet get = new HttpGet(packageURL, true);
-                        get.prepare();
+            // Copy the get InputStream to the package OutputStream
+            // this is 'writing' the content of the file
+            InputStream getIOStream = get.getInputStream();
+            MultiBufferIO multiBufferIO = new MultiBufferIO();
+            multiBufferIO.copy(getIOStream, outStream);
 
-                        // Copy the get InputStream to the package OutputStream
-                        // this is 'writing' the content of the file
-                        InputStream getIOStream = get.getInputStream();
-                        MultiBufferIO multiBufferIO = new MultiBufferIO();
-                        multiBufferIO.copy(getIOStream, outStream);
-
-                    } catch (ResourceNotFoundException e) {
-                        // TODO: put some reasonable messages out from here - although
-                        e.printStackTrace();
-                    } catch (ByteLimitExceededException e) {
-                        e.printStackTrace();
-                    } catch (TransientException e) {
-                        e.printStackTrace();
-                    } catch (WriteException e) {
-                        e.printStackTrace();
-                    } catch (ResourceAlreadyExistsException e) {
-                        e.printStackTrace();
-                    } catch (ReadException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+        } catch (ResourceNotFoundException e) {
+            // TODO: put some reasonable messages out from here - although
+            e.printStackTrace();
+        } catch (ByteLimitExceededException e) {
+            e.printStackTrace();
+        } catch (TransientException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            e.printStackTrace();
+        } catch (ResourceAlreadyExistsException e) {
+            e.printStackTrace();
+        } catch (ReadException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        //    });
     }
-
 
 }

@@ -2529,16 +2529,9 @@ function fileManager(
   $(document).on('click', '.download-dropdown-menu > li > a', function() {
     var $thisLink = $(this)
 
-
-
     if ($thisLink.attr('class') === 'download-zip-file') {
-      var form = document.createElement('form')
-      //var formAction = '/downloadManager/download'
-      //// var formAction = contextPath + config.download.connector;
-      form.setAttribute('method', 'POST')
-      form.setAttribute('action', formAction)
       var postData = {}
-      postData.responseformat = "application/zip"
+      postData.responseformat = 'application/zip'
       var targetStr = ""
 
       $.each(
@@ -2554,8 +2547,6 @@ function fileManager(
       targetStr = targetStr.substr(0, targetStr.length -1 )
       postData.target = targetStr
 
-      alert(JSON.stringify(postData))
-
       $.ajax({
         method: 'POST',
         url:
@@ -2567,50 +2558,32 @@ function fileManager(
         success: function( data, textStatus, jqXHR) {
           var infoMsg = data.msg;
 
-          window.location.url = data.endpoint;
+          var $anchor = $('<a/>')
+            .attr('href',  data.endpoint)
+            .attr('display', 'none')
 
-          switch (jqXHR.status) {
-              case 202:
-                infoMsg = lg.permissions_recursive_submitted
-                break
-              case 204:
-                infoMsg = lg.permissions_modified
-                break
-            }
-          $.prompt(infoMsg, {submit: refreshPage})
+          // Append to the document body temporarily
+          // so package url can be clicked and the package
+          // file download handled by the browser
+          $('#main_section').append($anchor)
+          // Must trigger the native click event manually - jquery
+          // blocks this for links.
+          $anchor.get(0).click()
+          $anchor.remove()
+
+          $.prompt(lg.package_generate)
+
         },
         error: function(jqXHR, textStatus, errorThrown) {
           var errMsg = ''
 
           switch (jqXHR.status) {
-            case 409:
-              errMsg = lg.NOT_ALLOWED_SYSTEM.replace(/%s/g, formVals['destNode']) + ' (' + jqXHR.status + ')'
-              break
             default:
               errMsg = getErrorMsg(jqXHR, errorThrown)
           }
           $.prompt(errMsg)
         }
       })
-
-
-
-
-
-      //$.ajax({
-      //  method: 'POST',
-      //  url:
-      //    contextPath +
-      //    vospaceServicePath +
-      //    config.options.packageConnector,
-      //  dataType: 'json',
-      //  data: postData,
-      //  async: false,
-      //  success: function(data) {
-      //    alert("did something package-ey")
-      //  }
-      //})
-
 
     } else {
       var downloadMethod = config.download.methods[$thisLink.attr('class')]

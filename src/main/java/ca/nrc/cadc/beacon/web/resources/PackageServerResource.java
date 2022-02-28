@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2020.                            (c) 2020.
+ *  (c) 2022.                            (c) 2022.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -68,65 +68,31 @@
 
 package ca.nrc.cadc.beacon.web.resources;
 
-
-
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
 
-import ca.nrc.cadc.beacon.web.restlet.PackageRepresentation;
-import ca.nrc.cadc.io.ByteLimitExceededException;
-import ca.nrc.cadc.io.MultiBufferIO;
-import ca.nrc.cadc.io.ReadException;
-import ca.nrc.cadc.io.WriteException;
-import ca.nrc.cadc.net.HttpGet;
-import ca.nrc.cadc.net.ResourceAlreadyExistsException;
-import ca.nrc.cadc.net.ResourceNotFoundException;
-import ca.nrc.cadc.net.TransientException;
 import ca.nrc.cadc.reg.Standards;
-import ca.nrc.cadc.vos.*;
-import ca.nrc.cadc.vos.VOS.Detail;
 import ca.nrc.cadc.vos.client.ClientTransfer;
-import ca.nrc.cadc.vos.client.VOSClientUtil;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 
-
-
-import ca.nrc.cadc.uws.Job;
-import ca.nrc.cadc.uws.JobReader;
-import ca.nrc.cadc.uws.Parameter;
 import ca.nrc.cadc.vos.Direction;
 import ca.nrc.cadc.vos.Protocol;
 import ca.nrc.cadc.vos.Transfer;
-import ca.nrc.cadc.vos.TransferParsingException;
-import ca.nrc.cadc.vos.TransferReader;
 import ca.nrc.cadc.vos.VOS;
-import ca.nrc.cadc.vos.VOSURI;
 import ca.nrc.cadc.vos.View;
 
-import freemarker.template.utility.StringUtil;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
-
-
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import javax.security.auth.Subject;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
-import org.restlet.representation.OutputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
-import org.restlet.resource.Put;
 
 
 public class PackageServerResource extends StorageItemServerResource {
@@ -161,7 +127,6 @@ public class PackageServerResource extends StorageItemServerResource {
         log.debug("getPackage input: " + jsonObject);
 
         List<URI> targetList = new ArrayList<>();
-
         final Set<String> keySet = jsonObject.keySet();
 
         String responseFormat;
@@ -186,21 +151,13 @@ public class PackageServerResource extends StorageItemServerResource {
             final String targetStr = (String) jsonObject.get("target");
             final String[] targets = targetStr.split(",");
 
-            // iterate over each srcNode & call clientTransfer
+            // build target list to add to transfer
             for (final String target : targets) {
-//                URI targetURI = new URI(getVospaceNodeUriPrefix() + target);
                 // URIs are being passed in from the UI
                 URI targetURI = new URI(target);
                 log.debug("adding URI to transfer target list: " + targetURI.toString());
                 targetList.add(targetURI);
             }
-
-            // Get all targets from the json sent in
-            // make a list of URIs
-            // get the mime type (response format) passed in
-            // make the client transfer object
-            // use VOSpaceClient to send the request
-            // (use code similar to vault integration tests here)
 
             // Create the Transfer.
             Transfer transfer = new Transfer(Direction.pullFromVoSpace);
@@ -221,23 +178,18 @@ public class PackageServerResource extends StorageItemServerResource {
             final ClientTransfer ct = voSpaceClient.createTransfer(transfer);
             URL packageURL = new URL(ct.getTransfer().getProtocols().get(0).getEndpoint());
 
-
             String endpoint = packageURL.toString();
             if (endpoint != "") {
-                // Need a PackageRepresentation class
-//                getResponse().setEntity(new PackageRepresentation(MediaType.APPLICATION_ZIP, packageURL));
-                getResponse().setStatus(Status.SUCCESS_OK);
-//                return new PackageRepresentation(MediaType.APPLICATION_ZIP, packageURL);
                 return new JSONRepresentation() {
                     @Override
                     public void write(final JSONWriter jsonWriter)
                         throws JSONException {
                         jsonWriter.object()
                             .key("endpoint").value(endpoint)
+                            .key("msg").value("successfully generated package file.")
                             .endObject();
                     }
                 };
-
             } else {
                 return new JSONRepresentation() {
                     @Override
@@ -250,9 +202,6 @@ public class PackageServerResource extends StorageItemServerResource {
                 };
             }
         }
-//        return null;
-
     }
-
 
 }
