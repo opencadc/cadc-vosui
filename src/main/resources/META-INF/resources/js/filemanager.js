@@ -2529,46 +2529,104 @@ function fileManager(
   $(document).on('click', '.download-dropdown-menu > li > a', function() {
     var $thisLink = $(this)
 
-    var downloadMethod = config.download.methods[$thisLink.attr('class')]
-    var form = document.createElement('form')
-    var formAction = '/downloadManager/download'
-    // var formAction = contextPath + config.download.connector;
-    form.setAttribute('method', 'POST')
-    form.setAttribute('action', formAction)
+    if ($thisLink.attr('class') === 'download-zip-file') {
+      var postData = {}
+      postData.responseformat = 'application/zip'
+      var targetList = new Array();
 
-    var methodHiddenField = document.createElement('input')
-    methodHiddenField.setAttribute('type', 'hidden')
-    methodHiddenField.setAttribute('name', 'method')
-    methodHiddenField.setAttribute('value', downloadMethod.id)
+      $.each(
+        $dt
+          .rows({
+            selected: true
+          })
+          .data(),
+        function (key, itemData) {
+          targetList.push(itemData[10])
+        }
+      )
 
-    form.appendChild(methodHiddenField)
+      postData.targets = targetList
 
-    //Move the submit function to another variable
-    //so that it doesn't get overwritten.
-    form._submit_function_ = form.submit
+      $.ajax({
+        method: 'POST',
+        url:
+          contextPath +
+          vospaceServicePath +
+          config.options.packageConnector,
+        data: JSON.stringify(postData),
+        contentType: 'application/json',
+        success: function( data, textStatus, jqXHR) {
+          var infoMsg = data.msg;
 
-    $.each(
-      $dt
-        .rows({
-          selected: true
-        })
-        .data(),
-      function(key, itemData) {
-        var hiddenField = document.createElement('input')
-        hiddenField.setAttribute('type', 'hidden')
-        hiddenField.setAttribute('name', 'uri')
-        hiddenField.setAttribute(
-          'value',
-          config.download.vos_prefix + itemData[9]
-        )
+          var $anchor = $('<a/>')
+            .attr('href',  data.endpoint)
+            .attr('display', 'none')
 
-        form.appendChild(hiddenField)
-      }
-    )
+          // Append to the document body temporarily
+          // so package url can be clicked and the package
+          // file download handled by the browser
+          $('#main_section').append($anchor)
+          // Must trigger the native click event manually - jquery
+          // blocks this for links.
+          $anchor.get(0).click()
+          $anchor.remove()
 
-    document.body.appendChild(form)
+          $.prompt(lg.package_generate)
 
-    form._submit_function_()
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          var errMsg = ''
+
+          switch (jqXHR.status) {
+            default:
+              errMsg = getErrorMsg(jqXHR, errorThrown)
+          }
+          $.prompt(errMsg)
+        }
+      })
+
+    } else {
+      var downloadMethod = config.download.methods[$thisLink.attr('class')]
+      var form = document.createElement('form')
+      var formAction = '/downloadManager/download'
+      // var formAction = contextPath + config.download.connector;
+      form.setAttribute('method', 'POST')
+      form.setAttribute('action', formAction)
+
+      var methodHiddenField = document.createElement('input')
+      methodHiddenField.setAttribute('type', 'hidden')
+      methodHiddenField.setAttribute('name', 'method')
+      methodHiddenField.setAttribute('value', downloadMethod.id)
+
+      form.appendChild(methodHiddenField)
+
+      //Move the submit function to another variable
+      //so that it doesn't get overwritten.
+      form._submit_function_ = form.submit
+
+      $.each(
+        $dt
+          .rows({
+            selected: true
+          })
+          .data(),
+        function (key, itemData) {
+          var hiddenField = document.createElement('input')
+          hiddenField.setAttribute('type', 'hidden')
+          hiddenField.setAttribute('name', 'uri')
+          hiddenField.setAttribute(
+            'value',
+            config.download.vos_prefix + itemData[9]
+          )
+
+          form.appendChild(hiddenField)
+        }
+      )
+
+      document.body.appendChild(form)
+
+      form._submit_function_()
+    }
   })
 
   // Display an 'edit' link for editable files

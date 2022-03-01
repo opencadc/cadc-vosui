@@ -6,6 +6,7 @@
         "itemConnector": "item",
         "linkConnector": "link",
         "pageConnector": "page",
+        "packageConnector": "pkg",
         "culture": "en",
         "lang": "php",
         "theme": "canfar",
