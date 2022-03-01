@@ -2532,7 +2532,7 @@ function fileManager(
     if ($thisLink.attr('class') === 'download-zip-file') {
       var postData = {}
       postData.responseformat = 'application/zip'
-      var targetStr = ""
+      var targetList = new Array();
 
       $.each(
         $dt
@@ -2541,11 +2541,11 @@ function fileManager(
           })
           .data(),
         function (key, itemData) {
-          targetStr += itemData[10] + ","
+          targetList.push(itemData[10])
         }
       )
-      targetStr = targetStr.substr(0, targetStr.length -1 )
-      postData.target = targetStr
+
+      postData.targets = targetList
 
       $.ajax({
         method: 'POST',

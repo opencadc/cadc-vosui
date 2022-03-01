@@ -71,6 +71,7 @@ package ca.nrc.cadc.beacon.web.resources;
 import ca.nrc.cadc.beacon.web.restlet.JSONRepresentation;
 
 import ca.nrc.cadc.reg.Standards;
+import ca.nrc.cadc.util.StringUtil;
 import ca.nrc.cadc.vos.client.ClientTransfer;
 import ca.nrc.cadc.vos.client.VOSpaceClient;
 
@@ -81,14 +82,15 @@ import ca.nrc.cadc.vos.VOS;
 import ca.nrc.cadc.vos.View;
 
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -110,6 +112,7 @@ public class PackageServerResource extends StorageItemServerResource {
 
     @Get("json")
     public Representation notSupported() throws Exception {
+        getResponse().setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
         return new JSONRepresentation() {
             @Override
             public void write(final JSONWriter jsonWriter)
@@ -137,7 +140,8 @@ public class PackageServerResource extends StorageItemServerResource {
             responseFormat = "application/zip";
         }
 
-        if (!keySet.contains("target")) {
+        if (!keySet.contains("targets")) {
+            getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return new JSONRepresentation() {
                 @Override
                 public void write(final JSONWriter jsonWriter)
@@ -148,14 +152,10 @@ public class PackageServerResource extends StorageItemServerResource {
                 }
             };
         } else {
-            final String targetStr = (String) jsonObject.get("target");
-            final String[] targets = targetStr.split(",");
-
             // build target list to add to transfer
-            for (final String target : targets) {
-                // URIs are being passed in from the UI
-                URI targetURI = new URI(target);
-                log.debug("adding URI to transfer target list: " + targetURI.toString());
+            JSONArray targets = jsonObject.getJSONArray("targets");
+            for (int i = 0; i < targets.length(); i++) {
+                URI targetURI = new URI(targets.getString(i));
                 targetList.add(targetURI);
             }
 
@@ -164,11 +164,10 @@ public class PackageServerResource extends StorageItemServerResource {
             transfer.getTargets().addAll(targetList);
 
             List<Protocol> protocols = new ArrayList<Protocol>();
-            protocols.add(new Protocol(VOS.PROTOCOL_HTTP_GET));
             protocols.add(new Protocol(VOS.PROTOCOL_HTTPS_GET));
             transfer.getProtocols().addAll(protocols);
 
-            // Add package view for tar file
+            // Add package view to request using responseFormat provided
             View packageView = new View(new URI(Standards.PKG_10.toString()));
             packageView.getParameters().add(new View.Parameter(new URI(VOS.PROPERTY_URI_FORMAT), responseFormat));
             transfer.setView(packageView);
@@ -176,27 +175,30 @@ public class PackageServerResource extends StorageItemServerResource {
             transfer.version = VOS.VOSPACE_21;
 
             final ClientTransfer ct = voSpaceClient.createTransfer(transfer);
-            URL packageURL = new URL(ct.getTransfer().getProtocols().get(0).getEndpoint());
+            // There should be one protocol in the transfer, with an endpoint
+            // like '/vault/pkg/{jobid}/run'.
+            String packageEndpoint = ct.getTransfer().getProtocols().get(0).getEndpoint();
 
-            String endpoint = packageURL.toString();
-            if (endpoint != "") {
+            if (StringUtil.hasLength(packageEndpoint)) {
+                getResponse().setStatus(Status.SUCCESS_OK);
                 return new JSONRepresentation() {
                     @Override
                     public void write(final JSONWriter jsonWriter)
                         throws JSONException {
                         jsonWriter.object()
-                            .key("endpoint").value(endpoint)
+                            .key("endpoint").value(packageEndpoint)
                             .key("msg").value("successfully generated package file.")
                             .endObject();
                     }
                 };
             } else {
+                getResponse().setStatus(Status.SUCCESS_NO_CONTENT);
                 return new JSONRepresentation() {
                     @Override
                     public void write(final JSONWriter jsonWriter)
                         throws JSONException {
                         jsonWriter.object()
-                            .key("msg").value("no package generated.")
+                            .key("errMsg").value("package endpoint not generated.")
                             .endObject();
                     }
                 };
