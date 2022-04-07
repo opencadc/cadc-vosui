@@ -235,6 +235,9 @@ public class StorageApplication extends Application {
             NodeServerResource.class);
         final TemplateRoute svcRawRoute = router.attach(contextPath + "{svc}/raw/{path}",
             MainPageServerResource.class);
+        final TemplateRoute pkgRawRoute = router.attach(contextPath + "{svc}/pkg",
+            PackageServerResource.class);
+
 
         // Set route variables to all the templates
         svcItemRoute.getTemplate().getVariables().putAll(routeVariables);
@@ -248,6 +251,7 @@ public class StorageApplication extends Application {
         svcListRouteNoPath2.getTemplate().getVariables().putAll(routeVariables);
         svcRawRoute.getTemplate().getVariables().putAll(routeVariables);
         svcNodeRoute.getTemplate().getVariables().putAll(routeVariables);
+        pkgRawRoute.getTemplate().getVariables().putAll(routeVariables);
 
         router.setContext(getContext());
         return router;
