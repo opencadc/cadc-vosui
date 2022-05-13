@@ -21,7 +21,7 @@ def git_url = 'https://github.com/opencadc/cadc-vosui.git'
 
 sourceCompatibility = '1.8'
 group = 'org.opencadc'
-version = '1.2.11'
+version = '1.2.12'
 
 dependencies {
     implementation 'com.opencsv:opencsv:[5.6,6.0)'
