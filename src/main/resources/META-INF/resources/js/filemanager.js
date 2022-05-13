@@ -2531,65 +2531,61 @@ function fileManager(
 
     if ($thisLink.attr('class') === 'download-zip-file') {
 
-      // CADC-10355: zip download only available for vault.
-      // if the element is disabled, do not attempt to post request.
-      if ($thisLink.attr('disabled') !== 'disabled') {
-        var postData = {}
-        postData.responseformat = 'application/zip'
-        var targetList = new Array();
+      var postData = {}
+      postData.responseformat = 'application/zip'
+      var targetList = new Array();
 
-        $.each(
-          $dt
-            .rows({
-              selected: true
-            })
-            .data(),
-          function (key, itemData) {
-            targetList.push(itemData[10])
+      $.each(
+        $dt
+          .rows({
+            selected: true
+          })
+          .data(),
+        function (key, itemData) {
+          targetList.push(itemData[10])
+        }
+      )
+
+      postData.targets = targetList
+
+      $.ajax({
+        method: 'POST',
+        url:
+          contextPath +
+          vospaceServicePath +
+          config.options.packageConnector,
+        data: JSON.stringify(postData),
+        contentType: 'application/json',
+        success: function (data, textStatus, jqXHR) {
+          var infoMsg = data.msg;
+
+          var $anchor = $('<a/>')
+            .attr('href', data.endpoint)
+            .attr('display', 'none')
+
+          // Append to the document body temporarily
+          // so package url can be clicked and the package
+          // file download handled by the browser
+          $('#main_section').append($anchor)
+          // Must trigger the native click event manually - jquery
+          // blocks this for links.
+          $anchor.get(0).click()
+          $anchor.remove()
+
+          // timeout is in ms
+          $.prompt(lg.package_generate, {'timeout': 3500 })
+
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          var errMsg = ''
+
+          switch (jqXHR.status) {
+            default:
+              errMsg = getErrorMsg(jqXHR, errorThrown)
           }
-        )
-
-        postData.targets = targetList
-
-        $.ajax({
-          method: 'POST',
-          url:
-            contextPath +
-            vospaceServicePath +
-            config.options.packageConnector,
-          data: JSON.stringify(postData),
-          contentType: 'application/json',
-          success: function (data, textStatus, jqXHR) {
-            var infoMsg = data.msg;
-
-            var $anchor = $('<a/>')
-              .attr('href', data.endpoint)
-              .attr('display', 'none')
-
-            // Append to the document body temporarily
-            // so package url can be clicked and the package
-            // file download handled by the browser
-            $('#main_section').append($anchor)
-            // Must trigger the native click event manually - jquery
-            // blocks this for links.
-            $anchor.get(0).click()
-            $anchor.remove()
-
-            // timeout is in ms
-            $.prompt(lg.package_generate, {'timeout': 3500 })
-
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            var errMsg = ''
-
-            switch (jqXHR.status) {
-              default:
-                errMsg = getErrorMsg(jqXHR, errorThrown)
-            }
-            $.prompt(errMsg)
-          }
-        })
-      }
+          $.prompt(errMsg)
+        }
+      })
 
     } else {
       var downloadMethod = config.download.methods[$thisLink.attr('class')]
